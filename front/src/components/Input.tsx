@@ -1,20 +1,18 @@
-import { useState } from "react";
-
+import React from 'react';
 interface Props {
-    label: string;
-    value: string;
-    onChange: React.ChangeEventHandler<HTMLInputElement>;
-};
-
-function Input({onChange, value, label}: Props){
-   
-    console.log('RENDER INPUT')
-    return (
-        <div>
-            <p>{label}</p>
-            <input value={value} onChange={onChange}></input>
-        </div>
-    );
+  name: string;
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  label?: string;
 }
+
+const Input: React.FC<Props> = ({ onChange, value, label, name }) => {
+  return (
+    <div>
+      <p>{label}</p>
+      <input name={name} value={value} onChange={onChange}></input>
+    </div>
+  );
+};
 
 export default Input;

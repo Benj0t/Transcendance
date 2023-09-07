@@ -1,0 +1,4 @@
+*.css
+*.svg
+src/**/*.stories.ts
+src/**/*.stories.tsx

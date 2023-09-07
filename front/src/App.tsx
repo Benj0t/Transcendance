@@ -1,15 +1,19 @@
 import React from 'react';
 import Homepage from './pages/HomePage';
-import './App.css';
+import LoginPage from './pages/LoginPage';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-/**
- * 1 - COMPOSANT
- * 2 - PROPS
- * 3 - STATE
- */
-
-function App() {
-  return (<Homepage/>);
-}
+const App: React.FC = () => {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<Homepage />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
+};
 
 export default App;
