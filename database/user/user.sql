@@ -5,9 +5,9 @@ create table "user"
 (
     "id" serial primary key,
     "nickname" varchar(50) unique not null,
-    "email" varchar(50),
     "avatar_url" varchar(255) default 'default_avatar.png',
     "two_factor_auth" boolean default false,
+	"user_42_id" integer unique
 );
 
 create or replace view "v_user" as select * from "user";
@@ -22,24 +22,12 @@ create table "user_has_friend" (
 
 create or replace view "v_user_has_friend" as select * from "user_has_friend";
 
--- Represent a match.
-
-create table "match" (
-    "id" serial primary key,
-    "user_id" integer references "user"(id),
-    "opponent_id" integer references "user"(id),
-    "winner_id" integer references "user"(id),
-    "created_at" timestamp default current_timestamp
-);
-
-create or replace view "v_match" as select * from "match";
-
 -- Represent user's achievements.
 create table "user_has_achievement" (
     "id" serial primary key,
     "user_id" integer references "user"(id),
     "achievement_id" integer references "achievement"(id),
-    timestamp timestamp default current_timestamp
+    "timestamp" timestamp default current_timestamp
 );
 
 create or replace view "v_user_has_achievement" as select * from "user_has_achievement";
@@ -125,5 +113,22 @@ create or replace function "get_user_achievements"(user_id integer)
 returns setof "v_user_has_achievement" as $$
 begin
     return query select * from "v_user_has_achievement" where user_id = user_id;
+end;
+$$ language plpgsql;
+
+-- Upsert an user
+
+create or replace function upsert_user(p_user_42_id integer, p_nickname varchar(50))
+returns setof user as $$
+declare
+    v_user_id integer;
+begin
+    insert into "user" ("user_42_id", "nickname") 
+    values (p_user_42_id, p_nickname)
+    on conflict ("user_42_id") do update
+    set "nickname" = excluded.nickname
+    returning id into v_user_id;
+
+    return query select * from "user" where id = v_user_id;
 end;
 $$ language plpgsql;

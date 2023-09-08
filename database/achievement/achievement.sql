@@ -18,3 +18,13 @@ values
 		('Unstoppable', 'Win 10 matches in a row.', 'unstoppable_icon.png'),
 		('Sharpshooter', 'Score with 5 difficult corner shots.', 'sharpshooter_icon.png'),
 		('The Comeback Kid', 'Win a match after being 3 points behind.', 'comeback_kid_icon.png');
+
+-- Add achievement for the specified user.
+
+create or replace function "add_achievement_to_user"(p_user_id integer, p_achievement_id integer)
+returns void as $$
+begin
+    insert into "user_has_achievement" ("user_id", "achievement_id")
+    values (p_user_id, p_achievement_id);
+end;
+$$ language plpgsql;
