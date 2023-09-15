@@ -1,41 +1,43 @@
-import React, { useState } from 'react';
-import Button from '../components/Button';
-import Input from '../components/Input';
+import React from 'react';
 import isUserAuth from '../components/htmlRoutes';
 import { useNavigate } from 'react-router';
+import { Box, Button, Grid } from '@mui/material';
+import ProfileButton from '../components/profileButton';
 
 const Homepage: React.FC = () => {
   /**
    * States
    */
-  const [count, setCount] = useState<number>(0);
-  const [value, setValue] = useState<string>('');
   const navigate = useNavigate();
+  if (!isUserAuth()) navigate('/auth');
   /**
    * Handlers
    */
-
-  if (!isUserAuth()) navigate('/login');
-  const augmenterValeur = (): void => {
-    setCount((prevState) => prevState + 1);
+  const onClickGame = (): void => {
+    navigate('/game/waiting-room');
   };
-
-  const reduireValeur = (): void => {
-    setCount((prevState) => prevState - 1);
+  const onClickChat = (): void => {
+    navigate('/chat');
   };
-
-  const onChangePrenom: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValue(e.target.value);
-  };
-
   return (
-    <div>
-      <p>HomePage</p>
-      <p>Ma valeur : {count}</p>
-      <Button label="Augmenter ma valeur" onClick={augmenterValeur} />
-      <Button label="Réduire ma valeur" onClick={reduireValeur} />
-      <Input name="prenom" label="Prénom" value={value} onChange={onChangePrenom} />
-    </div>
+    <Box textAlign="right">
+      <ProfileButton />
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ minHeight: '100vh' }}
+      >
+        <Button size="large" name="Game" variant="contained" onClick={onClickGame}>
+          GAME
+        </Button>
+        <Button size="large" name="Chat" variant="contained" onClick={onClickChat}>
+          CHAT
+        </Button>
+      </Grid>
+    </Box>
   );
 };
 

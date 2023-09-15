@@ -1,5 +1,5 @@
 const isUserAuth = (): boolean => {
-  return false;
+  return true;
 };
 
 export default isUserAuth;
