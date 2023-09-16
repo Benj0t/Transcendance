@@ -1,7 +1,9 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
+import { UserEntity } from './entities/user.entity';
+import { UserService } from './entities/user.service';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -13,7 +15,15 @@ import { Response } from 'express';
 @Controller('api')
 export class ApiController {
 
-  constructor(private readonly http_service: HttpService) { }
+  constructor(
+    private readonly http_service: HttpService,
+    private readonly userService: UserService
+  ) {}
+
+  @Get('user/:id')
+  async getUserById(@Param('id') id: number): Promise<UserEntity> {
+    return await this.userService.findOne(id);
+  }
 
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void>

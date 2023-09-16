@@ -15,9 +15,9 @@ create or replace view "v_user" as select * from "user";
 -- Represent a friendship between two users.
 
 create table "user_has_friend" (
-	"id" serial primary key
+	"id" serial primary key,
     "user_id" integer references "user"(id),
-    "friend_id" integer references "user"(id),
+    "friend_id" integer references "user"(id)
 );
 
 create or replace view "v_user_has_friend" as select * from "user_has_friend";
@@ -116,7 +116,7 @@ begin
 end;
 $$ language plpgsql;
 
--- Upsert an user
+-- Upsert an user (NOT SET)
 
 create or replace function upsert_user(p_user_42_id integer, p_nickname varchar(50))
 returns setof user as $$

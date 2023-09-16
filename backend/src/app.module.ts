@@ -1,12 +1,17 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ApiController } from './api.controller';
-import { HttpModule, HttpService } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/User';
+import { ApiController } from './api.controller';
+import { UserEntity } from './entities/user.entity';
+import { MatchEntity } from './entities/match.entity';
+import { RankEntity } from './entities/rank.entity';
+import { AchievementEntity } from './entities/achievement.entity';
+import { UserModule } from './entities/user.module';
 
 @Module({
   imports: [
     HttpModule,
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -14,11 +19,11 @@ import { User } from './entities/User';
       username: 'app',
       password: 'apppassword',
       database: 'transcendance',
-      entities: [ User ],
+      entities: [ UserEntity, MatchEntity, RankEntity, AchievementEntity ],
       synchronize: false,
     }),
   ],
   controllers: [ApiController],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}
