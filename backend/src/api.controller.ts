@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
+import * as imageToBase64 from 'image-to-base64';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -17,21 +18,65 @@ export class ApiController {
 
   constructor(
     private readonly http_service: HttpService,
-    private readonly userService: UserService
+    private readonly user_service: UserService
   ) { }
 
+  /**
+   * @param id  The user id.
+   * 
+   * @returns   The user or the specified id.
+   * 
+   * @author Komqdo 
+   */
+  
   @Get('user/:id')
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
-    const user = await this.userService.findOne(id);
+    const user = await this.user_service.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found.`);
     }
     return user;
   }
 
+  /**
+   * @param id The user id
+   * 
+   * @returns  The user avatar.
+   * 
+   * @author Komqdo
+   */
+
+  @Get('user/:id/avatar')
+  async getUserAvatar(@Param('id') id: number, @Res() res: Response): Promise<void> {
+    const user = await this.user_service.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+
+    if (!user.avatar_base64) {
+      res.status(404).send('User does not have an avatar.');
+      return ;
+    }
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(Buffer.from(user.avatar_base64, 'base64'));
+  }
+
+  /**
+   * Authentificate an user and exchange the specified code with
+   * an access token, register the user if needed, then returns it and
+   * redirect to http://localhost:3000/.
+   * 
+   * @param code The code gived by 42 api.
+   * 
+   * @returns The connected user.
+   * 
+   * @author Komqdo
+   */
 
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
+    
     /**
      * Client id and secret
      */
@@ -73,12 +118,29 @@ export class ApiController {
        * Get user informations using the Bearer.
        */
 
-      const userResponse: AxiosResponse = await this.http_service
+      const user_response: AxiosResponse = await this.http_service
         .get('https://api.intra.42.fr/v2/me',
           {
             headers: { 'Authorization': `Bearer ${access_token}` }
           }).toPromise();
+        
+      const user_42id = user_response.data.id;
+      const user_42nickname = user_response.data.login;
+      const user_42avatar_url = user_response.data.image.versions.large;
+      const user_42avatar_base64 = await imageToBase64(user_42avatar_url);
 
+      /**
+       * Get the user from the database using upsert.
+       */
+
+      const user = await this.user_service.upsertUser(user_42id, user_42nickname, user_42avatar_base64);
+
+      if (!user) {
+        console.log(new Error('Upsert failed.'));
+        res.status(404).send('Authentication failed.');
+        return ;
+      }
+      
       /**
        * Redirect the user to main page.
        */
@@ -88,7 +150,7 @@ export class ApiController {
     } catch (error) {
 
       console.log(error);
-      res.send('Authentication failed.');
+      res.status(500).send('Authentication failed.');
     }
   }
 }

@@ -129,8 +129,8 @@ declare
 begin
     insert into "user" (nickname, avatar_base64, user_42_id)
     values (p_nickname, p_avatar_base64, p_user_42_id)
-    on conflict (nickname) do nothing;
+    on conflict (user_42_id) do nothing;
     
-    return query select * from "user" where nickname = p_nickname;
+    return query select * from "user" where user_42_id = p_user_42_id;
 end;
 $$ language plpgsql;
