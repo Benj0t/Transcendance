@@ -4,13 +4,17 @@
 create table "user"
 (
     "id" serial primary key,
-    "nickname" varchar(50) unique not null,
-    "avatar_url" varchar(255) default 'default_avatar.png',
+    "nickname" text unique not null,
+    "avatar_base64" text,
     "two_factor_auth" boolean default false,
 	"user_42_id" integer unique
 );
 
 create or replace view "v_user" as select * from "user";
+
+insert into "user" ("nickname", "avatar_url", "two_factor_auth", "user_42_id") values (
+    'gadeneux', '/avatar/gadeneux.png', false, 1856
+);
 
 -- Represent a friendship between two users.
 
@@ -84,7 +88,7 @@ begin
 	select max(id) from "rank" into max_rank;
     
     rank_id := least(ceil(total_xp / 500.0), max_rank);
-
+    
     return rank_id;
 end;
 $$ language plpgsql;
@@ -116,19 +120,17 @@ begin
 end;
 $$ language plpgsql;
 
--- Upsert an user (NOT SET)
+-- Upsert an user
 
-create or replace function upsert_user(p_user_42_id integer, p_nickname varchar(50))
-returns setof user as $$
+create or replace function upsert_user(p_user_42_id integer, p_nickname text, p_avatar_base64 text)
+returns setof "user" as $$
 declare
     v_user_id integer;
 begin
-    insert into "user" ("user_42_id", "nickname") 
-    values (p_user_42_id, p_nickname)
-    on conflict ("user_42_id") do update
-    set "nickname" = excluded.nickname
-    returning id into v_user_id;
-
-    return query select * from "user" where id = v_user_id;
+    insert into "user" (nickname, avatar_base64, user_42_id)
+    values (p_nickname, p_avatar_base64, p_user_42_id)
+    on conflict (nickname) do nothing;
+    
+    return query select * from "user" where nickname = p_nickname;
 end;
 $$ language plpgsql;

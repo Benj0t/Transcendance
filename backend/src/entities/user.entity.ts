@@ -8,12 +8,12 @@ export class UserEntity {
   @Column({ unique: true })
   nickname: string;
 
-  @Column({ default: 'default_avatar.png' })
-  avatar_url: string;
+  @Column()
+  avatar_base64: string;
 
   @Column({ default: false })
   two_factor_auth: boolean;
 
-  @Column({ name: 'user_42_id', unique: true })
-  user42_id: number; 
+  @Column({ unique: true })
+  user_42_id: number; 
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -18,16 +18,20 @@ export class ApiController {
   constructor(
     private readonly http_service: HttpService,
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   @Get('user/:id')
-  async getUserById(@Param('id') id: number): Promise<UserEntity> {
-    return await this.userService.findOne(id);
+  async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
+    const user = await this.userService.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+    return user;
   }
 
+
   @Get('auth/callback')
-  async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void>
-  {
+  async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
     /**
      * Client id and secret
      */
@@ -54,10 +58,10 @@ export class ApiController {
        * Sends a POST request on /oauth/token
        * with the payload.
        */
-      
+
       const token_response: AxiosResponse = await this.http_service
-              .post('https://api.intra.42.fr/oauth/token', payload)
-              .toPromise();
+        .post('https://api.intra.42.fr/oauth/token', payload)
+        .toPromise();
 
       /**
        * Then get the exchanged access token from the response.
@@ -70,10 +74,10 @@ export class ApiController {
        */
 
       const userResponse: AxiosResponse = await this.http_service
-              .get('https://api.intra.42.fr/v2/me',
-              {
-                  headers: { 'Authorization': `Bearer ${access_token}` }
-              }).toPromise();
+        .get('https://api.intra.42.fr/v2/me',
+          {
+            headers: { 'Authorization': `Bearer ${access_token}` }
+          }).toPromise();
 
       /**
        * Redirect the user to main page.
@@ -82,7 +86,7 @@ export class ApiController {
       res.redirect('http://localhost:3000/');
 
     } catch (error) {
-      
+
       console.log(error);
       res.send('Authentication failed.');
     }
