@@ -1,15 +1,13 @@
 import React from 'react';
-import isUserAuth from '../components/htmlRoutes';
 import { useNavigate } from 'react-router';
-import { Box, Button, Grid } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 
-const Homepage: React.FC = () => {
+const HomePage: React.FC = () => {
   /**
    * States
    */
   const navigate = useNavigate();
-  if (!isUserAuth()) navigate('/auth');
   /**
    * Handlers
    */
@@ -24,21 +22,33 @@ const Homepage: React.FC = () => {
       <ProfileButton />
       <Grid
         container
-        spacing={0}
-        direction="column"
+        direction="row"
+        padding="10px 300px"
         alignItems="center"
-        justifyContent="center"
-        sx={{ minHeight: '100vh' }}
+        spacing={0}
+        justifyContent="space-between"
+        sx={{ minHeight: '90vh' }}
       >
-        <Button size="large" name="Game" variant="contained" onClick={onClickGame}>
-          GAME
+        <Button
+          name="Game"
+          variant="contained"
+          onClick={onClickGame}
+          style={{ width: 500, height: 300 }}
+        >
+          <Typography variant="h1">GAME</Typography>
         </Button>
-        <Button size="large" name="Chat" variant="contained" onClick={onClickChat}>
-          CHAT
+        <Button
+          color="primary"
+          name="Chat"
+          variant="contained"
+          onClick={onClickChat}
+          style={{ width: 500, height: 300 }}
+        >
+          <Typography variant="h1">CHAT</Typography>
         </Button>
       </Grid>
     </Box>
   );
 };
 
-export default Homepage;
+export default HomePage;

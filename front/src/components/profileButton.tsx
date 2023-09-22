@@ -1,7 +1,11 @@
-import { Logout, PersonAdd, Settings } from '@mui/icons-material';
+import { Logout, Settings } from '@mui/icons-material';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PeopleIcon from '@mui/icons-material/People';
 import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router';
+import { delete_cookie } from 'sfcookies';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const ProfileButton: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -13,8 +17,8 @@ const ProfileButton: React.FC = () => {
   const handleClose = (): void => {
     setAnchorEl(null);
   };
-  const onClickProfile = (): void => {
-    navigate('/profile');
+  const onClickFriends = (): void => {
+    navigate('/friends');
   };
   const onClickHistory = (): void => {
     navigate('/history');
@@ -22,12 +26,19 @@ const ProfileButton: React.FC = () => {
   const onClickStats = (): void => {
     navigate('/statistics');
   };
+  const onClickSettings = (): void => {
+    navigate('/settings');
+  };
+  const onClickDisconnect = (): void => {
+    delete_cookie('userIsAuth');
+    navigate('/auth');
+  };
   return (
     <div>
       <Tooltip title="Account settings">
         <IconButton
           onClick={handleClick}
-          size="small"
+          size="large"
           sx={{ ml: 2 }}
           aria-controls={open ? 'account-menu' : undefined}
           aria-haspopup="true"
@@ -71,26 +82,32 @@ const ProfileButton: React.FC = () => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={onClickProfile}>
-          <Avatar /> Profile
+        <MenuItem onClick={onClickFriends}>
+          <ListItemIcon>
+            <PeopleIcon fontSize="small" />
+          </ListItemIcon>
+          Amis
         </MenuItem>
         <MenuItem onClick={onClickHistory}>
-          <Avatar /> History
+          <ListItemIcon>
+            <CalendarMonthIcon fontSize="small" />
+          </ListItemIcon>
+          Historique
         </MenuItem>
-        <Divider />
         <MenuItem onClick={onClickStats}>
           <ListItemIcon>
-            <PersonAdd fontSize="small" />
+            <BarChartIcon fontSize="small" />
           </ListItemIcon>
-          Add another account
+          Statistiques
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <Divider />
+        <MenuItem onClick={onClickSettings}>
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
-          Settings
+          Paramètres
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={onClickDisconnect}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
