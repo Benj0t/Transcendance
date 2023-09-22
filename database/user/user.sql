@@ -122,7 +122,7 @@ $$ language plpgsql;
 
 -- Upsert an user
 
-create or replace function upsert_user(p_user_42_id integer, p_nickname text, p_avatar_base64 text)
+create or replace function "upsert_user"(p_user_42_id integer, p_nickname text, p_avatar_base64 text)
 returns setof "user" as $$
 declare
     v_user_id integer;

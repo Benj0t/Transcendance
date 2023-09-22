@@ -76,7 +76,7 @@ export class ApiController {
 
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
-    
+
     /**
      * Client id and secret
      */
@@ -124,16 +124,16 @@ export class ApiController {
             headers: { 'Authorization': `Bearer ${access_token}` }
           }).toPromise();
         
-      const user_42id = user_response.data.id;
-      const user_42nickname = user_response.data.login;
-      const user_42avatar_url = user_response.data.image.versions.large;
-      const user_42avatar_base64 = await imageToBase64(user_42avatar_url);
+      const user_42_id = user_response.data.id;
+      const user_42_nickname = user_response.data.login;
+      const user_42_avatar_url = user_response.data.image.versions.large;
+      const user_42_avatar_base64 = await imageToBase64(user_42_avatar_url);
 
       /**
        * Get the user from the database using upsert.
        */
 
-      const user = await this.user_service.upsertUser(user_42id, user_42nickname, user_42avatar_base64);
+      const user = await this.user_service.upsertUser(user_42_id, user_42_nickname, user_42_avatar_base64);
 
       if (!user) {
         console.log(new Error('Upsert failed.'));
