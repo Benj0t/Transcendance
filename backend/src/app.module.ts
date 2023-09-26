@@ -7,6 +7,10 @@ import { MatchEntity } from './entities/match.entity';
 import { RankEntity } from './entities/rank.entity';
 import { AchievementEntity } from './entities/achievement.entity';
 import { UserModule } from './entities/user.module';
+import { PassportModule } from '@nestjs/passport';
+import { AuthService } from './auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './jwt.config';
 
 @Module({
   imports: [
@@ -22,8 +26,14 @@ import { UserModule } from './entities/user.module';
       entities: [ UserEntity ],
       synchronize: true,
     }),
+    PassportModule.register({}),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: jwtConstants.expiresIn }
+    })
   ],
   controllers: [ApiController],
-  providers: [],
+  providers: [AuthService],
+  exports: [AuthService]
 })
 export class AppModule {}

@@ -1,10 +1,12 @@
-import { Controller, Get, Query, Res, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -18,7 +20,8 @@ export class ApiController {
 
   constructor(
     private readonly http_service: HttpService,
-    private readonly user_service: UserService
+    private readonly user_service: UserService,
+    private readonly auth_service: AuthService
   ) { }
 
   /**
@@ -28,8 +31,9 @@ export class ApiController {
    * 
    * @author Komqdo 
    */
-  
+
   @Get('user/:id')
+  @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
     const user = await this.user_service.findOne(id);
     if (!user) {
@@ -47,6 +51,7 @@ export class ApiController {
    */
 
   @Get('user/:id/avatar')
+  @UseGuards(JwtAuthGuard)
   async getUserAvatar(@Param('id') id: number, @Res() res: Response): Promise<void> {
     const user = await this.user_service.findOne(id);
     if (!user) {
@@ -54,8 +59,8 @@ export class ApiController {
     }
 
     if (!user.avatar_base64) {
-      res.status(404).send('User does not have an avatar.');
-      return ;
+      res.status(HttpStatus.NOT_FOUND).send('User does not have an avatar.');
+      return;
     }
 
     res.setHeader('Content-Type', 'image/png');
@@ -123,7 +128,7 @@ export class ApiController {
           {
             headers: { 'Authorization': `Bearer ${access_token}` }
           }).toPromise();
-        
+
       const user_42_id = user_response.data.id;
       const user_42_nickname = user_response.data.login;
       const user_42_avatar_url = user_response.data.image.versions.large;
@@ -137,20 +142,24 @@ export class ApiController {
 
       if (!user) {
         console.log(new Error('Upsert failed.'));
-        res.status(404).send('Authentication failed.');
-        return ;
+        res.status(HttpStatus.NOT_FOUND).send('Authentication failed.');
+        return;
       }
-      
+
       /**
        * Redirect the user to main page.
        */
 
       res.redirect('http://localhost:3000/');
 
+      const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
+
+      res.status(HttpStatus.OK).json({ access_token: token });
+
     } catch (error) {
 
       console.log(error);
-      res.status(500).send('Authentication failed.');
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
     }
   }
 }
