@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
    * Handlers
    */
   const onClickGame = (): void => {
-    navigate('/game/waiting-room');
+    navigate('/waiting-room');
   };
   const onClickChat = (): void => {
     navigate('/chat');
