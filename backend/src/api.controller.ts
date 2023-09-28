@@ -149,15 +149,9 @@ export class ApiController {
       /**
        * Redirect the user to main page.
        */
-
-      res.redirect('http://localhost:3000/');
-
-      const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
-
-      res.status(HttpStatus.OK).json({ access_token: token });
-
+      const token = await this.auth_service.createToken({username: user.nickname, sub: user.id});
+      res.redirect(`http://localhost:3000/auth/callback?jwt=${token}`);
     } catch (error) {
-
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
     }
