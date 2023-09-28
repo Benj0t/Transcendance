@@ -9,6 +9,8 @@ import Profile from './pages/Profile';
 import { read_cookie } from 'sfcookies';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import Friends from './pages/Friends';
+import NoMatch from './pages/NoMatch';
+import AuthCallback from './pages/AuthCallback';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('userIsAuth');
@@ -78,6 +80,8 @@ const App: React.FC = () => {
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/friends" element={<Friends />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="*" element={<NoMatch />} />
             </Routes>
           </BrowserRouter>
         </div>
