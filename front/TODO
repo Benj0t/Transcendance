@@ -1,3 +1,8 @@
 Changer lib cookies -> js-cookies
+Remplacer fake cookie -> JWT
+
 
 Refaire le bouton de la LoginPage
+
+
+Gauthier: Rename la var access_token

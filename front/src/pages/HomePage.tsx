@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 
 const HomePage: React.FC = () => {
@@ -11,42 +11,41 @@ const HomePage: React.FC = () => {
   /**
    * Handlers
    */
-  const onClickGame = (): void => {
+  const handleGame = (): void => {
     navigate('/waiting-room');
   };
-  const onClickChat = (): void => {
+  const handleChat = (): void => {
     navigate('/chat');
   };
   return (
-    <Box textAlign="right">
+    <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
       <ProfileButton />
-      <Grid
-        container
-        direction="row"
-        padding="10px 300px"
+      <Box
+        display="flex"
+        justifyContent="center"
         alignItems="center"
-        spacing={0}
-        justifyContent="space-between"
-        sx={{ minHeight: '90vh' }}
+        sx={{ marginTop: '10%', height: '50%', width: '100%' }}
       >
-        <Button
-          name="Game"
-          variant="contained"
-          onClick={onClickGame}
-          style={{ width: 500, height: 300 }}
-        >
-          <Typography variant="h1">GAME</Typography>
-        </Button>
-        <Button
-          color="primary"
-          name="Chat"
-          variant="contained"
-          onClick={onClickChat}
-          style={{ width: 500, height: 300 }}
-        >
-          <Typography variant="h1">CHAT</Typography>
-        </Button>
-      </Grid>
+        <Box>
+          <Button
+            name="Game"
+            variant="contained"
+            onClick={handleGame}
+            style={{ width: '48%', height: '30%', marginRight: '5%' }}
+          >
+            <Typography fontSize="8vw">GAME</Typography>
+          </Button>
+          <Button
+            color="primary"
+            name="Chat"
+            variant="contained"
+            onClick={handleChat}
+            style={{ width: '47%', height: '30%' }}
+          >
+            <Typography fontSize="8vw">CHAT</Typography>
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 };

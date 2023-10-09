@@ -4,54 +4,31 @@ import { DataGrid } from '@mui/x-data-grid';
 
 interface Row {
   id: number;
-  firstName: string;
-  lastName: string;
-}
-
-function getFullName(params: { row: Row }): string {
-  const firstName = params.row.firstName === undefined ? '' : params.row.firstName;
-  const lastName = params.row.lastName === undefined ? '' : params.row.lastName;
-  return `${firstName} ${lastName}`;
+  avatar: string;
+  name: string;
+  status: string;
 }
 
 const columns = [
-  { field: 'firstName', headerName: 'First name', width: 100 },
-  { field: 'lastName', headerName: 'Last name', width: 100 },
-  {
-    field: 'fullName',
-    headerName: 'Full name',
-    width: 150,
-    valueGetter: getFullName,
-  },
+  { field: 'avatar', headerName: 'Avatar', width: 400 },
+  { field: 'name', headerName: 'Username', width: 400 },
+  { field: 'status', headerName: 'Status', width: 400 },
 ];
 
 const rows: Row[] = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon' },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei' },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime' },
-  { id: 4, lastName: 'Stark', firstName: 'Arya' },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 6, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 7, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 8, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 9, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 10, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 11, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 12, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 13, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 14, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 15, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 16, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 17, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 18, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 19, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 20, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 21, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 22, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 23, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 24, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 25, lastName: 'Targaryen', firstName: 'Daenerys' },
-  { id: 26, lastName: 'Targaryen', firstName: 'Daenerys' },
+  { id: 1, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 2, avatar: 'M', name: 'Michel', status: '🟥' },
+  { id: 3, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 4, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 5, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 6, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 7, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 8, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 9, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 10, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 11, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 12, avatar: 'J', name: 'John', status: '🟩' },
+  { id: 13, avatar: 'J', name: 'John', status: '🟩' },
 ];
 
 const FriendList: React.FC = () => {
@@ -63,7 +40,7 @@ const FriendList: React.FC = () => {
       sx={{ height: '100%', width: '100%' }}
     >
       <Box width="80%" height="70%">
-        <h1 style={{ textAlign: 'center' }}>AMIS</h1>
+        <h1 style={{ color: 'grey', textAlign: 'center' }}>AMIS</h1>
         <DataGrid density="comfortable" rows={rows} columns={columns} autoPageSize />
       </Box>
     </Box>
