@@ -6,12 +6,12 @@ import WaitingRoom from './pages/WaitingRoom';
 import Chat from './pages/Chat';
 import History from './pages/History';
 import Game from './pages/Game';
-import Profile from './pages/Profile';
 import { read_cookie } from 'sfcookies';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
+import SettingsPage from './pages/SettingsPage';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('userIsAuth');
@@ -101,14 +101,6 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/profile"
-                element={
-                  <PrivateRoute>
-                    <Profile />
-                  </PrivateRoute>
-                }
-              />
-              <Route
                 path="/friends"
                 element={
                   <PrivateRoute>
@@ -125,11 +117,19 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/auth/callback"
+                path="/settings"
                 element={
                   <PrivateRoute>
-                    <AuthCallback />
+                    <SettingsPage />
                   </PrivateRoute>
+                }
+              />
+              <Route
+                path="/auth/callback"
+                element={
+                  <PublicRoute>
+                    <AuthCallback />
+                  </PublicRoute>
                 }
               />
               <Route path="*" element={<NoMatch />} />

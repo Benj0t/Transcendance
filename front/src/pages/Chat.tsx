@@ -67,13 +67,6 @@ const Chat: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   return (
     <Box
       textAlign="right"
@@ -82,7 +75,7 @@ const Chat: React.FC = () => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center', // Centrer horizontalement
+        alignItems: 'center',
       }}
     >
       <Box alignSelf="flex-end">
@@ -92,17 +85,15 @@ const Chat: React.FC = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        flexGrow={1}
-        maxHeight="70vh"
+        maxHeight="70%"
         width="50%"
-        margin="0 auto" // Ajout de cette ligne pour centrer le chat horizontalement
+        margin="0"
       >
         <Box width="100%" maxHeight="70%">
           <ChatWindow messages={history} onSendMessage={handleSendMessage} />
           <ChatInput
             message={message}
             setMessage={setMessage}
-            handleKeyDown={handleKeyDown}
             handleSendMessage={handleSendMessage}
           />
         </Box>
