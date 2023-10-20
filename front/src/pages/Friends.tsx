@@ -39,7 +39,7 @@ const FriendList: React.FC = () => {
       alignItems="center"
       sx={{ height: '100%', width: '100%' }}
     >
-      <Box width="80%" height="70%">
+      <Box width="75%" height="70%">
         <h1 style={{ color: 'grey', textAlign: 'center' }}>AMIS</h1>
         <DataGrid density="comfortable" rows={rows} columns={columns} autoPageSize />
       </Box>
