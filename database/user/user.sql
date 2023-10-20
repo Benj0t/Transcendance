@@ -7,7 +7,8 @@ create table "user"
     "nickname" text unique not null,
     "avatar_base64" text,
     "two_factor_auth" boolean default false,
-	"user_42_id" integer unique
+	"user_42_id" integer unique,
+    "color_hex" text default "fffff";
 );
 
 create or replace view "v_user" as select * from "user";
@@ -27,6 +28,7 @@ create table "user_has_friend" (
 create or replace view "v_user_has_friend" as select * from "user_has_friend";
 
 -- Represent user's achievements.
+
 create table "user_has_achievement" (
     "id" serial primary key,
     "user_id" integer references "user"(id),
@@ -35,6 +37,24 @@ create table "user_has_achievement" (
 );
 
 create or replace view "v_user_has_achievement" as select * from "user_has_achievement";
+
+-- Represent users who are blocked by other users.
+
+create table "user_has_blocked_user" (
+    "id" serial primary key,
+    "user_id" integer references "user"(id),
+    "blocked_user_id" integer references "user"(id)
+);
+
+create or replace view "v_user_has_blocked_user" as select * from "user_has_blocked_user";
+
+-- Function to get blocked users for the specified user.
+create or replace function "get_user_blocked_users"(user_id integer)
+returns setof "v_user_has_blocked_user" as $$
+begin
+    return query select * from "v_user_has_blocked_user" where user_id = user_id;
+end;
+$$ language plpgsql;
 
 -- Returns the number of victories for the specified user.
 
