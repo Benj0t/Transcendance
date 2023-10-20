@@ -7,6 +7,9 @@ import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { MatchEntity } from './entities/match.entity';
+import { UserHasFriendEntity } from './entities/user_has_friend.entity';
+import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entity';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -57,14 +60,65 @@ export class ApiController {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found.`);
     }
-
     if (!user.avatar_base64) {
       res.status(HttpStatus.NOT_FOUND).send('User does not have an avatar.');
       return;
     }
-
     res.setHeader('Content-Type', 'image/png');
     res.send(Buffer.from(user.avatar_base64, 'base64'));
+  }
+
+  @Get('user/:id/friends')
+  async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
+    try {
+
+      const friends = await this.user_service.getFriends(id);
+  
+      return friends;
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+  }
+
+  @Get('user/:id/matches')
+  async getUserMatches(@Param('id') id: number): Promise<MatchEntity[]> {
+    
+    try {
+      
+      const matches = await this.user_service.getMatches(id);
+      
+      return matches;
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+  }
+
+  // @Get('user/:id/chat/:channel_id/messages')
+  // async getChannelMessages(
+  //   @Param('id') id: number,
+  //   @Param('channel_id') channel_id: number
+  // ): Promise<ChannelMessageEntity[]> {
+  //   try {
+  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
+  //     return channelMessages;
+  //   } catch (error) {
+  //     throw new NotFoundException(`User with id ${id} not found.`);
+  //   }
+  // }
+
+  @Get('user/:id/blockeds')
+  async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
+    try {
+
+      const blockedUsers = await this.user_service.getBlockeds(id);
+
+      return blockedUsers;
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
   }
 
   /**

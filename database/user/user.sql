@@ -48,14 +48,6 @@ create table "user_has_blocked_user" (
 
 create or replace view "v_user_has_blocked_user" as select * from "user_has_blocked_user";
 
--- Function to get blocked users for the specified user.
-create or replace function "get_user_blocked_users"(user_id integer)
-returns setof "v_user_has_blocked_user" as $$
-begin
-    return query select * from "v_user_has_blocked_user" where user_id = user_id;
-end;
-$$ language plpgsql;
-
 -- Returns the number of victories for the specified user.
 
 create or replace function "get_user_victories"(user_id integer)
@@ -137,6 +129,15 @@ create or replace function "get_user_achievements"(user_id integer)
 returns setof "v_user_has_achievement" as $$
 begin
     return query select * from "v_user_has_achievement" where user_id = user_id;
+end;
+$$ language plpgsql;
+
+-- Get the blocked users for the specified user.
+
+create or replace function "get_user_blocked_users"(user_id integer)
+returns setof "v_user_has_blocked_user" as $$
+begin
+    return query select * from "v_user_has_blocked_user" where user_id = user_id;
 end;
 $$ language plpgsql;
 

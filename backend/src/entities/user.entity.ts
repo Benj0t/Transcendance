@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { UserHasFriendEntity } from './user_has_friend.entity';
+import { UserHasBlockedUserEntity } from './user_has_blocked_user.entity';
 
 @Entity({ name: 'user' }) 
 export class UserEntity {
@@ -15,5 +17,14 @@ export class UserEntity {
   two_factor_auth: boolean;
 
   @Column({ unique: true })
-  user_42_id: number; 
+  user_42_id: number;
+
+  @OneToMany(() => UserHasFriendEntity, (userHasFriend) => userHasFriend.user)
+  friends: UserHasFriendEntity[];
+
+  @OneToMany(() => UserHasBlockedUserEntity, (userHasBlockedUser) => userHasBlockedUser.user)
+  blockedUsers: UserHasBlockedUserEntity[];
+
+  @OneToMany(() => UserHasBlockedUserEntity, (userHasBlockedUser) => userHasBlockedUser.blockedUser)
+  blockedBy: UserHasBlockedUserEntity[];
 }
