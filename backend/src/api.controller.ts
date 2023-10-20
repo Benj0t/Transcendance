@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Post, Body } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -209,5 +209,40 @@ export class ApiController {
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
     }
+  }
+
+  /**
+   * Update the avatar for a user.
+   *
+   * @param id The user id.
+   * @param avatar_base64 The new avatar in base64 format.
+   * @param res The HTTP response.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('user/:id/avatar')
+  @UseGuards(JwtAuthGuard)
+  async updateUserAvatar(
+      @Param('id') id: number,
+      @Body('avatar_base64') avatar_base64: string,
+      @Res() res: Response,
+  ): Promise<void> {
+   
+    try {
+        
+      const tmp = await this.user_service.updateAvatar(id, avatar_base64);
+
+      if (!tmp) {
+        res.status(HttpStatus.NOT_FOUND).send('User not found.');
+        return;
+      }
+
+      res.status(HttpStatus.OK).json(tmp);
+
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Avatar update failed.');
+    }
+
   }
 }

@@ -64,4 +64,24 @@ export class UserService {
 
 		return null;
 	}
+
+	async updateAvatar(user_id: number, avatar_base64: string): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+	
+		  user.avatar_base64 = avatar_base64;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
 }
