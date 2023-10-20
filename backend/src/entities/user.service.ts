@@ -84,4 +84,65 @@ export class UserService {
 		  throw error;
 		}
 	}
+
+	async addFriend(user_id: number, friend_id: number): Promise<string> {
+
+		try {
+
+		  const result = await this.usersRepository.query(
+			`select add_user_friend($1, $2)`,
+			[user_id, friend_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+	
+	async removeFriend(user_id: number, friend_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select remove_user_friend($1, $2)`,
+			[user_id, friend_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+	
+	async blockUser(userId: number, blocked_user_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select block_user($1, $2)`,
+			[userId, blocked_user_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+	
+	async unblockUser(user_id: number, blocked_user_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select unblock_user($1, $2)`,
+			[user_id, blocked_user_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
 }

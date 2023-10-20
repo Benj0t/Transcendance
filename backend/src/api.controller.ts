@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Post, Body, Delete } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -243,6 +243,65 @@ export class ApiController {
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Avatar update failed.');
     }
+  }
 
+  @Post('user/:id/friends')
+  async addFriend(
+    @Param('id') user_id: number,
+    @Query('friend_id') friend_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.addFriend(user_id, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+  }
+
+  @Delete('user/:id/friends')
+  async removeFriend(
+    @Param('id') user_id: number,
+    @Query('friend_id') friend_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+      const message = await this.user_service.removeFriend(user_id, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+  }
+
+  @Post('user/:id/blockeds')
+  async blockUser(
+    @Param('id') user_id: number,
+    @Query('blocked_id') blocked_user_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+      const message = await this.user_service.blockUser(user_id, blocked_user_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+  }
+
+  @Delete('user/:id/blockeds')
+  async unblockUser(
+    @Param('id') user_id: number,
+    @Query('unblocked_id') unblocked_id: number,
+  ): Promise<{ message: string }> {
+    
+    try {
+      const message = await this.user_service.unblockUser(user_id, unblocked_id);
+      return { message };
+    } catch (error) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
   }
 }

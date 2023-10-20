@@ -155,3 +155,79 @@ begin
     return query select * from "user" where user_42_id = p_user_42_id;
 end;
 $$ language plpgsql;
+
+-- Add friend for the specified user.
+
+create or replace function "add_user_friend"(user_id integer, friend_id integer)
+returns text as $$
+begin
+    if exists (
+        select 1 from "user_has_friend"
+        where "user_id" = user_id and "friend_id" = friend_id
+    ) then
+        return 'already friend with this user.';
+    else
+        insert into "user_has_friend" ("user_id", "friend_id")
+        values (user_id, friend_id);
+        return 'ok';
+    end if;
+exception
+    when others then
+        return 'error';
+end;
+$$ language plpgsql;
+
+-- Remove friend for the specified user.
+
+create or replace function "remove_user_friend"(user_id integer, friend_id integer)
+returns text as $$
+begin
+    delete from "user_has_friend"
+    where "user_id" = user_id and "friend_id" = friend_id;
+    
+    if found then
+        return 'ok';
+    else
+        return 'not friend with this user.';
+    end if;
+exception
+    when others then
+        return 'error';
+end;
+$$ language plpgsql;
+
+create or replace function "block_user"(user_id integer, blocked_user_id integer)
+returns text as $$
+begin
+    if exists (
+        select 1 from "user_has_blocked_user"
+        where "user_id" = user_id and "blocked_user_id" = blocked_user_id
+    ) then
+        return 'this user is already blocked.';
+    else
+        insert into "user_has_blocked_user" ("user_id", "blocked_user_id")
+        values (user_id, blocked_user_id);
+        return 'ok';
+    end if;
+exception
+    when others then
+        return 'error';
+end;
+$$ language plpgsql;
+
+create or replace function "unblock_user"(user_id integer, blocked_user_id integer)
+returns text as $$
+begin
+    delete from "user_has_blocked_user"
+    where "user_id" = user_id and "blocked_user_id" = blocked_user_id;
+    
+    if found then
+        return 'ok';
+    else
+        return 'this user is not blocked.';
+    end if;
+exception
+    when others then
+        return 'error';
+end;
+$$ language plpgsql;
