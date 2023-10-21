@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -12,6 +12,7 @@ import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
+import { pongSocket } from './components/pongSocket';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('userIsAuth');
@@ -54,6 +55,12 @@ const darkTheme = createTheme({
 });
 
 const App: React.FC = () => {
+  useEffect(() => {
+    pongSocket?.on('time_packet', (packetOutTime) => {
+      console.log(pongSocket.id);
+      pongSocket.emit('keep_alive_packet', packetOutTime);
+    });
+  }, []);
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline>

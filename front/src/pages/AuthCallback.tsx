@@ -1,19 +1,12 @@
 import React, { useEffect } from 'react';
 import { bake_cookie } from 'sfcookies';
-import { pongSocket } from '../components/pongSocket';
+// import { pongSocket } from '../components/pongSocket';
 import { useNavigate } from 'react-router';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
-
   // const [error, setError] = useState<string>('');
 
-  useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {
-      console.log(pongSocket.id);
-      pongSocket.emit('keep_alive_packet', packetOutTime);
-    });
-  }, []);
   const handleAuthCallback = (): void => {
     // const queryString = window.location.search;
     console.log('COUCOU');
