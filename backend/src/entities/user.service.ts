@@ -115,7 +115,23 @@ export class UserService {
 		  throw error;
 		}
 	}
-	
+
+	async addMatch(user_id: number, opponent_id: number, winner_id: number): Promise<string> {
+
+		try {
+
+		  const result = await this.usersRepository.query(
+			`select add_match($1, $2, $3)`,
+			[user_id, opponent_id, winner_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+
 	async blockUser(userId: number, blocked_user_id: number): Promise<string> {
 
 		try {

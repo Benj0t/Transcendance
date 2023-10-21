@@ -14,9 +14,10 @@ create or replace view "v_match" as select * from "match";
 -- Add a match for the specified users.
 
 create or replace function "add_match"(p_user_id integer, p_opponent_id integer, p_winner_id integer)
-returns void as $$
+returns text as $$
 begin
     insert into "match" ("user_id", "opponent_id", "winner_id")
     values (p_user_id, p_opponent_id, p_winner_id);
+    return 'ok';
 end;
 $$ language plpgsql;

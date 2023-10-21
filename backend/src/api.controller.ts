@@ -126,7 +126,7 @@ export class ApiController {
    * an access token, register the user if needed, then returns it and
    * redirect to http://localhost:3000/.
    * 
-   * @param code The code gived by 42 api.
+   * @param code The code given by 42 api.
    * 
    * @returns The connected user.
    * 
@@ -284,6 +284,23 @@ export class ApiController {
 
     try {
       const message = await this.user_service.blockUser(user_id, blocked_user_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+  }
+
+  @Post('user/:id/matches')
+  async addMatch(
+    @Param('id') user_id: number,
+    @Query('opponent_id') opponent_id: number,
+    @Query('winner_id') winner_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.addMatch(user_id, opponent_id, winner_id);
       return { message };
 
     } catch (error) {
