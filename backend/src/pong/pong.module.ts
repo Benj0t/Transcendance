@@ -3,6 +3,6 @@ import { PongService } from './pong.service';
 import { PongServer } from './pong.server';
 
 @Module({
-  providers: [PongService, PongServer]
+  providers: [PongService, PongServer],
 })
 export class PongModule {}

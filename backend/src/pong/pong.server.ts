@@ -1,6 +1,6 @@
 import {
-    OnGatewayConnection,
-    OnGatewayDisconnect,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer
@@ -22,7 +22,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     getConnected(client: Socket): Connected | null {
         const found = this.connecteds.find(connected => connected.client === client);
-        return found || null;
+    return found || null;
     }
 
     // isConnected(user_id: number): boolean {

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
+import { pongSocket } from '../components/pongSocket';
 
 const HomePage: React.FC = () => {
   /**
@@ -17,6 +18,13 @@ const HomePage: React.FC = () => {
   const handleChat = (): void => {
     navigate('/chat');
   };
+
+  useEffect(() => {
+    pongSocket?.on('time_packet', (packetOutTime) => {
+      console.log(pongSocket.id);
+    });
+  });
+
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
       <ProfileButton />
