@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, Box, IconButton, TextField } from '@mui/material';
+import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
 
 const SettingsPage: React.FC = () => {
@@ -27,14 +27,14 @@ const SettingsPage: React.FC = () => {
       justifyContent="center"
     >
       <Box
-        width="70%"
-        height="70%"
+        width="80%"
+        height="80%"
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
       >
-        <IconButton onClick={handleClickAvatar} size="large" sx={{ ml: 2 }}>
+        <IconButton onClick={handleClickAvatar} size="large">
           <Avatar sx={{ width: 160, height: 160 }} src={avatar}>
             M
           </Avatar>
@@ -51,6 +51,11 @@ const SettingsPage: React.FC = () => {
         />
         <Box marginTop="1%">
           <MuiColorInput value={color} onChange={handleChange} />
+        </Box>
+        <Box marginTop="1%">
+          <Button size="large" variant="outlined">
+            Save
+          </Button>
         </Box>
       </Box>
     </Box>
