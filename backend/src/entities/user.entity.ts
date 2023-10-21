@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserHasFriendEntity } from './user_has_friend.entity';
 import { UserHasBlockedUserEntity } from './user_has_blocked_user.entity';
 
-@Entity({ name: 'user' }) 
+@Entity({ name: 'user' })
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
