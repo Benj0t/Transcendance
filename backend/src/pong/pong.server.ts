@@ -52,6 +52,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     @SubscribeMessage('keep_alive_packet')
     handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
+        console.log("test")
 
         this.pongService.handleKeepAlivePacket(this, this.getConnected(client), packet);
     }

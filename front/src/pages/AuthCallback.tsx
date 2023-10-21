@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { bake_cookie } from 'sfcookies';
 import { useNavigate } from 'react-router';
+import { pongSocket } from '../components/pongSocket';
+import { PacketOutTime } from '../../../backend/src/pong/packet/time.packet';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +15,13 @@ const AuthCallback: React.FC = () => {
 
     if (jwtParam != null) {
       bake_cookie('jwt', jwtParam);
+
+      useEffect(() => {
+        pongSocket?.on('time_packet', packetOutTime => {
+          console.log('test');
+        });
+      });
+
       navigate('/');
     } else {
       setError('JWT non trouvé dans la réponse.');
@@ -26,3 +35,7 @@ const AuthCallback: React.FC = () => {
 };
 
 export default AuthCallback;
+function Connected(...args: any[]): void {
+  throw new Error('Function not implemented.');
+}
+

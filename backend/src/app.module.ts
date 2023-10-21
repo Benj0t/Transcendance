@@ -12,27 +12,27 @@ import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
-    HttpModule,
-    UserModule,
+    // HttpModule,
+    // UserModule,
     PongModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'app',
-      password: 'apppassword',
-      database: 'transcendance',
-      entities: [ UserEntity ],
-      synchronize: true,
-    }),
-    PassportModule.register({}),
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn }
-    })
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'localhost',
+    //   port: 5432,
+    //   username: 'app',
+    //   password: 'apppassword',
+    //   database: 'transcendance',
+    //   entities: [ UserEntity ],
+    //   synchronize: true,
+    // }),
+    // PassportModule.register({}),
+    // JwtModule.register({
+    //   secret: jwtConstants.secret,
+    //   signOptions: { expiresIn: jwtConstants.expiresIn }
+    // })
   ],
-  controllers: [ApiController],
-  providers: [AuthService],
-  exports: [AuthService]
+  // controllers: [ApiController],
+  // providers: [AuthService],
+  // exports: [AuthService]
 })
 export class AppModule {}
