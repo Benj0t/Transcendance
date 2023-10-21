@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { MatchEntity } from './match.entity';
+import { UserHasFriendEntity } from './user_has_friend.entity';
+import { UserHasBlockedUserEntity } from './user_has_blocked_user.entity';
 
 @Injectable()
 export class UserService {
@@ -19,6 +22,36 @@ export class UserService {
 		return this.usersRepository.findOne({ where: { id: id } });
 	}
 
+	async getFriends(id: number): Promise<UserHasFriendEntity[]> {
+		
+		const friends = await this.usersRepository.query(
+			`select * from get_user_friends($1)`,
+			[id]
+		);
+		
+		return friends;
+	}
+
+	async getMatches(id: number): Promise<MatchEntity[]> {
+
+		const matches = await this.usersRepository.query(
+			`select * from get_user_matches($1)`,
+			[id]
+		);
+
+		return (matches);
+	}
+
+	async getBlockeds(id: number): Promise<UserHasBlockedUserEntity[]> {
+		
+		const friends = await this.usersRepository.query(
+			`select * from get_user_blocked_users($1)`,
+			[id]
+		);
+		
+		return friends;
+	}
+
 	async upsertUser(user42_id: number, nickname: string, avatar_base64: string): Promise<UserEntity | null> {
 		const result = await this.usersRepository.query(
 			`select * from upsert_user($1, $2, $3)`,
@@ -30,5 +63,102 @@ export class UserService {
 		}
 
 		return null;
+	}
+
+	async updateAvatar(user_id: number, avatar_base64: string): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+	
+		  user.avatar_base64 = avatar_base64;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
+
+	async addFriend(user_id: number, friend_id: number): Promise<string> {
+
+		try {
+
+		  const result = await this.usersRepository.query(
+			`select add_user_friend($1, $2)`,
+			[user_id, friend_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+	
+	async removeFriend(user_id: number, friend_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select remove_user_friend($1, $2)`,
+			[user_id, friend_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+
+	async addMatch(user_id: number, opponent_id: number, winner_id: number): Promise<string> {
+
+		try {
+
+		  const result = await this.usersRepository.query(
+			`select add_match($1, $2, $3)`,
+			[user_id, opponent_id, winner_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+
+	async blockUser(userId: number, blocked_user_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select block_user($1, $2)`,
+			[userId, blocked_user_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
+	}
+	
+	async unblockUser(user_id: number, blocked_user_id: number): Promise<string> {
+
+		try {
+		  const result = await this.usersRepository.query(
+			`select unblock_user($1, $2)`,
+			[user_id, blocked_user_id]
+		  );
+
+		  return result[0];
+
+		} catch (error) {
+		  throw error;
+		}
 	}
 }
