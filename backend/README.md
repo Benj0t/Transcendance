@@ -2,7 +2,7 @@
 
 ```-```
 
-`GET` /auth/callback                                 Authenticade an user with 42 API.
+✅ `GET` /auth/callback                                 Authenticade an user with 42 API.
 ?code={code}
 
 ✅ `GET` /user/{id}                                  Get an user.
@@ -30,7 +30,7 @@
 ✅ `DELETE` /user/{user}/blockeds                    Unblock an user for an user.
 ?unblocked_id={id}
 
-`POST` /user/{user}/matches                          Add a match for an user
+✅ `POST` /user/{user}/matches                       Add a match for an user
 ?user_id={user} & opponent_id={opponent} & winner_id={winner}
 
 `POST` /user/{user}/chat/{channel_id}                Put a message from an user to a channel (User should be member of it).
