@@ -40,7 +40,7 @@ function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
         <h3>
           L accès à ce contenu vous est interdit, veuillez vous identifier
           <br />
-          <a href="http://localhost:3000/auth">HERE</a>
+          <a href="http://localhost:3000/login">HERE</a>
         </h3>
       </center>
     </div>
@@ -69,7 +69,7 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/auth"
+                path="/login"
                 element={
                   <PublicRoute>
                     <LoginPage />
@@ -127,9 +127,9 @@ const App: React.FC = () => {
               <Route
                 path="/auth/callback"
                 element={
-                  <PublicRoute>
-                    <AuthCallback />
-                  </PublicRoute>
+                  // <PublicRoute>
+                  <AuthCallback />
+                  // </PublicRoute>
                 }
               />
               <Route path="*" element={<NoMatch />} />
