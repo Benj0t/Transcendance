@@ -20,6 +20,15 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     constructor(private readonly pongService: PongService) { }
 
+    getConnected(client: Socket): Connected | null {
+        const found = this.connecteds.find(connected => connected.client === client);
+        return found || null;
+    }
+
+    // isConnected(user_id: number): boolean {
+    //     return (this.connecteds => )
+    // }
+
     async handleConnection(client: Socket) {
         
         const tmp = new Connected(this, client);
@@ -29,13 +38,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
         this.pongService.handleNewConnection(this, tmp);
         
         tmp.pingInterval = setInterval(() => {
-            this.pongService.sendTimePacket(client);
+            this.pongService.sendTimePacket(this, tmp);
         }, 1000);
-    }
-
-    getConnected(client: Socket): Connected | null {
-        const found = this.connecteds.find(connected => connected.client === client);
-        return found || null;
     }
 
     handleDisconnect(client: Socket): void {

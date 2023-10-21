@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from "socket.io";
 import { Connected, PongServer } from './pong.server';
 import { PacketInKeepAlive } from './packet/keep.alive.packet';
+import { PacketOutTime } from './packet/time.packet';
 
 @Injectable()
 export class PongService {
@@ -14,18 +15,11 @@ export class PongService {
 		console.log(`${connected}: disconnected`);
 	}
 
-	sendTimePacket(client: Socket) {
-		client.emit('time_packet', 'PING');
+	sendTimePacket(pong_server: PongServer, connected: Connected) {
+		connected.client.emit('time_packet', new PacketOutTime()); // TODO...
 	}
 
 	handleKeepAlivePacket(pong_server: PongServer, connected: Connected, packet: PacketInKeepAlive) {
         console.log(`${connected}: ${packet}`);
     }
-
-	updateTimer(newInterval: number, pingInterval: NodeJS.Timeout, client: Socket) {
-		clearInterval(pingInterval);
-		return setInterval(() => {
-			this.sendTimePacket(client);
-		}, newInterval);
-	}
 }
