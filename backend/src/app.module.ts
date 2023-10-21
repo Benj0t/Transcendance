@@ -2,20 +2,19 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiController } from './api.controller';
-import { UserEntity } from './entities/user.entity';
-import { MatchEntity } from './entities/match.entity';
-import { RankEntity } from './entities/rank.entity';
-import { AchievementEntity } from './entities/achievement.entity';
-import { UserModule } from './entities/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './jwt.config';
+import { UserModule } from './entities/user.module';
+import { UserEntity } from './entities/user.entity';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
     HttpModule,
     UserModule,
+    PongModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
