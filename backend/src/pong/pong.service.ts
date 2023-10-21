@@ -1,30 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from "socket.io";
+import { Connected, PongServer } from './pong.server';
+import { PacketInKeepAlive } from './packet/keep.alive.packet';
+import { PacketOutTime } from './packet/time.packet';
 
 @Injectable()
 export class PongService {
 
-  handleNewConnection(client: Socket, list: any[]) {
-    console.log(`User ${client.id}: connected.`);
-    list.push(client.id);
-  } 
+	handleNewConnection(pong_server: PongServer, connected: Connected) {
+		console.log(`${connected}: connected.`);
+	}
 
-  handleDisconnection(client: Socket, list: any[]) {
-    console.log(`User ${client.id}: disconnected`);
-    const index = list.indexOf(client.id);
-    if (index > -1) {
-      list.splice(index, 1);
+	handleDisconnection(pong_server: PongServer, connected: Connected) {
+		console.log(`${connected}: disconnected`);
+	}
+
+	sendTimePacket(pong_server: PongServer, connected: Connected) {
+		connected.client.emit('time_packet', new PacketOutTime()); // TODO...
+	}
+
+	handleKeepAlivePacket(pong_server: PongServer, connected: Connected, packet: PacketInKeepAlive) {
+        console.log(`${connected}: ${packet}`);
     }
-  }
-
-  handlePing(client: Socket) {
-    client.emit('ping', 'PING');
-  }
-
-  updateTimer(newInterval: number, pingInterval: NodeJS.Timeout, client: Socket) {
-    clearInterval(pingInterval);
-    return setInterval(() => {
-      this.handlePing(client);
-    }, newInterval);
-  }
 }
