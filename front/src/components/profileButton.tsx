@@ -31,7 +31,7 @@ const ProfileButton: React.FC = () => {
   };
   const onClickDisconnect = (): void => {
     delete_cookie('userIsAuth');
-    navigate('/auth');
+    navigate('/login');
   };
   return (
     <div>

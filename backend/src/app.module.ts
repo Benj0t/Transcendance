@@ -22,17 +22,16 @@ import { PongModule } from './pong/pong.module';
     //   username: 'app',
     //   password: 'apppassword',
     //   database: 'transcendance',
-    //   entities: [UserEntity],
+    //   entities: [ UserEntity ],
     //   synchronize: true,
     // }),
     // PassportModule.register({}),
     // JwtModule.register({
     //   secret: jwtConstants.secret,
-    //   signOptions: { expiresIn: jwtConstants.expiresIn },
-    // }),
+    //   signOptions: { expiresIn: jwtConstants.expiresIn }
+    // })
   ],
   // controllers: [ApiController],
   // providers: [AuthService],
-  // exports: [AuthService],
-})
+  // exports: [AuthService]
 export class AppModule {}
