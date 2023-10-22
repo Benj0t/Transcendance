@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
-
 interface ChatWindowProps {
   messages: Array<{ text: string; sender: string }>;
   onSendMessage: (message: { text: string; sender: string }) => void;

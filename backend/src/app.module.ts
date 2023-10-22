@@ -34,5 +34,4 @@ import { PongModule } from './pong/pong.module';
   // controllers: [ApiController],
   // providers: [AuthService],
   // exports: [AuthService]
-})
 export class AppModule {}
