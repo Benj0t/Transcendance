@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
@@ -25,7 +25,7 @@ export class UserService {
 	async getFriends(id: number): Promise<UserHasFriendEntity[]> {
 		
 		const friends = await this.usersRepository.query(
-			`select * from get_user_friends($1)`,
+			`select * from get_user_friendships($1)`,
 			[id]
 		);
 		
@@ -87,6 +87,10 @@ export class UserService {
 
 	async addFriend(user_id: number, friend_id: number): Promise<string> {
 
+		if (!friend_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
+
 		try {
 
 		  const result = await this.usersRepository.query(
@@ -117,6 +121,10 @@ export class UserService {
 	}
 
 	async addMatch(user_id: number, opponent_id: number, winner_id: number): Promise<string> {
+		
+		if (!opponent_id || !winner_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 
@@ -125,7 +133,7 @@ export class UserService {
 			[user_id, opponent_id, winner_id]
 		  );
 
-		  return result[0];
+		  return result[0].add_match;
 
 		} catch (error) {
 		  throw error;

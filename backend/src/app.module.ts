@@ -28,7 +28,7 @@ import { RankEntity } from './entities/rank.entity';
       password: 'apppassword',
       database: 'transcendance',
       entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity ],
-      synchronize: true,
+      synchronize: false,
     }),
     PassportModule.register({}),
     JwtModule.register({

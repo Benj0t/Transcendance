@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -87,7 +87,7 @@ export class ApiController {
       return friends;
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${id} not found.`);
+      throw new NotFoundException('Error: ' + error);
     }
   }
 
@@ -101,7 +101,24 @@ export class ApiController {
       return matches;
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${id} not found.`);
+      throw new NotFoundException('Error: ' + error);
+    }
+  }
+
+  @Post('user/:id/match')
+  async addMatch(
+    @Param('id') user_id: number,
+    @Query('opponent_id') opponent_id: number,
+    @Query('winner_id') winner_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.addMatch(user_id, opponent_id, winner_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 
@@ -120,6 +137,7 @@ export class ApiController {
 
   @Get('user/:id/blockeds')
   async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
+
     try {
 
       const blockedUsers = await this.user_service.getBlockeds(id);
@@ -127,7 +145,7 @@ export class ApiController {
       return blockedUsers;
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${id} not found.`);
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 
@@ -255,7 +273,7 @@ export class ApiController {
     }
   }
 
-  @Post('user/:id/friends')
+  @Post('user/:id/friend')
   async addFriend(
     @Param('id') user_id: number,
     @Query('friend_id') friend_id: number,
@@ -267,7 +285,7 @@ export class ApiController {
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 
@@ -294,23 +312,6 @@ export class ApiController {
 
     try {
       const message = await this.user_service.blockUser(user_id, blocked_user_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
-    }
-  }
-
-  @Post('user/:id/matches')
-  async addMatch(
-    @Param('id') user_id: number,
-    @Query('opponent_id') opponent_id: number,
-    @Query('winner_id') winner_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-
-      const message = await this.user_service.addMatch(user_id, opponent_id, winner_id);
       return { message };
 
     } catch (error) {
