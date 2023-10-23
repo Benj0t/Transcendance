@@ -1,17 +1,17 @@
-`API DOCUMENTATION`
+**API DOCUMENTATION**
 
 ```-```
 
 ✅ `GET` /auth/callback                              Authenticade an user with 42 API.
 ?code={code}
 
-✅ `GET` /user/                                 		Get all users.
+✅ `GET` /user/                                 	    Get all users.
 ✅ `GET` /user/{id}                                  Get an user.
 `POST` /user/{user}                                  Update user settings
 ?username={name} & color={color} & ...
 
 ✅ `GET` /user/{user}/avatar                         Get the avatar for an user.
-1️⃣ `POST` /user/{user}/avatar                        Update the avatar for an user
+1️⃣ `POST` /user/{user}/avatar                    	  Update the avatar for an user
 ?avatar_base64={avatar_base64}
 
 ✅ `GET` /user/{user}/friends                        Get the friends for an user.
@@ -29,6 +29,10 @@
 ?blocked_id={id}
 ✅ `DELETE` /user/{user}/blocked                     Unblock an user for an user.
 ?unblocked_id={id}
+
+`GET` /user/{user}/achievements						 Get user achievements
+`POST` /user/{user}/achievements					 Add an achievement for an user.
+`DELETE` /user/{user}/achievements					 Remove an achievement for an user.
 
 `GET` /user/{user}/chat/{channel_id}/messages        Get the messages for a channel (User should be member of it).
 `POST` /user/{user}/chat/{channel_id}                Put a message from an user to a channel (User should be member of it).

@@ -28,23 +28,11 @@ export class ApiController {
   ) { }
 
   /**
-   * @param id  The user id.
+   * @returns   The users
    * 
-   * @returns   The user or the specified id.
-   * 
-   * @author Komqdo 
+   * @author Komqdo
    */
-
-  @Get('user/:id')
-  //@UseGuards(JwtAuthGuard)
-  async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
-    const user = await this.user_service.findOne(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found.`);
-    }
-    return user;
-  }
-
+  
   @Get('user/')
   getUser(): Promise<UserEntity[] | { message: string }> {
     return this.user_service.findAll().catch(error => {
@@ -54,6 +42,26 @@ export class ApiController {
   }
 
   /**
+   * @param id  The user id.
+   * 
+   * @returns   The user or the specified id.
+   * 
+   * @author Komqdo 
+   */
+
+  @Get('user/:id')
+  @UseGuards(JwtAuthGuard)
+  async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
+    const user = await this.user_service.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+    return user;
+  }
+
+  /**
+   * Get the avatar for an user.
+   * 
    * @param id The user id
    * 
    * @returns  The user avatar.
@@ -62,7 +70,7 @@ export class ApiController {
    */
 
   @Get('user/:id/avatar')
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getUserAvatar(@Param('id') id: number, @Res() res: Response): Promise<void> {
     const user = await this.user_service.findOne(id);
     if (!user) {
@@ -78,7 +86,49 @@ export class ApiController {
     res.send(Buffer.from(user.avatar_base64, 'base64'));
   }
 
+  /**
+   * Update the avatar for a user.
+   *
+   * @param id The user id.
+   * @param avatar_base64 The new avatar in base64 format.
+   * @param res The HTTP response.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('user/:id/avatar')
+  @UseGuards(JwtAuthGuard)
+  async updateUserAvatar(
+    @Param('id') id: number,
+    @Body('avatar_base64') avatar_base64: string,
+    @Res() res: Response,
+  ): Promise<void> {
+
+    try {
+
+      const tmp = await this.user_service.updateAvatar(id, avatar_base64);
+
+      if (!tmp) {
+        res.status(HttpStatus.NOT_FOUND).send('User not found.');
+        return;
+      }
+
+      res.status(HttpStatus.OK).json(tmp);
+
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Avatar update failed.');
+    }
+  }
+
+  /**
+   * Get the friend relationships for an user.
+   * 
+   * @param id  The user id
+   * @returns   The friend relationships for the specified user.
+   */
+  
   @Get('user/:id/friends')
+  @UseGuards(JwtAuthGuard)
   async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
     try {
 
@@ -91,7 +141,72 @@ export class ApiController {
     }
   }
 
+  /**
+   * Add a friend for an user.
+   * 
+   * @param user_id   The user id.
+   * @param friend_id The friend id.
+   * 
+   * @returns         The callback message. 
+   * 
+   * @author Komqdo
+   */
+
+  @Post('user/:id/friends')
+  @UseGuards(JwtAuthGuard)
+  async addFriend(
+    @Param('id') user_id: number,
+    @Query('friend_id') friend_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.addFriend(user_id, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Delete a friend for an user.
+   * 
+   * @param user_id   The user id
+   * @param friend_id The friend id
+   * @returns         The callback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Delete('user/:id/friends')
+  @UseGuards(JwtAuthGuard)
+  async removeFriend(
+    @Param('id') user_id: number,
+    @Query('friend_id') friend_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+      const message = await this.user_service.removeFriend(user_id, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Get the match history for an user.
+   * 
+   * @param id  The user id.
+   * 
+   * @returns   The match history for the specified user.
+   * 
+   * @author Komqdo
+   */
+
   @Get('user/:id/matches')
+  @UseGuards(JwtAuthGuard)
   async getUserMatches(@Param('id') id: number): Promise<MatchEntity[]> {
 
     try {
@@ -105,7 +220,20 @@ export class ApiController {
     }
   }
 
-  @Post('user/:id/match')
+  /**
+   * Add a match.
+   * 
+   * @param user_id     The user id. 
+   * @param opponent_id His opponent id.
+   * @param winner_id   The id of the user that won the match.
+   * 
+   * @returns The feedback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('user/:id/matches')
+  @UseGuards(JwtAuthGuard)
   async addMatch(
     @Param('id') user_id: number,
     @Query('opponent_id') opponent_id: number,
@@ -121,21 +249,19 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
-  // @Get('user/:id/chat/:channel_id/messages')
-  // async getChannelMessages(
-  //   @Param('id') id: number,
-  //   @Param('channel_id') channel_id: number
-  // ): Promise<ChannelMessageEntity[]> {
-  //   try {
-  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
-  //     return channelMessages;
-  //   } catch (error) {
-  //     throw new NotFoundException(`User with id ${id} not found.`);
-  //   }
-  // }
+  
+  /**
+   * Get the blocked users for an user.
+   * 
+   * @param id The user id.
+   * 
+   * @returns The blocked users for the specified user.
+   * 
+   * @author Komqdo
+   */
 
   @Get('user/:id/blockeds')
+  @UseGuards(JwtAuthGuard)
   async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
 
     try {
@@ -148,6 +274,74 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
+  
+  /**
+   * Block an user for an user.
+   * 
+   * @param user_id           The user id.
+   * @param blocked_user_id   The user id to block.
+   * 
+   * @returns                 The feedback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('user/:id/blockeds')
+  @UseGuards(JwtAuthGuard)
+  async blockUser(
+    @Param('id') user_id: number,
+    @Query('blocked_id') blocked_user_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.blockUser(user_id, blocked_user_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Unblock an user for an user.
+   * 
+   * @param user_id         The user id. 
+   * @param unblocked_id    The user id to unblock.
+   * 
+   * @returns               The feedback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Delete('user/:id/blockeds')
+  @UseGuards(JwtAuthGuard)
+  async unblockUser(
+    @Param('id') user_id: number,
+    @Query('unblocked_id') unblocked_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+      const message = await this.user_service.unblockUser(user_id, unblocked_id);
+      return { message };
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  // @Get('user/:id/chat/:channel_id/messages')
+  // @UseGuards(JwtAuthGuard)
+  // async getChannelMessages(
+  //   @Param('id') id: number,
+  //   @Param('channel_id') channel_id: number
+  // ): Promise<ChannelMessageEntity[]> {
+  //   try {
+  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
+  //     return channelMessages;
+  //   } catch (error) {
+  //     throw new NotFoundException(`User with id ${id} not found.`);
+  //   }
+  // }
 
   /**
    * Authentificate an user and exchange the specified code with
@@ -162,6 +356,7 @@ export class ApiController {
    */
 
   @Get('auth/callback')
+  @UseGuards(JwtAuthGuard)
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
 
     /**
@@ -236,101 +431,6 @@ export class ApiController {
     } catch (error) {
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
-    }
-  }
-
-  /**
-   * Update the avatar for a user.
-   *
-   * @param id The user id.
-   * @param avatar_base64 The new avatar in base64 format.
-   * @param res The HTTP response.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('user/:id/avatar')
-  @UseGuards(JwtAuthGuard)
-  async updateUserAvatar(
-    @Param('id') id: number,
-    @Body('avatar_base64') avatar_base64: string,
-    @Res() res: Response,
-  ): Promise<void> {
-
-    try {
-
-      const tmp = await this.user_service.updateAvatar(id, avatar_base64);
-
-      if (!tmp) {
-        res.status(HttpStatus.NOT_FOUND).send('User not found.');
-        return;
-      }
-
-      res.status(HttpStatus.OK).json(tmp);
-
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Avatar update failed.');
-    }
-  }
-
-  @Post('user/:id/friends')
-  async addFriend(
-    @Param('id') user_id: number,
-    @Query('friend_id') friend_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-
-      const message = await this.user_service.addFriend(user_id, friend_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Delete('user/:id/friends')
-  async removeFriend(
-    @Param('id') user_id: number,
-    @Query('friend_id') friend_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-      const message = await this.user_service.removeFriend(user_id, friend_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Post('user/:id/blockeds')
-  async blockUser(
-    @Param('id') user_id: number,
-    @Query('blocked_id') blocked_user_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-
-      const message = await this.user_service.blockUser(user_id, blocked_user_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Delete('user/:id/blockeds')
-  async unblockUser(
-    @Param('id') user_id: number,
-    @Query('unblocked_id') unblocked_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-      const message = await this.user_service.unblockUser(user_id, unblocked_id);
-      return { message };
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
     }
   }
 }
