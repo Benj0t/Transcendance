@@ -106,6 +106,10 @@ export class UserService {
 	}
 	
 	async removeFriend(user_id: number, friend_id: number): Promise<string> {
+		
+		if (!friend_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
@@ -141,6 +145,10 @@ export class UserService {
 	}
 
 	async blockUser(userId: number, blocked_user_id: number): Promise<string> {
+		
+		if (!blocked_user_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
@@ -155,12 +163,16 @@ export class UserService {
 		}
 	}
 	
-	async unblockUser(user_id: number, blocked_user_id: number): Promise<string> {
+	async unblockUser(user_id: number, unblocked_user_id: number): Promise<string> {
+		
+		if (!unblocked_user_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
 			`select unblock_user($1, $2)`,
-			[user_id, blocked_user_id]
+			[user_id, unblocked_user_id]
 		  );
 
 		  return result[0];

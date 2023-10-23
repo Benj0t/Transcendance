@@ -17,7 +17,7 @@
 ✅ `GET` /user/{user}/friends                        Get the friends for an user.
 ✅ `POST` /user/{user}/friend                        Add a friend for an user
 ?friend_id={friend}
-1️⃣ `DELETE` /user/{user}/friend                      Remove a friend for an user
+✅ `DELETE` /user/{user}/friend                      Remove a friend for an user
 ?friend_id={friend}
 
 ✅ `GET` /user/{user}/matches                        Get the matches for an user.
@@ -25,9 +25,9 @@
 ?user_id={user} & opponent_id={opponent} & winner_id={winner}
 
 ✅ `GET` /user/{user}/blockeds                       Get the blocked users for an user.
-1️⃣ `POST` /user/{user}/blocked                       Block an user for an user.
+✅ `POST` /user/{user}/blocked                       Block an user for an user.
 ?blocked_id={id}
-1️⃣ `DELETE` /user/{user}/blocked                     Unblock an user for an user.
+✅ `DELETE` /user/{user}/blocked                     Unblock an user for an user.
 ?unblocked_id={id}
 
 `GET` /user/{user}/chat/{channel_id}/messages        Get the messages for a channel (User should be member of it).

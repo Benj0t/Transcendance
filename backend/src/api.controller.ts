@@ -47,10 +47,10 @@ export class ApiController {
 
   @Get('user/')
   getUser(): Promise<UserEntity[] | { message: string }> {
-      return this.user_service.findAll().catch(error => {
-          console.error("Error fetching users: ", error);
-          return { message: 'No user in database.' };
-      });
+    return this.user_service.findAll().catch(error => {
+      console.error("Error fetching users: ", error);
+      return { message: 'No user in database.' };
+    });
   }
 
   /**
@@ -83,7 +83,7 @@ export class ApiController {
     try {
 
       const friends = await this.user_service.getFriends(id);
-  
+
       return friends;
 
     } catch (error) {
@@ -93,11 +93,11 @@ export class ApiController {
 
   @Get('user/:id/matches')
   async getUserMatches(@Param('id') id: number): Promise<MatchEntity[]> {
-    
+
     try {
-      
+
       const matches = await this.user_service.getMatches(id);
-      
+
       return matches;
 
     } catch (error) {
@@ -231,7 +231,7 @@ export class ApiController {
       /**
        * Redirect the user to main page.
        */
-      const token = await this.auth_service.createToken({username: user.nickname, sub: user.id});
+      const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
       res.redirect(`http://localhost:3000/auth/callback?jwt=${token}`);
     } catch (error) {
       console.log(error);
@@ -252,13 +252,13 @@ export class ApiController {
   @Post('user/:id/avatar')
   @UseGuards(JwtAuthGuard)
   async updateUserAvatar(
-      @Param('id') id: number,
-      @Body('avatar_base64') avatar_base64: string,
-      @Res() res: Response,
+    @Param('id') id: number,
+    @Body('avatar_base64') avatar_base64: string,
+    @Res() res: Response,
   ): Promise<void> {
-   
+
     try {
-        
+
       const tmp = await this.user_service.updateAvatar(id, avatar_base64);
 
       if (!tmp) {
@@ -273,7 +273,7 @@ export class ApiController {
     }
   }
 
-  @Post('user/:id/friend')
+  @Post('user/:id/friends')
   async addFriend(
     @Param('id') user_id: number,
     @Query('friend_id') friend_id: number,
@@ -300,7 +300,7 @@ export class ApiController {
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 
@@ -311,11 +311,12 @@ export class ApiController {
   ): Promise<{ message: string }> {
 
     try {
+
       const message = await this.user_service.blockUser(user_id, blocked_user_id);
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 
@@ -324,12 +325,12 @@ export class ApiController {
     @Param('id') user_id: number,
     @Query('unblocked_id') unblocked_id: number,
   ): Promise<{ message: string }> {
-    
+
     try {
       const message = await this.user_service.unblockUser(user_id, unblocked_id);
       return { message };
     } catch (error) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
+      throw new NotFoundException(`Not found: ` + error);
     }
   }
 }

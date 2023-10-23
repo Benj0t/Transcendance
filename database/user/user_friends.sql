@@ -34,7 +34,7 @@ returns text as $$
 begin
     if exists (
         select * from "user_has_friend"
-        where "user_id" = p_user_id and "friend_id" = p_friend_id
+        where ("user_id" = p_user_id and "friend_id" = p_friend_id) or ("user_id" = p_friend_id and "friend_id" = p_user_id)
     ) then
         return 'already friend with this user.';
     else
@@ -48,19 +48,16 @@ $$ language plpgsql;
 -- Remove friend for the specified user.
 
 drop function "remove_user_friend";
-create or replace function "remove_user_friend"(user_id integer, friend_id integer)
+create or replace function "remove_user_friend"(p_user_id integer, p_friend_id integer)
 returns text as $$
 begin
     delete from "user_has_friend"
-    where "user_id" = user_id and "friend_id" = friend_id;
+    where ("user_id" = p_user_id and "friend_id" = p_friend_id) or ("user_id" = p_friend_id and "friend_id" = p_user_id);
     
     if found then
         return 'ok';
     else
         return 'not friend with this user.';
     end if;
-exception
-    when others then
-        return 'error';
 end;
 $$ language plpgsql;
