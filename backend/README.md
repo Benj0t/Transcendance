@@ -2,9 +2,10 @@
 
 ```-```
 
-✅ `GET` /auth/callback                                 Authenticade an user with 42 API.
+✅ `GET` /auth/callback                              Authenticade an user with 42 API.
 ?code={code}
 
+✅ `GET` /user/                                 		Get all users.
 ✅ `GET` /user/{id}                                  Get an user.
 ✅ `GET` /user/{user}/avatar                         Get the avatar for an user.
 ✅ `GET` /user/{user}/friends                        Get the friends for an user.

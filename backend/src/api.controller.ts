@@ -33,13 +33,21 @@ export class ApiController {
    */
 
   @Get('user/:id')
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
     const user = await this.user_service.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found.`);
     }
     return user;
+  }
+
+  @Get('user/')
+  getUser(): Promise<UserEntity[] | { message: string }> {
+      return this.user_service.findAll().catch(error => {
+          console.error("Error fetching users: ", error);
+          return { message: 'No user in database.' };
+      });
   }
 
   /**
@@ -51,7 +59,7 @@ export class ApiController {
    */
 
   @Get('user/:id/avatar')
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   async getUserAvatar(@Param('id') id: number, @Res() res: Response): Promise<void> {
     const user = await this.user_service.findOne(id);
     if (!user) {
