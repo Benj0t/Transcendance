@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -13,6 +13,8 @@ import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
+import { UserContext } from './context/userContext';
+// import { PacketOutTimeUpdate } from './components/packet/out/PacketOutTimeUpdate';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('userIsAuth');
@@ -55,97 +57,122 @@ const darkTheme = createTheme({
 });
 
 const App: React.FC = () => {
+  const [user, setUser] = useState({
+    id: 0,
+    timer: 1000,
+    timeout: setInterval(() => {
+      // const tmp: NodeJS.Timeout = setInterval(sendData, 50);
+      // function sendData(): void {
+      pongSocket.emit('keep_alive_packet', 'packetOutTime');
+      console.log(1000);
+      // }
+      // console.log(tmp);
+    }, 1000),
+  });
+
   useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {
+    pongSocket.on('time_packet', () => {
       console.log(pongSocket.id);
-      pongSocket.emit('keep_alive_packet', packetOutTime);
     });
   }, []);
+
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     // const tmp: NodeJS.Timeout = setInterval(sendData, 50);
+  //     // function sendData(): void {
+  //     pongSocket.emit('keep_alive_packet', 'packetOutTime');
+  //     console.log(user.timer);
+  //     // }
+  //     // console.log(tmp);
+  //   }, user.timer);
+  // }, []);
+
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline>
-        <div className="App">
-          <BrowserRouter>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <HomePage />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/login"
-                element={
-                  <PublicRoute>
-                    <LoginPage />
-                  </PublicRoute>
-                }
-              ></Route>
-              <Route
-                path="/waiting-room"
-                element={
-                  <PrivateRoute>
-                    <WaitingRoom />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/Game"
-                element={
-                  <PrivateRoute>
-                    <Game />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/chat"
-                element={
-                  <PrivateRoute>
-                    <Chat />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/friends"
-                element={
-                  <PrivateRoute>
-                    <Friends />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/history"
-                element={
-                  <PrivateRoute>
-                    <History />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <PrivateRoute>
-                    <SettingsPage />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/auth/callback"
-                element={
-                  // <PublicRoute>
-                  <AuthCallback />
-                  // </PublicRoute>
-                }
-              />
-              <Route path="*" element={<NoMatch />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </CssBaseline>
-    </ThemeProvider>
+    <UserContext.Provider value={{ user, setUser }}>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline>
+          <div className="App">
+            <BrowserRouter>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <HomePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  }
+                ></Route>
+                <Route
+                  path="/waiting-room"
+                  element={
+                    <PrivateRoute>
+                      <WaitingRoom />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Game"
+                  element={
+                    <PrivateRoute>
+                      <Game />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/chat"
+                  element={
+                    <PrivateRoute>
+                      <Chat />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/friends"
+                  element={
+                    <PrivateRoute>
+                      <Friends />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/history"
+                  element={
+                    <PrivateRoute>
+                      <History />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <PrivateRoute>
+                      <SettingsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/auth/callback"
+                  element={
+                    // <PublicRoute>
+                    <AuthCallback />
+                    // </PublicRoute>
+                  }
+                />
+                <Route path="*" element={<NoMatch />} />
+              </Routes>
+            </BrowserRouter>
+          </div>
+        </CssBaseline>
+      </ThemeProvider>
+    </UserContext.Provider>
   );
 };
-
 export default App;

@@ -52,8 +52,16 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     @SubscribeMessage('keep_alive_packet')
     handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
-        console.log("test")
+        console.log(this.getConnected(client).isIngame)
         this.pongService.handleKeepAlivePacket(this, this.getConnected(client), packet);
+    }
+
+    @SubscribeMessage('switch_ingame')
+    handleInGameStatus(client: Socket, timer: number): void {
+        clearInterval(this.getConnected(client).pingInterval)
+        this.getConnected(client).pingInterval = setInterval(() => {
+            this.pongService.sendTimePacket(this, this.getConnected(client));
+        }, timer);
     }
 }
 
@@ -61,11 +69,12 @@ export class Connected {
 
     public readonly pong_server: PongServer;
     public readonly client: Socket;
+    public isIngame: number;
 
     public pingInterval: NodeJS.Timeout;
 
     constructor(pong_server: PongServer, client: Socket) {
-        
+        this.isIngame = 0;
         this.pong_server = pong_server;
         this.client = client;
     }
