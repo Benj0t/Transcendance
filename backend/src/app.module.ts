@@ -9,29 +9,34 @@ import { jwtConstants } from './jwt.config';
 import { UserModule } from './entities/user.module';
 import { UserEntity } from './entities/user.entity';
 import { PongModule } from './pong/pong.module';
+import { UserHasFriendEntity } from './entities/user_has_friend.entity';
+import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entity';
+import { AchievementEntity } from './entities/achievement.entity';
+import { MatchEntity } from './entities/match.entity';
+import { RankEntity } from './entities/rank.entity';
 
 @Module({
   imports: [
-    // HttpModule,
-    // UserModule,
+    HttpModule,
+    UserModule,
     PongModule,
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: 'localhost',
-    //   port: 5432,
-    //   username: 'app',
-    //   password: 'apppassword',
-    //   database: 'transcendance',
-    //   entities: [ UserEntity ],
-    //   synchronize: true,
-    // }),
-    // PassportModule.register({}),
-    // JwtModule.register({
-    //   secret: jwtConstants.secret,
-    //   signOptions: { expiresIn: jwtConstants.expiresIn }
-    // })
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'app',
+      password: 'apppassword',
+      database: 'transcendance',
+      entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity ],
+      synchronize: true,
+    }),
+    PassportModule.register({}),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: jwtConstants.expiresIn }
+    })
   ],
-  // controllers: [ApiController],
-  // providers: [AuthService],
-  // exports: [AuthService]
+  controllers: [ApiController],
+  providers: [AuthService],
+  exports: [AuthService]})
 export class AppModule {}
