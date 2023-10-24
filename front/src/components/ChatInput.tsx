@@ -16,7 +16,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleSendMe
     }
   };
   return (
-    <Box style={{ display: 'grid', gridTemplateColumns: '1fr 25px', width: '100%' }}>
+    <Box
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 25px',
+        width: '100%',
+      }}
+    >
       <TextField
         fullWidth
         autoFocus
@@ -27,7 +33,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleSendMe
         }}
         onKeyDown={handleKeyDown}
       />
-      <IconButton style={{ marginTop: '1%' }} onClick={handleSendMessage}>
+      <IconButton style={{ marginTop: '1%', height: '50px' }} onClick={handleSendMessage}>
         <SendIcon />
       </IconButton>
     </Box>

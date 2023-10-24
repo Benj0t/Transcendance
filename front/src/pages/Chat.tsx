@@ -3,6 +3,7 @@ import ChatWindow from '../components/ChatWindow';
 import { Box } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 import ChatInput from '../components/ChatInput';
+import ChatSelect from '../components/ChatSelect';
 
 const Chat: React.FC = () => {
   const fakeDatas = [
@@ -91,11 +92,21 @@ const Chat: React.FC = () => {
       >
         <Box width="100%" maxHeight="70%">
           <ChatWindow messages={history} onSendMessage={handleSendMessage} />
-          <ChatInput
-            message={message}
-            setMessage={setMessage}
-            handleSendMessage={handleSendMessage}
-          />
+          <Box
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 4fr',
+              width: '100%',
+              height: '100px',
+            }}
+          >
+            <ChatSelect />
+            <ChatInput
+              message={message}
+              setMessage={setMessage}
+              handleSendMessage={handleSendMessage}
+            />
+          </Box>
         </Box>
       </Box>
     </Box>
