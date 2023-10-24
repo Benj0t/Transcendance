@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './PongGame.css';
+import './styles/PongGame.css';
 import Area from './utils/Area';
 import io from 'socket.io-client';
 
 const PongGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  var socket = io('http://localhost:8001');
+  const socket = io('http://localhost:8001');
+  const [racketY, setRacketY] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,6 +19,18 @@ const PongGame: React.FC = () => {
     console.log('Canvas Width:', canvas.width);
     console.log('Canvas Height:', canvas.height);
 
+    const handleMouseMove = (e: MouseEvent) => {
+      const canvasRect = canvas.getBoundingClientRect();
+      const mouseY = e.clientY - canvasRect.top;
+      const maxY = canvas.height - area.racketSize().getHeight();
+
+      // Assurez-vous que la position Y est dans les limites du canvas
+      const newRacketY = Math.min(maxY, Math.max(0, mouseY));
+
+      setRacketY(newRacketY);
+    }
+
+    canvas.addEventListener('mousemove', handleMouseMove);
     // Fonction de dessin
     const draw = () => {
       
@@ -58,7 +71,7 @@ const PongGame: React.FC = () => {
       console.log('Ball Width:', ballSize.getWidth());
 
       // Dessiner les raquettes et la balle en utilisant les données de Area
-      ctx.fillRect(player.getLocation().getX(), player.getLocation().getY(), racketSize.getWidth(), racketSize.getHeight());
+      ctx.fillRect(player.getLocation().getX(), racketY, racketSize.getWidth(), racketSize.getHeight());
       
       ctx.fillRect(opponent.getLocation().getX() - racketSize.getWidth(), opponent.getLocation().getY(), racketSize.getWidth(), racketSize.getHeight());
       // if (opponentRacketPosition !== null) {
@@ -70,34 +83,42 @@ const PongGame: React.FC = () => {
       ctx.arc(ballEntity.getLocation().getX(), ballEntity.getLocation().getY(), ballSize.getWidth() / 2, 0, Math.PI * 2);
       ctx.fillStyle = 'black'; // Couleur de la balle
       ctx.fill();
+
+      // Envoyer la position de la raquette au serveur
+      if (socket) {
+        socket.emit('racketMovement', racketY);
+      }
+
+      requestAnimationFrame(draw);
     };
 
     // Appeler la fonction de dessin
     draw();
+
+    // Envoyer périodiquement un paquet au serveur
+    const sendKeepAlivePacket = () => {
+      if (socket) {
+        // Ici, vous pouvez envoyer un paquet indiquant que le client est toujours connecté
+        // et inclure la position de la raquette
+        socket.emit('keep_alive_packet', { racketY });
+      }
+    };
+
+    const keepAliveInterval = setInterval(sendKeepAlivePacket, 50); // Envoyer toutes les 50 ms
+
     return () => {
       if (socket) {
         socket.disconnect();
       }
+      canvas.removeEventListener('mousemove', handleMouseMove); // Supprimer l'écouteur d'événements
     };
-  }, [socket]);
+  }, [socket, racketY]);
 
-  // Gérer les mouvements de la raquette du client
-  // const handleRacketMovement = (percent: number) => {
-  //   if (socket) {
-  //     socket.emit('racketMovement', percent); // Envoyer le pourcentage au serveur
-  //   }
-  // };
-
-  if (socket) {
-    // Écouter les mises à jour des raquettes des autres joueurs
-    socket.on('racketMoved', (percent: number) => {
-    });
-  }
   return (
     <div>
       <div className="centered-container">
         <div className="score">
-          Nom 1------0 - 2-----Nom 2
+        player1------playerScore - opponentScore-----opponentID
         </div>
         <canvas ref={canvasRef} width={800} height={400} />
       </div>
