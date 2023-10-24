@@ -14,6 +14,7 @@ import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
 import { UserContext } from './context/userContext';
+import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 // import { PacketOutTimeUpdate } from './components/packet/out/PacketOutTimeUpdate';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
@@ -61,12 +62,8 @@ const App: React.FC = () => {
     id: 0,
     timer: 1000,
     timeout: setInterval(() => {
-      // const tmp: NodeJS.Timeout = setInterval(sendData, 50);
-      // function sendData(): void {
-      pongSocket.emit('keep_alive_packet', 'packetOutTime');
+      pongSocket.emit('keep_alive_packet', new PacketInKeepAlive(0));
       console.log(1000);
-      // }
-      // console.log(tmp);
     }, 1000),
   });
 
@@ -75,17 +72,6 @@ const App: React.FC = () => {
       console.log(pongSocket.id);
     });
   }, []);
-
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     // const tmp: NodeJS.Timeout = setInterval(sendData, 50);
-  //     // function sendData(): void {
-  //     pongSocket.emit('keep_alive_packet', 'packetOutTime');
-  //     console.log(user.timer);
-  //     // }
-  //     // console.log(tmp);
-  //   }, user.timer);
-  // }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

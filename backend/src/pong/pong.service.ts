@@ -17,7 +17,6 @@ export class PongService {
 
 	sendTimePacket(pong_server: PongServer, connected: Connected) {
 		connected.client.emit('time_packet', new PacketOutTime()); // TODO...
-		connected.isIngame = 1;
 	}
 
 	handleKeepAlivePacket(pong_server: PongServer, connected: Connected, packet: PacketInKeepAlive) {
