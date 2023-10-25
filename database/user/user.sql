@@ -8,7 +8,7 @@ create table "user"
     "avatar_base64" text,
     "two_factor_auth" boolean default false,
 	"user_42_id" integer unique,
-    "color_hex" text default "fffff";
+    "color_hex" text default 'fffff'
 );
 
 create or replace view "v_user" as select * from "user";

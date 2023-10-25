@@ -82,6 +82,9 @@ const Chat: React.FC = () => {
       <Box alignSelf="flex-end">
         <ProfileButton />
       </Box>
+      {/* <Box>
+
+      </Box> */}
       <Box
         display="flex"
         justifyContent="center"

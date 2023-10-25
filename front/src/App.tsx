@@ -15,18 +15,18 @@ import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
-  const cookie = read_cookie('userIsAuth');
+  const cookie = read_cookie('jwt');
   console.log(cookie);
-  if (cookie !== 'true') {
+  if (cookie !== '') {
     return <LoginPage />;
   }
   return <Navigate to="/" />;
 }
 
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
-  const userIsAuthenticated = read_cookie('userIsAuth');
+  const userIsAuthenticated = read_cookie('jwt');
   // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated === 'true') return <>{children}</>;
+  if (userIsAuthenticated !== '') return <>{children}</>;
   return (
     <div
       style={{
@@ -134,9 +134,9 @@ const App: React.FC = () => {
               <Route
                 path="/auth/callback"
                 element={
-                  // <PublicRoute>
-                  <AuthCallback />
-                  // </PublicRoute>
+                  <PublicRoute>
+                    <AuthCallback />
+                  </PublicRoute>
                 }
               />
               <Route path="*" element={<NoMatch />} />

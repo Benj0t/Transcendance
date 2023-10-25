@@ -356,7 +356,6 @@ export class ApiController {
    */
 
   @Get('auth/callback')
-  @UseGuards(JwtAuthGuard)
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
 
     /**
@@ -364,7 +363,7 @@ export class ApiController {
      */
 
     const client_id = 'u-s4t2ud-2c8d9db03c47fbff2b0498581e3badfacdf6e8a94f08c3c7338c2c5e27bb7f81';
-    const client_secret = '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';
+    const client_secret = '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';
 
     /**
      * Build a payload with the arguments for the

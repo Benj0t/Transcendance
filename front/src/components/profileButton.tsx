@@ -30,7 +30,7 @@ const ProfileButton: React.FC = () => {
     navigate('/settings');
   };
   const onClickDisconnect = (): void => {
-    delete_cookie('userIsAuth');
+    delete_cookie('jwt');
     navigate('/login');
   };
   return (
