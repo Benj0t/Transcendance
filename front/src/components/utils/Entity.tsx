@@ -1,6 +1,6 @@
-import React from 'react';
-import { Scaled } from "./Scaled"
-import { Size } from "./Size"
+// import React from 'react';
+// import { Scaled } from './Scaled';
+import { type Size } from './Size';
 import Location from './Location';
 
 class Entity {
@@ -10,9 +10,9 @@ class Entity {
     this.location = new Location(size);
   }
 
-  getLocation() {
+  getLocation(): Location {
     return this.location;
   }
 }
 
-  export default Entity;
+export default Entity;

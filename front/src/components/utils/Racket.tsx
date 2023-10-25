@@ -1,17 +1,17 @@
-import React from 'react';
+// import React from 'react';
 import Entity from './Entity';
-import Size from './Size';
+import type Size from './Size';
 
 class Racket extends Entity {
-  user_id: number;
+  userId: number;
 
-  constructor(user_id: number, size: Size) {
+  constructor(userId: number, size: Size) {
     super(size);
-    this.user_id = user_id;
+    this.userId = userId;
   }
 
-  getUserId() {
-    return this.user_id;
+  getUserId(): number {
+    return this.userId;
   }
 }
 

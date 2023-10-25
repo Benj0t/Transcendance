@@ -1,5 +1,3 @@
-import { Packet } from "../Packet"
+import { Packet } from '../Packet';
 
-export class PacketInDualCancel extends Packet{
-
-}
+export class PacketInDualCancel extends Packet {}
