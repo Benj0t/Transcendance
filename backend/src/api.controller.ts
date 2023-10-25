@@ -21,11 +21,25 @@ import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entit
 @Controller('api')
 export class ApiController {
 
+  //TODO route pour check JWT
+
   constructor(
     private readonly http_service: HttpService,
     private readonly user_service: UserService,
     private readonly auth_service: AuthService
   ) { }
+
+   /**
+   * @returns   The users
+   * 
+   * @author Komqdo
+   */
+  
+  @Get('valid-jwt/')
+  @UseGuards(JwtAuthGuard)
+  validJWT(): { message: string } {
+    return ({ message: "valid jwt"});
+  }
 
   /**
    * @returns   The users
@@ -34,6 +48,7 @@ export class ApiController {
    */
   
   @Get('user/')
+  @UseGuards(JwtAuthGuard)
   getUser(): Promise<UserEntity[] | { message: string }> {
     return this.user_service.findAll().catch(error => {
       console.error("Error fetching users: ", error);
