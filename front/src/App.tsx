@@ -13,20 +13,30 @@ import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
+import PongGame from './components/PongGame';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('jwt');
   console.log(cookie);
-  if (cookie !== '') {
+  if (cookie.length === 0) {
     return <LoginPage />;
   }
   return <Navigate to="/" />;
 }
 
+function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
+  const cookie = read_cookie('jwt');
+  console.log(cookie);
+  if (cookie.length === 0) {
+    return <AuthCallback />;
+  }
+  return <Navigate to="/login" />;
+}
+
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = read_cookie('jwt');
   // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated !== '') return <>{children}</>;
+  if (userIsAuthenticated.length !== 0) return <>{children}</>;
   return (
     <div
       style={{
@@ -87,7 +97,7 @@ const App: React.FC = () => {
                 path="/waiting-room"
                 element={
                   <PrivateRoute>
-                    <WaitingRoom />
+                    <PongGame />
                   </PrivateRoute>
                 }
               />
@@ -134,9 +144,9 @@ const App: React.FC = () => {
               <Route
                 path="/auth/callback"
                 element={
-                  <PublicRoute>
+                  <CallbackRoute>
                     <AuthCallback />
-                  </PublicRoute>
+                  </CallbackRoute>
                 }
               />
               <Route path="*" element={<NoMatch />} />
