@@ -2,27 +2,35 @@ import * as React from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
-import { useState } from 'react';
 import { Box } from '@mui/material';
+interface ChatSelectProps {
+  changeChannel: React.Dispatch<React.SetStateAction<number>>;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
+  channel: number;
+  channelsList: Array<{
+    id: number;
+    name: string;
+  }>;
+}
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Créer un channel',
-];
-
-const ChatSelect: React.FC = () => {
-  const [personName, setPersonName] = useState<string>('');
-  const handleChangeMultiple = (event: SelectChangeEvent<typeof personName>): void => {
+const ChatSelect: React.FC<ChatSelectProps> = ({
+  changeChannel,
+  channelsList,
+  channel,
+  setIsAdmin,
+}) => {
+  const handleChangeMultiple = (event: SelectChangeEvent<string>): void => {
     console.log(event.target.value);
-    setPersonName(event.target.value);
+    const selectedName = event.target.value;
+    const selectedChannel = channelsList.find((item) => item.name === selectedName);
+    if (selectedChannel != null) {
+      changeChannel(selectedChannel.id);
+      if (selectedChannel.id === 1000) setIsAdmin(true);
+      else {
+        setIsAdmin(false);
+      }
+    }
+    /// A remplacer par une vraie cond si l'User est admin du channel select
   };
 
   return (
@@ -31,10 +39,16 @@ const ChatSelect: React.FC = () => {
         <InputLabel shrink htmlFor="selectChat">
           Salon
         </InputLabel>
-        <Select native value={personName} onChange={handleChangeMultiple} label="Salon" autoWidth>
-          {names.map((name) => (
-            <option key={name} value={name}>
-              {name}
+        <Select
+          native
+          value={channelsList.find((item) => item.id === channel)?.name}
+          onChange={handleChangeMultiple}
+          label="Salon"
+          autoWidth
+        >
+          {channelsList.map((index) => (
+            <option key={index.id} value={index.name}>
+              {index.name}
             </option>
           ))}
         </Select>

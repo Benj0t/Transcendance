@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import WaitingRoom from './pages/WaitingRoom';
+// import WaitingRoom from './pages/WaitingRoom';
 import Chat from './pages/Chat';
 import History from './pages/History';
 import Game from './pages/Game';

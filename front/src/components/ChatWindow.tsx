@@ -11,6 +11,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage }) => {
       style={{
         padding: '16px',
         overflowY: 'scroll',
+        height: '70vh',
         maxHeight: '70vh',
         width: '100%',
       }}
