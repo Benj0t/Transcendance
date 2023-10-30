@@ -1,138 +1,195 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/PongGame.css';
-import Area from './utils/Area';
+import Area from '../../../backend/src/utils/Area';
 import io from 'socket.io-client';
+import { PacketInKeepAlive } from './packet/in/PacketInKeepAlive';
 
-const PongGame: React.FC = () => {
+const PongGame: React.FC = (): any => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = io('http://localhost:8001');
   const [racketY, setRacketY] = useState(0);
+  const [isChoosingMatchmaking, setIsChoosingMatchmaking] = useState(false);
+  const [isChoosingDuel, setIsChoosingDuel] = useState(false);
+  const [isGameStarted, setGameStarted] = useState(false);
+  const [opponentId, setOpponentId] = useState<number | null>(null);
+  const [area, setArea] = useState<Area | null>(null);
+  
+    const sendMatchmakingPacket = (): any => {
+      socket.emit("DualPacket", 0);
+      setGameStarted(true);
+    };
+    
+    const sendDualPacket = (opponentId: number): any => {
+      socket.emit("DualPacket", opponentId);
+      setIsChoosingDuel(true);
+      setGameStarted(true);
+    };
+  
+    const sendKeepAlivePacket = (racketY: number): any => {
+      socket.emit("keep_alive_packet", socket, new PacketInKeepAlive(racketY));
+    };
 
+    const receivePacket = (data: any) => {
+      setArea(data.area);
+    };
+
+  // const setIdle = (): any => {
+  //   setGameWindow(null);
+  // };
+
+  // const setPlaying = (): any => {
+  // };
+  
+  
   useEffect(() => {
+
     const canvas = canvasRef.current;
-    if (canvas == null) return;
-
+    if (canvas == null)
+      return ;
+  
     const ctx = canvas.getContext('2d');
-    if (ctx == null) return;
+    if (ctx == null)
+      return ;
 
-    const area = new Area(canvas.width, canvas.height, 1, 2);
+    if (area == null)
+      return ;
+  
+    const handleSocketData = (data: any) => {
+      setArea(data);
+    };
+
+    socket.on('AreaPacket', handleSocketData);
+
     console.log('Canvas Width:', canvas.width);
     console.log('Canvas Height:', canvas.height);
-
+    
     const handleMouseMove = (e: MouseEvent): void => {
       const canvasRect = canvas.getBoundingClientRect();
       const mouseY = e.clientY - canvasRect.top;
       const maxY = canvas.height - area.racketSize().getHeight();
-
-      // Assurez-vous que la position Y est dans les limites du canvas
       const newRacketY = Math.min(maxY, Math.max(0, mouseY));
 
       setRacketY(newRacketY);
+      sendKeepAlivePacket(racketY);
     };
 
-    canvas.addEventListener('mousemove', handleMouseMove);
-    // Fonction de dessin
     const draw = (): void => {
-      // Effacer le contenu du canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (isGameStarted)
+      {
+        socket.on('AreaPacket', (data) => {
+            receivePacket(data);
+          });
+        if (isChoosingMatchmaking) {
+          sendMatchmakingPacket();
+        }
+        else if (isChoosingDuel) {
+          const opponentId = 123;
+          sendDualPacket(opponentId);
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+        // Dessiner un rectangle noir qui remplit le canvas
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
 
-      // Dessiner une ligne noire autour du canvas pour la bordure
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        // Dessiner une ligne blanche autour du canvas pour la bordure
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-      // Dessiner le milieu du terrain (ligne au milieu)
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 0);
-      ctx.lineTo(canvas.width / 2, canvas.height);
-      ctx.stroke();
+        // Dessiner le milieu du terrain (ligne au milieu)
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
 
-      const player = area.getPlayer();
-      const opponent = area.getOpponent();
-      const ballEntity = area.getBall();
-      const racketSize = area.racketSize();
-      const ballSize = area.ballSize();
+        const opponent = area.getOpponent();
+        const ballEntity = area.getBall();
+        const racketSize = area.racketSize();
+        const ballSize = area.ballSize();
 
-      // Log des valeurs de la raquette du joueur
-      console.log('Player Y:', player.getLocation().getY());
-      console.log('Player X:', player.getLocation().getX());
-      console.log('Racket Width:', racketSize.getWidth());
-      console.log('Racket Height:', racketSize.getHeight());
+        // Espacement des raquettes par rapport aux bords
+        const offsetFromEdge = 10;
 
-      // Log des valeurs de la raquette de l'opposant
-      console.log('Opponent Y:', opponent.getLocation().getY());
-      console.log('Opponent X:', opponent.getLocation().getX());
+        // Dessiner les raquettes et la balle en utilisant les données de Area
+        ctx.fillRect(offsetFromEdge, racketY, racketSize.getWidth(), racketSize.getHeight());
 
-      // Log des valeurs de la balle
-      console.log('Ball Y:', ballEntity.getLocation().getY());
-      console.log('Ball X:', ballEntity.getLocation().getX());
-      console.log('Ball Width:', ballSize.getWidth());
+        ctx.fillRect(
+          canvas.width - racketSize.getWidth() - offsetFromEdge,
+          opponent.getLocation().getY(),
+          racketSize.getWidth(),
+          racketSize.getHeight(),
+        );
 
-      // Dessiner les raquettes et la balle en utilisant les données de Area
-      ctx.fillRect(
-        player.getLocation().getX(),
-        racketY,
-        racketSize.getWidth(),
-        racketSize.getHeight(),
-      );
+        // Dessiner le score
+        ctx.font = '42px Arial';
+        ctx.textAlign = 'center';
 
-      ctx.fillRect(
-        opponent.getLocation().getX() - racketSize.getWidth(),
-        opponent.getLocation().getY(),
-        racketSize.getWidth(),
-        racketSize.getHeight(),
-      );
-      // if (opponentRacketPosition !== null) {
-      //   const opponentY = (canvas.height * opponentRacketPosition) / 100;
-      //   ctx.fillRect(canvas.width - racketSize.getWidth(), opponentY, racketSize.getWidth(), racketSize.getHeight());
-      // }
+        const scoreY = 40; // Position verticale commune pour les scores
 
-      ctx.beginPath();
-      ctx.arc(
-        ballEntity.getLocation().getX(),
-        ballEntity.getLocation().getY(),
-        ballSize.getWidth() / 2,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fillStyle = 'black'; // Couleur de la balle
-      ctx.fill();
+        ctx.fillText(`1`, canvas.width / 3, scoreY);
+        ctx.fillText(`4`, (2 * canvas.width) / 3, scoreY);
 
-      // Envoyer la position de la raquette au serveur
-      // if (socket) {
-      //   socket.emit('racketMovement', racketY);
-      // }
+        ctx.beginPath();
+        ctx.arc(
+          ballEntity.getLocation().getX(),
+          ballEntity.getLocation().getY(),
+          ballSize.getWidth() / 2,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = 'white';
+        ctx.fill();
 
-      requestAnimationFrame(draw);
+        if (canvas != null)
+          sendKeepAlivePacket(racketY);
+        requestAnimationFrame(draw);
+      }
     };
 
-    // Appeler la fonction de dessin
     draw();
 
-    // Envoyer périodiquement un paquet au serveur
-    // const sendKeepAlivePacket = (): void => {
-    // if (socket) {
-    // Ici, vous pouvez envoyer un paquet indiquant que le client est toujours connecté
-    // et inclure la position de la raquette
-    // socket.emit('keep_alive_packet', { racketY });
-    // }
-    // };
-
-    // const keepAliveInterval = setInterval(sendKeepAlivePacket, 50); // Envoyer toutes les 50 ms
+    canvas.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-      // if (socket) {
-      //   socket.disconnect();
-      // }
-      canvas.removeEventListener('mousemove', handleMouseMove); // Supprimer l'écouteur d'événements
+      canvas.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [socket, racketY]);
+  }, [socket, racketY, isGameStarted]);
 
   return (
     <div>
       <div className="centered-container">
-        <div className="score">player1------playerScore - opponentScore-----opponentID</div>
-        <canvas ref={canvasRef} width={800} height={400} />
+        {isGameStarted ? (
+          <canvas ref={canvasRef} width={800} height={400} />
+        ) : (
+          <div>
+            {isChoosingMatchmaking ? (
+              <button onClick={sendMatchmakingPacket}>Start Matchmaking</button>
+            ) : isChoosingDuel ? (
+              <div>
+                <input
+                  type="text"
+                  placeholder="Enter Opponent ID"
+                  value={opponentId !== null ? opponentId.toString() : ''}
+                  onChange={(e): any => { setOpponentId(parseInt(e.target.value))} }
+                />
+                <button onClick={(): void => { 
+                  if (opponentId !== null) {
+                    sendDualPacket(opponentId);
+                  } else {
+                    console.log('Entrez d\'abord l\'ID de l\'opposant.');
+                  }
+                }}>Start Duel</button>
+              </div>
+            ) : (
+              <div>
+                <button onClick={(): void => { setIsChoosingMatchmaking(true)} }>Matchmaking</button>
+                <button onClick={(): void => { setIsChoosingDuel(true)} }>Duel</button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

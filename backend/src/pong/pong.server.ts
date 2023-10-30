@@ -9,14 +9,20 @@ import { OnModuleDestroy } from '@nestjs/common';
 import { Server, Socket } from "socket.io";
 import { PongService } from "./pong.service";
 import { PacketInKeepAlive } from "./packet/keep.alive.packet";
+import { Connected } from './Connected'
+import { Match } from './Match'
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
 
     @WebSocketServer()
     private server: Server;
-
+    public matches: Set<Match> = new Set<Match>();
     private connecteds: Connected [] = [];
+
+    static option = {
+      display: { width: 800, height: 400 },
+    }
 
     constructor(private readonly pongService: PongService) { }
 
@@ -25,7 +31,12 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     return found || null;
     }
 
-    // isConnected(user_id: number): boolean {
+    getConnectedByUserId(userId: number): Connected | null {
+        const found = this.connecteds.find(connected => connected.userId === userId);
+        return found || null;
+    }
+
+    // isConnected(userId: number): boolean {
     //     return (this.connecteds => )
     // }
 
@@ -55,22 +66,55 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
         console.log("test")
         this.pongService.handleKeepAlivePacket(this, this.getConnected(client), packet);
     }
-}
 
-export class Connected {
+    createMatch(user1: Connected, user2: Connected) {
+        if (user1.hasMatch() || user2.hasMatch()) return;
+    
+        const match = new Match(user1, user2);
+        match.init();
+        this.matches.add(match);
+      }
 
-    public readonly pong_server: PongServer;
-    public readonly client: Socket;
+    checkMatchStart(connected: Connected) {
+      if (!connected.hasMatch() && connected.opponentId !== null) {
+        if (connected.opponentId === 0) {
+          const opponent = this.getWaitingOpponent(connected.userId);
+          console.log(
+            `[LOG] ${connected.client.id}: searching opponent...: ${opponent?.client.id}`
+          );
 
-    public pingInterval: NodeJS.Timeout;
+          if (opponent) {
+            console.log(
+              `[LOG] ${connected.client.id}: found opponent: ${opponent.client.id}`
+            );
+            this.createMatch(connected, opponent);
+          }
+        } else {
+          const opponent = this.getConnectedByUserId(connected.opponentId);
 
-    constructor(pong_server: PongServer, client: Socket) {
-        
-        this.pong_server = pong_server;
-        this.client = client;
+          if (opponent && opponent.opponentId !== null && opponent.opponentId === connected.userId) {
+            this.createMatch(connected, opponent);
+          }
+        }
+      }
+    }
+    
+    updateMatches() {
+      for (const match of Array.from(this.matches)) {
+        match.update();
+      }
     }
 
-    stop(): void {
-        clearInterval(this.pingInterval);
+    getWaitingOpponent(searcherId: number) {
+      for (const connected of Array.from(this.connecteds)) {
+        if (connected.userId === searcherId) {
+          continue;
+        }
+
+      if (connected.opponentId !== null && connected.opponentId === 0 && !connected.hasMatch()) {
+        return connected;
+    }
+      }
+      return null;
     }
 }
