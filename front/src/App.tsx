@@ -158,7 +158,7 @@ import PongGame from './components/PongGame';
 //   );
 // };
 
-// export default App;
+// // export default App;
 
 function App(): any {
   return (
