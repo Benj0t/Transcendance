@@ -34,8 +34,26 @@
 `POST` /user/{user}/achievements					 Add an achievement for an user.
 `DELETE` /user/{user}/achievements					 Remove an achievement for an user.
 
-`GET` /user/{user}/chat/{channel_id}/messages        Get the messages for a channel (User should be member of it).
-`POST` /user/{user}/chat/{channel_id}                Put a message from an user to a channel (User should be member of it).
+`GET` /user/{user}/chat/{channel_id}/messages Get the messages for a channel (User should be member of it).
+`POST` /user/{user}/chat/{channel_id}/messages Put a message from an user to a channel (User should be member of it).
 ?message={message}
+
+`GET` /user/{user}/chat/channels Get all the channels the user is a member of.
+
+`POST` /user/{user}/chat/channels Create a new channel for a user.
+
+?title={title} & is_private={true/false} & password={password} & members={members}
+
+`PATCH` /user/{user}/chat/{channel_id} Update channel information for a user (only if owner).
+?title={new_title} & password={new_password}
+
+`DELETE` /user/{user}/chat/{channel_id} Delete a channel for a user (only if owner).
+
+`POST` /user/{user}/chat/{channel_id}/mute Mute a user in a channel (only if admin or owner).
+?target_id={id} & mute_time={time}
+`POST` /user/{user}/chat/{channel_id}/ban Ban a user from a channel (only if admin or owner).
+?target_id={id} & ban_time={time}
+`POST` /user/{user}/chat/{channel_id}/op Promote a user to admin in a channel (only if owner).
+?target_id={id}
 
 ```-```
