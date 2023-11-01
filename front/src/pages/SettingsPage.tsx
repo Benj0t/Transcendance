@@ -3,16 +3,13 @@ import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
-import { read_cookie } from 'sfcookies';
-
+import Cookies from 'js-cookie';
 // const axiosConfig = {
 //   baseURL: 'http://localhost',
 //   port: 8080,
 // };
 
 // const instance = axios.create(axiosConfig);
-const jwtParam = read_cookie('jwt');
-
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
   const [color, setColor] = useState('#aabbcc');
@@ -20,16 +17,17 @@ const SettingsPage: React.FC = () => {
   // const username: string = 'hello';
   const navigate = useNavigate();
 
-  const requestData = {
-    headers: {
-      Authorization: `Bearer ${jwtParam}`,
-    },
-    params: {
-      username: 'usertest',
-    },
-  };
-
   const handleEnableTwoFactor = (): void => {
+    const jwt = Cookies.get('jwt');
+    if (jwt === undefined) navigate('/login');
+    const requestData = {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      params: {
+        username: 'usertest',
+      },
+    };
     axios
       .post(`http://localhost:8080/api/auth/generate/`, requestData)
       .then((response) => {

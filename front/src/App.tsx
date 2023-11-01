@@ -6,7 +6,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Chat from './pages/Chat';
 import History from './pages/History';
 import Game from './pages/Game';
-import { read_cookie } from 'sfcookies';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
@@ -15,29 +14,29 @@ import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
+import Cookies from 'js-cookie';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
-  const cookie = read_cookie('jwt');
-  console.log(cookie);
-  if (cookie.length === 0) {
+  console.log(Cookies.get('jwt'));
+  if (Cookies.get('jwt') === undefined) {
     return <LoginPage />;
   }
   return <Navigate to="/" />;
 }
 
 function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
-  const cookie = read_cookie('jwt');
+  const cookie = Cookies.get('jwt');
   console.log(cookie);
-  if (cookie.length === 0) {
+  if (Cookies.get('jwt') === undefined) {
     return <AuthCallback />;
   }
   return <Navigate to="/login" />;
 }
 
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
-  const userIsAuthenticated = read_cookie('jwt');
+  const userIsAuthenticated = Cookies.get('jwt');
   // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated.length !== 0) return <>{children}</>;
+  if (userIsAuthenticated === undefined) return <>{children}</>;
   return (
     <div
       style={{
