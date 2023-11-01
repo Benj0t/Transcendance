@@ -20,9 +20,10 @@ const SettingsPage: React.FC = () => {
   const handleEnableTwoFactor = (): void => {
     const jwt = Cookies.get('jwt');
     if (jwt === undefined) navigate('/login');
+    const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
     const requestData = {
       headers: {
-        Authorization: `Bearer ${jwt}`,
+        Authorization: authHeader,
       },
       params: {
         username: 'usertest',
