@@ -21,6 +21,7 @@ const SettingsPage: React.FC = () => {
     const jwt = Cookies.get('jwt');
     if (jwt === undefined) navigate('/login');
     const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
+    console.log(authHeader);
     const requestData = {
       headers: {
         Authorization: authHeader,

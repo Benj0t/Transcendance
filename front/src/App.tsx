@@ -36,7 +36,7 @@ function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = Cookies.get('jwt');
   // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated === undefined) return <>{children}</>;
+  if (userIsAuthenticated !== undefined) return <>{children}</>;
   return (
     <div
       style={{
