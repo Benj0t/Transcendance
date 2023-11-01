@@ -9,8 +9,8 @@ import { OnModuleDestroy } from '@nestjs/common';
 import { Server, Socket } from "socket.io";
 import { PongService } from "./pong.service";
 import { PacketInKeepAlive } from "./packet/keep.alive.packet";
-import { Connected } from './Connected'
-import { Match } from './Match'
+import { Match } from './Match';
+import { Connected } from './Connected';
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {

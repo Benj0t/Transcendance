@@ -377,8 +377,8 @@ export class ApiController {
      * Client id and secret
      */
 
-    const client_id = 'u-s4t2ud-2c8d9db03c47fbff2b0498581e3badfacdf6e8a94f08c3c7338c2c5e27bb7f81';
-    const client_secret = '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';
+    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
+    const client_secret = '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';
 
     /**
      * Build a payload with the arguments for the

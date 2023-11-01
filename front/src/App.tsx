@@ -63,6 +63,11 @@ const darkTheme = createTheme({
     mode: 'dark',
   },
 });
+const lightTheme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -72,89 +77,110 @@ const App: React.FC = () => {
     });
   }, []);
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline>
-        <div className="App">
-          <BrowserRouter>
-            <Routes>
-              <Route
-                path="/"
-                element={
+    <CssBaseline>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <HomePage />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/login"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PublicRoute>
                     <LoginPage />
                   </PublicRoute>
-                }
-              ></Route>
-              <Route
-                path="/waiting-room"
-                element={
-                  <PrivateRoute>
-                    <PongGame />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/Game"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/waiting-room"
+              element={
+                <ThemeProvider theme={lightTheme}>
+                  <PongGame />
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/game"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <Game />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/chat"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <Chat />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/friends"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/friends"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <Friends />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/history"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <History />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <PrivateRoute>
                     <SettingsPage />
                   </PrivateRoute>
-                }
-              />
-              <Route
-                path="/auth/callback"
-                element={
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="/auth/callback"
+              element={
+                <ThemeProvider theme={darkTheme}>
                   <CallbackRoute>
                     <AuthCallback />
                   </CallbackRoute>
-                }
-              />
-              <Route path="*" element={<NoMatch />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </CssBaseline>
-    </ThemeProvider>
+                </ThemeProvider>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <ThemeProvider theme={darkTheme}>
+                  <NoMatch />
+                </ThemeProvider>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </CssBaseline>
   );
 };
 

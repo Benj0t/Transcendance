@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 const LoginPage: React.FC = () => {
   const handleLogin = (): void => {
     const url =
-      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-2c8d9db03c47fbff2b0498581e3badfacdf6e8a94f08c3c7338c2c5e27bb7f81&redirect_uri=http://localhost:8080/api/auth/callback&response_type=code&scope=public&state=a_very_long_random_string_wichmust_be_unguessable';
+      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fcallback&response_type=code';
     window.location.href = url;
   };
 

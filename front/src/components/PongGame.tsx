@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/PongGame.css';
-import Area from '../../../backend/src/utils/Area';
+import type Area from '../../../backend/src/utils/Area';
 import io from 'socket.io-client';
 import { PacketInKeepAlive } from './packet/in/PacketInKeepAlive';
 
@@ -13,25 +13,25 @@ const PongGame: React.FC = (): any => {
   const [isGameStarted, setGameStarted] = useState(false);
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [area, setArea] = useState<Area | null>(null);
-  
-    const sendMatchmakingPacket = (): any => {
-      socket.emit("DualPacket", 0);
-      setGameStarted(true);
-    };
-    
-    const sendDualPacket = (opponentId: number): any => {
-      socket.emit("DualPacket", opponentId);
-      setIsChoosingDuel(true);
-      setGameStarted(true);
-    };
-  
-    const sendKeepAlivePacket = (racketY: number): any => {
-      socket.emit("keep_alive_packet", socket, new PacketInKeepAlive(racketY));
-    };
 
-    const receivePacket = (data: any) => {
-      setArea(data.area);
-    };
+  const sendMatchmakingPacket = (): any => {
+    socket.emit('DualPacket', 0);
+    setGameStarted(true);
+  };
+
+  const sendDualPacket = (opponentId: number): any => {
+    socket.emit('DualPacket', opponentId);
+    setIsChoosingDuel(true);
+    setGameStarted(true);
+  };
+
+  const sendKeepAlivePacket = (racketY: number): any => {
+    socket.emit('keep_alive_packet', socket, new PacketInKeepAlive(racketY));
+  };
+
+  const receivePacket = (data: any): void => {
+    setArea(data.area);
+  };
 
   // const setIdle = (): any => {
   //   setGameWindow(null);
@@ -39,22 +39,17 @@ const PongGame: React.FC = (): any => {
 
   // const setPlaying = (): any => {
   // };
-  
-  
+
   useEffect(() => {
-
     const canvas = canvasRef.current;
-    if (canvas == null)
-      return ;
-  
-    const ctx = canvas.getContext('2d');
-    if (ctx == null)
-      return ;
+    if (canvas == null) return;
 
-    if (area == null)
-      return ;
-  
-    const handleSocketData = (data: any) => {
+    const ctx = canvas.getContext('2d');
+    if (ctx == null) return;
+
+    if (area == null) return;
+
+    const handleSocketData = (data: any): void => {
       setArea(data);
     };
 
@@ -62,7 +57,7 @@ const PongGame: React.FC = (): any => {
 
     console.log('Canvas Width:', canvas.width);
     console.log('Canvas Height:', canvas.height);
-    
+
     const handleMouseMove = (e: MouseEvent): void => {
       const canvasRect = canvas.getBoundingClientRect();
       const mouseY = e.clientY - canvasRect.top;
@@ -74,20 +69,18 @@ const PongGame: React.FC = (): any => {
     };
 
     const draw = (): void => {
-      if (isGameStarted)
-      {
+      if (isGameStarted) {
         socket.on('AreaPacket', (data) => {
-            receivePacket(data);
-          });
+          receivePacket(data);
+        });
         if (isChoosingMatchmaking) {
           sendMatchmakingPacket();
-        }
-        else if (isChoosingDuel) {
+        } else if (isChoosingDuel) {
           const opponentId = 123;
           sendDualPacket(opponentId);
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
+
         // Dessiner un rectangle noir qui remplit le canvas
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -142,8 +135,7 @@ const PongGame: React.FC = (): any => {
         ctx.fillStyle = 'white';
         ctx.fill();
 
-        if (canvas != null)
-          sendKeepAlivePacket(racketY);
+        if (canvas != null) sendKeepAlivePacket(racketY);
         requestAnimationFrame(draw);
       }
     };
@@ -172,20 +164,38 @@ const PongGame: React.FC = (): any => {
                   type="text"
                   placeholder="Enter Opponent ID"
                   value={opponentId !== null ? opponentId.toString() : ''}
-                  onChange={(e): any => { setOpponentId(parseInt(e.target.value))} }
+                  onChange={(e): any => {
+                    setOpponentId(parseInt(e.target.value));
+                  }}
                 />
-                <button onClick={(): void => { 
-                  if (opponentId !== null) {
-                    sendDualPacket(opponentId);
-                  } else {
-                    console.log('Entrez d\'abord l\'ID de l\'opposant.');
-                  }
-                }}>Start Duel</button>
+                <button
+                  onClick={(): void => {
+                    if (opponentId !== null) {
+                      sendDualPacket(opponentId);
+                    } else {
+                      console.log("Entrez d'abord l'ID de l'opposant.");
+                    }
+                  }}
+                >
+                  Start Duel
+                </button>
               </div>
             ) : (
               <div>
-                <button onClick={(): void => { setIsChoosingMatchmaking(true)} }>Matchmaking</button>
-                <button onClick={(): void => { setIsChoosingDuel(true)} }>Duel</button>
+                <button
+                  onClick={(): void => {
+                    setIsChoosingMatchmaking(true);
+                  }}
+                >
+                  Matchmaking
+                </button>
+                <button
+                  onClick={(): void => {
+                    setIsChoosingDuel(true);
+                  }}
+                >
+                  Duel
+                </button>
               </div>
             )}
           </div>

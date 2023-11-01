@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from "socket.io";
-import { Connected, PongServer } from './pong.server';
+import { PongServer } from './pong.server';
 import { PacketInKeepAlive } from './packet/keep.alive.packet';
 import { PacketOutTime } from './packet/time.packet';
-
+import { Connected } from './Connected'
 @Injectable()
 export class PongService {
 
