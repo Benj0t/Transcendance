@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import WaitingRoom from './pages/WaitingRoom';
+// import WaitingRoom from './pages/WaitingRoom';
 import Chat from './pages/Chat';
 import History from './pages/History';
 import Game from './pages/Game';
@@ -14,6 +14,7 @@ import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
 import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
+import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = read_cookie('jwt');
@@ -138,6 +139,14 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <SettingsPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/confirmTwoFactor"
+                element={
+                  <PrivateRoute>
+                    <ConfirmTwoFactor />
                   </PrivateRoute>
                 }
               />

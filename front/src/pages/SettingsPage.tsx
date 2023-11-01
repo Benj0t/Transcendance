@@ -1,12 +1,45 @@
 import React, { useState } from 'react';
 import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
+import { useNavigate } from 'react-router';
+import axios from 'axios';
+import { read_cookie } from 'sfcookies';
+
+// const axiosConfig = {
+//   baseURL: 'http://localhost',
+//   port: 8080,
+// };
+
+// const instance = axios.create(axiosConfig);
+const jwtParam = read_cookie('jwt');
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
   const [color, setColor] = useState('#aabbcc');
   const [name, setName] = useState('Benjot');
+  // const username: string = 'hello';
+  const navigate = useNavigate();
 
+  const requestData = {
+    headers: {
+      Authorization: `Bearer ${jwtParam}`,
+    },
+    params: {
+      username: 'usertest',
+    },
+  };
+
+  const handleEnableTwoFactor = (): void => {
+    axios
+      .post(`http://localhost:8080/api/auth/generate/`, requestData)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error('Request Error: ', error);
+      });
+    navigate('/ConfirmTwoFactor');
+  };
   const handleChange = (color: string): void => {
     setColor(color);
   };
@@ -55,6 +88,9 @@ const SettingsPage: React.FC = () => {
         <Box marginTop="1%">
           <Button size="large" variant="outlined">
             Save
+          </Button>
+          <Button size="large" variant="outlined" onClick={handleEnableTwoFactor}>
+            Enable 2fa
           </Button>
         </Box>
       </Box>
