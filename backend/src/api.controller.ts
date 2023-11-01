@@ -5,11 +5,12 @@ import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserHasFriendEntity } from './entities/user_has_friend.entity';
 import { MatchEntity } from './entities/match.entity';
 import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entity';
+import { stringify } from 'querystring';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -370,6 +371,23 @@ export class ApiController {
    * @author Komqdo
    */
 
+  @Post('auth/generate')
+  @UseGuards(JwtAuthGuard)
+  async authGenerate(@Param('username') username: string): Promise<string>
+  {
+    const code = await this.auth_service.generateQR({ username: username });
+    console.log("hello?");
+    return code;
+  }
+  
+  @Get('auth/verify')
+  @UseGuards(JwtAuthGuard)
+  async authVerify(@Param('OTP') OTP: string): Promise<boolean>
+  {
+    const ret = await this.auth_service.verifyTwoFactor(OTP, 'secret');
+    return(ret);
+  }
+
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
 
@@ -377,8 +395,11 @@ export class ApiController {
      * Client id and secret
      */
 
-    const client_id = 'u-s4t2ud-2c8d9db03c47fbff2b0498581e3badfacdf6e8a94f08c3c7338c2c5e27bb7f81';
-    const client_secret = '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';
+    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
+    const client_secret = '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';
+
+
+    const client_username = 'bonjour';
 
     /**
      * Build a payload with the arguments for the
@@ -391,6 +412,13 @@ export class ApiController {
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: 'http://localhost:8080/api/auth/callback',
+    };
+
+    const twoFactor = {
+      client_id: client_id,
+      client_username: client_username,
+      client_secret: '',
+      code: '',
     };
 
     try {
@@ -437,10 +465,17 @@ export class ApiController {
         return;
       }
 
+      // TODO if twoFactorEnable is true redirect to a confirm 2fa page -> return verifyTwoFactor -> if false authentification failed
+
       /**
        * Redirect the user to main page.
        */
       const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
+      twoFactor.code = await this.auth_service.generateQR({ username: user.nickname, userId: user.id })
+      twoFactor.client_secret = await this.auth_service.getSecret({ userId: user.id })
+      console.log(twoFactor.code);
+      console.log(twoFactor.client_secret);
+      console.log(await this.auth_service.verifyTwoFactor('690201', 'OUGD2QIAEU6UWKDQ')); // hardcoded, replace with code entered by client and twoFactor.client_secret
       res.redirect(`http://localhost:3000/auth/callback?jwt=${token}`);
     } catch (error) {
       console.log(error);
