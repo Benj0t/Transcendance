@@ -231,8 +231,6 @@
 > 
 > `title`: Title of the channel
 > 
-> `is_private`: Whether the channel is private (true/false)
-> 
 > `password`: Password for the channel (optional)
 > 
 > `members`: Array of member IDs
@@ -288,7 +286,7 @@
 > 
 > `Returns`: List of messages
 
-🔵 🔵 **Post a Message to Channel**
+🔵 **Post a Message to Channel**
 
 > `Endpoint`: `POST` /api/channels/{channel_id}/messages
 > 
@@ -319,18 +317,27 @@
 🔵 **Ban a User from a Channel**
 
 > `Endpoint`: `POST` /api/channels/{channel_id}/ban
+> 
 > `Parameters`:
+> 
 > `target_id`: ID of the user to ban
+> 
 > `ban_time`: Time duration for the ban
+> 
 > `Access`: Channel admins or owner
+> 
 > `Returns`: Success or error message
 
 🔵 **Promote a User to Admin in a Channel**
 
 > `Endpoint`: `POST` /api/channels/{channel_id}/op
+> 
 > `Parameters`:
+> 
 > `target_id`: ID of the user to promote
+> 
 > `Access`: Channel owner only
+> 
 > `Returns`: Success or error message
 
 **Direct Messages**
@@ -338,10 +345,15 @@
 🔵 **Create or Retrieve Direct Message Channel**
 
 > `Endpoint`: `POST` /api/channels/dm
+> 
 > `Parameters`:
+> 
 > `user1`: ID of the first user
+> 
 > `user2`: ID of the second user
+> 
 > `Access`: Either of the two users
+> 
 > `Returns`: Channel ID or error message
 
 ---

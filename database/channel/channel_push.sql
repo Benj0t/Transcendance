@@ -6,6 +6,7 @@ declare
     v_mute_expiry timestamptz;
     is_member boolean;
 begin
+
     if not is_member(p_user_id, p_channel_id) then
         return 'User not member of this channel.';
     end if;
@@ -17,6 +18,7 @@ begin
     end if;
     
     insert into "channel_has_message" (channel_id, user_id, message) values (p_channel_id, p_user_id, p_message);
+
     return 'ok';
 end;
 $$ language plpgsql;

@@ -31,7 +31,7 @@ begin
         return 'User not permitted to kick.';
     end if;
 
-    delete from channel_has_member where channel_id = p_channel_id and user_id = p_target_id;
+    delete from "channel_has_member" where channel_id = p_channel_id and user_id = p_target_id;
     return 'ok';
 end;
 $$ language plpgsql;
@@ -58,7 +58,10 @@ begin
         return 'User already banned.';
     end if;
 
-    insert into channel_has_banned_user (channel_id, user_id, expiry_at) values (p_channel_id, p_target_id, current_timestamp + p_ban_time);
+    insert into "channel_has_banned_user" (channel_id, user_id, expiry_at) values (p_channel_id, p_target_id, current_timestamp + p_ban_time);
+    
+    delete from "channel_has_member" where channel_id = p_channel_id and user_id = p_target_id;
+
     return 'ok';
 end;
 $$ language plpgsql;
