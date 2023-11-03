@@ -36,5 +36,3 @@ begin
     return 'ok';
 end;
 $$ language plpgsql;
-
--- Delete a channel (Check owner permission)

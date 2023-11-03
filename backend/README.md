@@ -209,18 +209,6 @@
 > 
 > `Returns`: Success or error message
 
-🔵 **Remove an Achievement for an User**
-
-> `Endpoint`: `DELETE /user/{user}/achievements`
-> 
-> `Parameters`: 
-> 
-> (Specify the required parameters here)
-> 
-> `Access`: User himself/herself or admin
-> 
-> `Returns`: Success or error message
-
 **Channels**
 
 🔵 **Create a New Channel**
@@ -357,3 +345,18 @@
 > `Returns`: Channel ID or error message
 
 ---
+
+`POST` /api/channels ✅	-->createChannel
+`GET` /user/{user}/channels ✅	--> getUserChannels
+`DELETE` /api/channels/{channel_id} ✅	--> deleteChannel
+`PATCH` /api/channels/{channel_id}
+`GET` /api/channels/{channel_id}/messages	--> getMessages
+`POST` /api/channels/{channel_id}/messages ✅	--> sendMessage
+`POST` /api/channels/{channel_id}/mute ✅	--> muteUser
+`DELETE` /api/channels/{channel_id}/mute ✅	--> unmuteUser
+`POST` /api/channels/{channel_id}/kick ✅	--> kickUser
+`POST` /api/channels/{channel_id}/ban ✅	--> banUser
+`DELETE` /api/channels/{channel_id}/ban ✅	--> pardonUser
+`POST` /api/channels/{channel_id}/op ✅	--> opUser
+`DELETE` /api/channels/{channel_id}/op ✅	--> deopUser
+`POST` /api/channels/dm
