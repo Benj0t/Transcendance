@@ -25,11 +25,11 @@ export class AuthService {
     }
   }
 
-  async generateQR(twoFactor: any): Promise<string> {
-    const output = await generateSecret('YourName', 'Transcendance');
+  async generateQR(client_nickname: any, client_id: any): Promise<any> {
+    const output = await generateSecret(client_nickname, 'Transcendance');
     // stock secret -> db
-    this.secrets.set(twoFactor.client_id, output.secret);           // set new generated secret at key=userId
-    return output.qrcode;
+    this.secrets.set(client_id, output.secret);           // set new generated secret at key=userId
+    return output;
   }
 
   async getSecret(twoFactor: any): Promise<string> {

@@ -15,6 +15,7 @@ import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
+import AuthTwoFactor from './pages/AuthTwoFactor';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   console.log(Cookies.get('jwt'));
@@ -146,6 +147,14 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <ConfirmTwoFactor />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/authTwoFactor"
+                element={
+                  <PrivateRoute>
+                    <AuthTwoFactor />
                   </PrivateRoute>
                 }
               />

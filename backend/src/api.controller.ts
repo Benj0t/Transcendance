@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -372,19 +372,32 @@ export class ApiController {
    */
 
   @Post('auth/generate')
-  @UseGuards(JwtAuthGuard)
-  async authGenerate(@Param('username') username: string): Promise<string>
+  // @UseGuards(JwtAuthGuard)
+  async authGenerate(): Promise<string>
   {
-    const code = await this.auth_service.generateQR({ username: username });
-    console.log("hello?");
-    return code;
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
+    const a2fsecret = a2fdata.secret;
+    const a2fqrcode = a2fdata.qrcode;
+    // const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
+    // if (!updatedUser) {
+    //   throw new InternalServerErrorException('a2f enable error');
+    // }
+    if (!a2fdata) {
+      throw new InternalServerErrorException('a2f enable error');
+    }
+    return a2fqrcode;
   }
   
   @Get('auth/verify')
-  @UseGuards(JwtAuthGuard)
-  async authVerify(@Param('OTP') OTP: string): Promise<boolean>
+  // @UseGuards(JwtAuthGuard)
+  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
   {
-    const ret = await this.auth_service.verifyTwoFactor(OTP, 'secret');
+    const ret = await this.auth_service.verifyTwoFactor(OTP, 'OUGD2QIAEU6UWKDQ'); // TODO get secret from database
     return(ret);
   }
 
@@ -465,17 +478,17 @@ export class ApiController {
         return;
       }
 
-      // TODO if twoFactorEnable is true redirect to a confirm 2fa page -> return verifyTwoFactor -> if false authentification failed
+      // TODO if twoFactorEnable is true navigate(/AuthTwoFactor)
 
       /**
        * Redirect the user to main page.
        */
       const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
-      twoFactor.code = await this.auth_service.generateQR({ username: user.nickname, userId: user.id })
-      twoFactor.client_secret = await this.auth_service.getSecret({ userId: user.id })
-      console.log(twoFactor.code);
-      console.log(twoFactor.client_secret);
-      console.log(await this.auth_service.verifyTwoFactor('690201', 'OUGD2QIAEU6UWKDQ')); // hardcoded, replace with code entered by client and twoFactor.client_secret
+      // twoFactor.code = await this.auth_service.generateQR({ username: user.nickname, userId: user.id })
+      // twoFactor.client_secret = await this.auth_service.getSecret({ userId: user.id })
+      // console.log(twoFactor.code);
+      // console.log(twoFactor.client_secret);
+      // console.log(await this.auth_service.verifyTwoFactor('690201', 'OUGD2QIAEU6UWKDQ')); // hardcoded, replace with code entered by client and twoFactor.client_secret
       res.redirect(`http://localhost:3000/auth/callback?jwt=${token}`);
     } catch (error) {
       console.log(error);

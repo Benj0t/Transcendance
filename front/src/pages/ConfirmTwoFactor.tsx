@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 import TwoFactorInput from '../components/TwoFactorInput';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const ConfirmTwoFactor: React.FC = () => {
   /**
@@ -11,32 +12,36 @@ const ConfirmTwoFactor: React.FC = () => {
    */
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const param1 = params.get('param');
+  console.log('test');
+  console.log(param1);
 
   /**
    * Handlers
    */
   const onTwoFactorTest = (twoFactorCode: { text: string }): void => {
-    //
-
-    // TODO... checkout if twoFactorCode match with app with verify(twoFactorCode, client_secret)
-    // if return of verify is true => set twofactor boolean to true and do the check for each new connexion
-    // check for result before navigate
-    // if (getSecret(text, user.secret));
-    //   auth
-    // const requestData = {
-    //   OTP: twoFactorCode.text,
-    // };
-
+    const jwt = Cookies.get('jwt');
+    if (jwt === undefined) navigate('/login');
+    const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
+    const requestData = {
+      headers: {
+        Authorization: authHeader,
+      },
+      params: {
+        OTP: twoFactorCode.text,
+      },
+    };
     axios
-      .get(`/api/auth/verify`)
+      .get(`http://localhost:8080/api/auth/verify/`, requestData)
       .then((response) => {
-        console.log(response.data);
+        console.log(requestData.params.OTP);
+        if (response.data === true) navigate('/'); // TODO Set twofactorenable boolean to true
       })
       .catch((error) => {
         console.error('Request Error: ', error);
       });
-    navigate('/');
-    console.log(twoFactorCode);
   };
 
   const handleTwoFactor = (): void => {
@@ -45,6 +50,7 @@ const ConfirmTwoFactor: React.FC = () => {
       setTwoFactorCode('');
     }
   };
+  // TODO change img with qrcode from db
   return (
     <Box>
       <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>

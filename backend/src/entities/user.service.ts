@@ -85,6 +85,28 @@ export class UserService {
 		}
 	}
 
+	async updateSecret(user_id: number, user_secret: string): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+		  if (user.two_factor_secret !== '')
+			return (null);
+	
+		  user.two_factor_secret = user_secret;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
+
 	async addFriend(user_id: number, friend_id: number): Promise<string> {
 
 		if (!friend_id) {

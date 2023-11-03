@@ -26,23 +26,22 @@ const SettingsPage: React.FC = () => {
       headers: {
         Authorization: authHeader,
       },
-      params: {
-        username: 'usertest',
-      },
     };
     axios
       .post(`http://localhost:8080/api/auth/generate/`, requestData)
       .then((response) => {
+        // navigate(`/ConfirmTwoFactor?param=${response.data}`);
         console.log(response.data);
       })
       .catch((error) => {
         console.error('Request Error: ', error);
       });
-    navigate('/ConfirmTwoFactor');
   };
+
   const handleChange = (color: string): void => {
     setColor(color);
   };
+
   const handleClickAvatar = (): void => {
     if (avatar !== 'https://cdn.intra.42.fr/users/cae6da7f6e8f7dcb7518c56b3c584ee2/bemoreau.jpg')
       setAvatar('https://cdn.intra.42.fr/users/cae6da7f6e8f7dcb7518c56b3c584ee2/bemoreau.jpg');
@@ -50,6 +49,10 @@ const SettingsPage: React.FC = () => {
       setAvatar('');
     }
   };
+
+  const handleLogTest = (): void => {
+    navigate('/AuthTwoFactor');
+  }; // TODO display enable button only if boolean twofactenable is false
   return (
     <Box
       height="100%"
@@ -91,6 +94,9 @@ const SettingsPage: React.FC = () => {
           </Button>
           <Button size="large" variant="outlined" onClick={handleEnableTwoFactor}>
             Enable 2fa
+          </Button>
+          <Button size="large" variant="outlined" onClick={handleLogTest}>
+            Test log
           </Button>
         </Box>
       </Box>
