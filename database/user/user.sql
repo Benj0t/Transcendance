@@ -6,7 +6,7 @@ create table "user"
     "id" serial primary key,
     "nickname" text unique not null,
     "avatar_base64" text,
-    "two_factor_auth" boolean default false,
+    "two_factor_secret" text unique default null,
 	"user_42_id" integer unique,
     "color_hex" text default 'fffff'
 );
