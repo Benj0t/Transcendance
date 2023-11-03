@@ -94,10 +94,28 @@ export class UserService {
 		  if (!user) {
 			return null;
 		  }
-		  if (user.two_factor_secret !== '')
-			return (null);
 	
 		  user.two_factor_secret = user_secret;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
+
+	async enableTwoFactor(user_id: number): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+	
+		  user.two_factor_enable = true;
 	
 		  await this.usersRepository.save(user);
 	

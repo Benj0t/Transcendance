@@ -383,10 +383,10 @@ export class ApiController {
     const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
     const a2fsecret = a2fdata.secret;
     const a2fqrcode = a2fdata.qrcode;
-    // const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
-    // if (!updatedUser) {
-    //   throw new InternalServerErrorException('a2f enable error');
-    // }
+    const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
+    if (!updatedUser) {
+      throw new InternalServerErrorException('a2f enable error');
+    }
     if (!a2fdata) {
       throw new InternalServerErrorException('a2f enable error');
     }
@@ -397,8 +397,27 @@ export class ApiController {
   // @UseGuards(JwtAuthGuard)
   async authVerify(@Query('OTP') OTP: string): Promise<boolean>
   {
-    const ret = await this.auth_service.verifyTwoFactor(OTP, 'OUGD2QIAEU6UWKDQ'); // TODO get secret from database
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    const ret = await this.auth_service.verifyTwoFactor(OTP, user.two_factor_secret);
+    if (ret)
+      await this.user_service.enableTwoFactor(user_id);
     return(ret);
+  }
+
+  @Get('auth/enabled')
+  // @UseGuards(JwtAuthGuard)
+  async authEnabled(): Promise<boolean>
+  {
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    return(user.two_factor_enable);
   }
 
   @Get('auth/callback')
@@ -408,8 +427,8 @@ export class ApiController {
      * Client id and secret
      */
 
-    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
-    const client_secret = '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';
+    const client_id = 'u-s4t2ud-27c5fb840f81c2a38a58bfd6fa422c4074dc4cb4c95b8a50e91485257e7c419a';
+    const client_secret = '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';
 
 
     const client_username = 'bonjour';
@@ -484,11 +503,6 @@ export class ApiController {
        * Redirect the user to main page.
        */
       const token = await this.auth_service.createToken({ username: user.nickname, sub: user.id });
-      // twoFactor.code = await this.auth_service.generateQR({ username: user.nickname, userId: user.id })
-      // twoFactor.client_secret = await this.auth_service.getSecret({ userId: user.id })
-      // console.log(twoFactor.code);
-      // console.log(twoFactor.client_secret);
-      // console.log(await this.auth_service.verifyTwoFactor('690201', 'OUGD2QIAEU6UWKDQ')); // hardcoded, replace with code entered by client and twoFactor.client_secret
       res.redirect(`http://localhost:3000/auth/callback?jwt=${token}`);
     } catch (error) {
       console.log(error);
