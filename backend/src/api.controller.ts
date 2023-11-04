@@ -362,14 +362,13 @@ export class ApiController {
 
   @Post('auth/generate')
   // @UseGuards(JwtAuthGuard)
-  async authGenerate(): Promise<string>
-  {
+  async authGenerate(): Promise<string> {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
+    const a2fdata = await this.auth_service.generateQR(user.nickname, user.id);
     const a2fsecret = a2fdata.secret;
     const a2fqrcode = a2fdata.qrcode;
     const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
@@ -381,11 +380,10 @@ export class ApiController {
     }
     return a2fqrcode;
   }
-  
+
   @Get('auth/verify')
   // @UseGuards(JwtAuthGuard)
-  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
-  {
+  async authVerify(@Query('OTP') OTP: string): Promise<boolean> {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
@@ -394,19 +392,18 @@ export class ApiController {
     const ret = await this.auth_service.verifyTwoFactor(OTP, user.two_factor_secret);
     if (ret)
       await this.user_service.enableTwoFactor(user_id);
-    return(ret);
+    return (ret);
   }
 
   @Get('auth/enabled')
   // @UseGuards(JwtAuthGuard)
-  async authEnabled(): Promise<boolean>
-  {
+  async authEnabled(): Promise<boolean> {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    return(user.two_factor_secret != null);
+    return (user.two_factor_secret != null);
   }
 
   @Get('auth/callback')
@@ -629,7 +626,6 @@ export class ApiController {
   /**
    * Push a direct message to a private channel (DM).
    * 
-   * @param recipitent_id The recipitent_id id.
    * @param body The data about the message.
    * 
    * @returns The feedback message.
@@ -643,6 +639,27 @@ export class ApiController {
   ) {
     try {
       return this.channel_service.sendDM(body.user_id, body.recipitent_id, body.message);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Join a channel
+   * 
+   * @param body The data about joining the channel.
+   * 
+   * @returns The feedback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('channels/:channel_id/join')
+  joinChannel(@Param('channel_id') channel_id: number,
+    @Body() body: { user_id: number; password: string }
+  ) {
+    try {
+      return this.channel_service.joinChannel(body.user_id, channel_id, body.password);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }

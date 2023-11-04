@@ -115,7 +115,7 @@ export class UserService {
 			return null;
 		  }
 	
-		  user.two_factor_enable = true;
+		//   user.two_factor_enable = true; TODO remettre ici
 	
 		  await this.usersRepository.save(user);
 	

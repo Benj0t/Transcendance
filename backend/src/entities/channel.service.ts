@@ -76,6 +76,18 @@ export class ChannelService {
 		}
 	}
 
+	async joinChannel(user_id: number, channel_id: number, password: string) {
+		try {
+			const result = await this.channelRepository.query(
+				`select join_channel($1, $2, $3)`,
+				[user_id, channel_id, password]
+			);
+			return result[0].join_channel;
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	// POST /api/channels/{channel_id}/messages
 	async sendMessage(userId: number, channelId: number, message: string): Promise<string> {
 		const result = await this.channelRepository.query('select send_message($1, $2, $3)', [userId, channelId, message]);
