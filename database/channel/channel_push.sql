@@ -22,3 +22,20 @@ begin
     return 'ok';
 end;
 $$ language plpgsql;
+
+-- Send a direct message to an user (DM).
+
+create or replace function send_direct_message(p_user_id int, p_recipient_id int, p_message text) returns text as $$
+declare
+    v_channel_id int;
+begin
+    select get_private_channel_id(p_user_id, p_recipient_id) into v_channel_id;
+    
+    if v_channel_id is null then
+        perform create_channel('Private chat', ARRAY[p_user_id, p_recipient_id], true, null);
+        select get_private_channel_id(p_user_id, p_recipient_id) into v_channel_id;
+    end if;
+
+    return send_message(p_user_id, v_channel_id, p_message);
+end;
+$$ language plpgsql;

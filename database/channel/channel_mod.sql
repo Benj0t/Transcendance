@@ -17,6 +17,25 @@ begin
 end;
 $$ language plpgsql;
 
+-- Unmute an user in the specified channel.
+
+create or replace function unmute_user(p_moderator_id int, p_target_id int, p_channel_id int)
+returns text as $$
+begin
+    if not is_member(p_moderator_id, p_channel_id) then
+        return 'User not member of this channel.';
+    end if;
+
+    if not can_moderate(p_moderator_id, p_target_id, p_channel_id) then
+        return 'User not permitted to unmute.';
+    end if;
+
+    update channel_has_member set mute_expiry_at = null where channel_id = p_channel_id and user_id = p_target_id;
+    return 'ok';
+end;
+$$ language plpgsql;
+
+
 -- Kick an user from the specified channel.
 
 create or replace function kick_user(p_moderator_id int, p_target_id int, p_channel_id int)
@@ -62,6 +81,24 @@ begin
     
     delete from "channel_has_member" where channel_id = p_channel_id and user_id = p_target_id;
 
+    return 'ok';
+end;
+$$ language plpgsql;
+
+-- Pardon (Unban) an user from the specified channel.
+
+create or replace function pardon_user(p_moderator_id int, p_target_id int, p_channel_id int)
+returns text as $$
+begin
+    if not is_member(p_moderator_id, p_channel_id) then
+        return 'User not member of this channel.';
+    end if;
+
+    if not can_moderate(p_moderator_id, p_target_id, p_channel_id) then
+        return 'User not permitted to pardon.';
+    end if;
+
+    delete from "channel_has_banned_user" where channel_id = p_channel_id and user_id = p_target_id;
     return 'ok';
 end;
 $$ language plpgsql;

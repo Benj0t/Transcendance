@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, Patch, InternalServerErrorException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -10,7 +10,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserHasFriendEntity } from './entities/user_has_friend.entity';
 import { MatchEntity } from './entities/match.entity';
 import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entity';
-import { stringify } from 'querystring';
+import { ChannelService } from './entities/channel.service';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -27,6 +27,7 @@ export class ApiController {
   constructor(
     private readonly http_service: HttpService,
     private readonly user_service: UserService,
+    private readonly channel_service: ChannelService,
     private readonly auth_service: AuthService
   ) { }
 
@@ -508,5 +509,94 @@ export class ApiController {
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
     }
+  }
+
+  @Post()
+  createChannel(@Body() body: { title: string; password: string; members: number[] }) {
+    return this.channel_service.createChannel(body.title, body.password, body.members);
+  }
+
+  @Get('/user/:user/channels')
+  getUserChannels(@Param('user') userId: number) {
+    return this.channel_service.getUserChannels(userId);
+  }
+
+  @Delete('/:channel_id')
+  deleteChannel(@Param('channel_id') channelId: number) {
+    return this.channel_service.deleteChannel(channelId);
+  }
+
+  @Patch('/:channel_id')
+  updateChannel(@Param('channel_id') channelId: number, @Body() updateData: any) {
+    
+  }
+
+  @Get('/:channel_id/messages')
+  getMessages(@Param('channel_id') channelId: number) {
+    return this.channel_service.getMessages(channelId);
+  }
+
+  @Post('/:channel_id/messages')
+  sendMessage(
+    @Param('channel_id') channelId: number,
+    @Body() body: { userId: number; message: string },
+  ) {
+    return this.channel_service.sendMessage(body.userId, channelId, body.message);
+  }
+
+  @Post('/:channel_id/mute')
+  muteUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { moderatorId: number; targetId: number; muteTime: string },
+  ) {
+    return this.channel_service.muteUser(body.moderatorId, body.targetId, channelId, body.muteTime);
+  }
+
+  @Delete('/:channel_id/mute')
+  unmuteUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { moderatorId: number; targetId: number },
+  ) {
+    return this.channel_service.unmuteUser(body.moderatorId, body.targetId, channelId);
+  }
+
+  @Post('/:channel_id/kick')
+  kickUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { moderatorId: number; targetId: number },
+  ) {
+    return this.channel_service.kickUser(body.moderatorId, body.targetId, channelId);
+  }
+
+  @Post('/:channel_id/ban')
+  banUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { moderatorId: number; targetId: number; banTime: string },
+  ) {
+    return this.channel_service.banUser(body.moderatorId, body.targetId, channelId, body.banTime);
+  }
+
+  @Delete('/:channel_id/ban')
+  pardonUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { moderatorId: number; targetId: number },
+  ) {
+    return this.channel_service.pardonUser(body.moderatorId, body.targetId, channelId);
+  }
+
+  @Post('/:channel_id/op')
+  opUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { ownerId: number; targetId: number },
+  ) {
+    return this.channel_service.opUser(body.ownerId, body.targetId, channelId);
+  }
+
+  @Delete('/:channel_id/op')
+  deopUser(
+    @Param('channel_id') channelId: number,
+    @Body() body: { ownerId: number; targetId: number },
+  ) {
+    return this.channel_service.deopUser(body.ownerId, body.targetId, channelId);
   }
 }
