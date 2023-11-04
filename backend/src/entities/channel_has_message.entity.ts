@@ -1,20 +1,16 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
-import { ChannelEntity } from './channel.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'channel_has_message' })
 export class ChannelHasMessageEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({ name: 'channel_id' })
   channel_id: number;
 
-  @PrimaryColumn()
+  @PrimaryColumn({ name: 'user_id' })
   user_id: number;
 
   @Column()
   message: string;
 
-  @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
   created_at: Date;
-
-  @ManyToOne(() => ChannelEntity, (channel) => channel.messages)
-  channel: ChannelEntity;
 }

@@ -32,10 +32,13 @@ create or replace function get_private_channel_id(p_user1_id int, p_user2_id int
 declare
     v_channel_id int;
 begin
-    select channel_id into v_channel_id from "channel_has_member"
-    where user_id in (p_user1_id, p_user2_id)
-    group by channel_id
-    having bool_and(is_private = true) and count(*) = 2;
+    select chm.channel_id into v_channel_id
+    from "channel_has_member" chm
+    join "channel" ch on chm.channel_id = ch.id
+    where chm.user_id in (p_user1_id, p_user2_id)
+    and ch.is_private = true
+    group by chm.channel_id
+    having count(*) = 2;
     
     return v_channel_id;
 end;
@@ -67,5 +70,21 @@ begin
     end if;
     select role into v_role from "channel_has_member" where channel_id = p_channel_id and user_id = p_user_id;
     return v_role = 1;
+end;
+$$ language plpgsql;
+
+-- Get user channels
+
+create or replace function get_user_channels(p_user_id int) returns table (
+    channel_id int,
+    title text,
+    is_private boolean
+) as $$
+begin
+    return query
+        select c.id, c.title, c.is_private
+        from "channel" c
+        join "channel_has_member" chm on c.id = chm.channel_id
+        where chm.user_id = p_user_id;
 end;
 $$ language plpgsql;

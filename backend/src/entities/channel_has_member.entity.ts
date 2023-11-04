@@ -14,7 +14,4 @@ export class ChannelHasMemberEntity {
 
   @Column({ type: 'timestamp with time zone', nullable: true })
   mute_expiry_at?: Date;
-
-  @ManyToOne(() => ChannelEntity, (channel) => channel.members)
-  channel: ChannelEntity;
 }

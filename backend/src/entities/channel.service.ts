@@ -1,10 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { ChannelEntity } from './channel.entity';
-import { ChannelHasMemberEntity } from './channel_has_member.entity';
 import { ChannelHasMessageEntity } from './channel_has_message.entity';
-import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
 
 @Injectable()
 export class ChannelService {
@@ -14,11 +12,19 @@ export class ChannelService {
 		private channelRepository: Repository<ChannelEntity>
 	) { }
 
-	async createChannel(title: string, password: string, members: number[]): Promise<string> {
+	findOne(id: number, options?: FindOneOptions<ChannelEntity>): Promise<ChannelEntity> {
+		if (options) {
+			return this.channelRepository.findOne({ where: { id: id }, ...options });
+		} else {
+			return this.channelRepository.findOne({ where: { id: id } });
+		}
+	}
+
+	async createChannel(title: string, members: number[], password: string): Promise<string> {
 		try {
 			const result = await this.channelRepository.query(
-				`select create_channel($1, $2, $3)`,
-				[title, password, members]
+				`select create_channel($1, $2, $3, $4)`,
+				[title, members, false, password]
 			);
 			return result[0].create_channel;
 		} catch (error) {
@@ -26,29 +32,24 @@ export class ChannelService {
 		}
 	}
 
-	async getUserChannels(userId: number): Promise<string> {
+	async getUserChannels(userId: number): Promise<any[]> {
 		try {
 			const result = await this.channelRepository.query(
-				`select get_user_channels($1)`,
+				`SELECT * FROM get_user_channels($1)`,
 				[userId]
 			);
-			return result[0].get_all_user_channels;
+			return result;
 		} catch (error) {
-			throw error;
+			throw new InternalServerErrorException(error);
 		}
 	}
 
-	// Pour GET /api/channels/{channel_id}/messages
-	async getMessages(channelId: number): Promise<string> {
-		try {
-			const result = await this.channelRepository.query(
-				`select get_messages($1)`,
-				[channelId]
-			);
-			return result[0].get_messages;
-		} catch (error) {
-			throw error;
-		}
+	// For GET /api/channels/{channel_id}/messages
+	async getMessages(channelId: number): Promise<ChannelHasMessageEntity[]> {
+		const messages = await this.channelRepository.query(`
+			select * from channel_has_message WHERE channel_id = $1
+		`, [channelId]);
+		return messages;
 	}
 
 	async deleteChannel(channelId: number): Promise<string> {
@@ -64,20 +65,20 @@ export class ChannelService {
 	}
 
 	async sendDM(userId: number, recipientId: number, message: string): Promise<string> {
-        try {
-            const result = await this.channelRepository.query(
-                `select send_direct_message($1, $2, $3)`,
-                [userId, recipientId, message]
-            );
-            return result[0].send_direct_message;
-        } catch (error) {
-            throw error;
-        }
-    }
+		try {
+			const result = await this.channelRepository.query(
+				`select send_direct_message($1, $2, $3)`,
+				[userId, recipientId, message]
+			);
+			return result[0].send_direct_message;
+		} catch (error) {
+			throw error;
+		}
+	}
 
 	// POST /api/channels/{channel_id}/messages
 	async sendMessage(userId: number, channelId: number, message: string): Promise<string> {
-		const result = await this.channelRepository.query(`select send_message(${userId}, ${channelId}, ${message})`);
+		const result = await this.channelRepository.query('select send_message($1, $2, $3)', [userId, channelId, message]);
 		return result[0].send_message;
 	}
 
@@ -86,7 +87,7 @@ export class ChannelService {
 		const result = await this.channelRepository.query(`select mute_user(${moderatorId}, ${targetId}, ${channelId}, ${muteTime})`);
 		return result[0].mute_user;
 	}
-	
+
 	// DELETE /api/channels/{channel_id}/mute
 	async unmuteUser(moderatorId: number, targetId: number, channelId: number): Promise<string> {
 		try {

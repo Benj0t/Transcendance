@@ -14,11 +14,18 @@ import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entit
 import { AchievementEntity } from './entities/achievement.entity';
 import { MatchEntity } from './entities/match.entity';
 import { RankEntity } from './entities/rank.entity';
+import { ChannelService } from './entities/channel.service';
+import { ChannelHasBannedUserEntity } from './entities/channel_has_banned_user.entity';
+import { ChannelHasMemberEntity } from './entities/channel_has_member.entity';
+import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
+import { ChannelEntity } from './entities/channel.entity';
+import { ChannelModule } from './entities/channel.module';
 
 @Module({
   imports: [
     HttpModule,
     UserModule,
+    ChannelModule,
     PongModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -27,7 +34,8 @@ import { RankEntity } from './entities/rank.entity';
       username: 'app',
       password: 'apppassword',
       database: 'transcendance',
-      entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity ],
+      entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity,
+          ChannelHasBannedUserEntity, ChannelHasMemberEntity, ChannelHasMessageEntity, ChannelEntity ],
       synchronize: false,
     }),
     PassportModule.register({}),

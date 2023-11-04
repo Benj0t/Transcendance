@@ -1,7 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ChannelHasMemberEntity } from './channel_has_member.entity';
-import { ChannelHasMessageEntity } from './channel_has_message.entity';
-import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'channel' })
 export class ChannelEntity {
@@ -19,13 +16,4 @@ export class ChannelEntity {
 
 	@Column()
 	owner_id: number;
-
-	@OneToMany(() => ChannelHasMemberEntity, (channelHasMember) => channelHasMember.channel)
-	members: ChannelHasMemberEntity[];
-
-	@OneToMany(() => ChannelHasMessageEntity, (channelHasMessage) => channelHasMessage.channel)
-	messages: ChannelHasMessageEntity[];
-
-	@OneToMany(() => ChannelHasBannedUserEntity, (channelHasBannedUser) => channelHasBannedUser.channel)
-	bannedUsers: ChannelHasBannedUserEntity[];
 }
