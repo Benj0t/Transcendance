@@ -6,15 +6,16 @@ create table "user"
     "id" serial primary key,
     "nickname" text unique not null,
     "avatar_base64" text,
-    "two_factor_auth" boolean default false,
+    "two_factor_secret" text unique default null,
+    "two_factor_enable" boolean default false,
 	"user_42_id" integer unique,
     "color_hex" text default 'fffff'
 );
 
 create or replace view "v_user" as select * from "user";
 
-insert into "user" ("nickname", "avatar_base64", "two_factor_auth", "user_42_id") values (
-    'benjamin', 'img_base64_here', false, 1234
+insert into "user" ("nickname", "avatar_base64", "two_factor_secret", "user_42_id") values (
+    'benjamin', 'img_base64_here', null, 1234
 );
 
 -- Represent user's achievements.

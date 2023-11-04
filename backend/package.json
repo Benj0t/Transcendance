@@ -29,6 +29,7 @@
     "@nestjs/platform-socket.io": "^10.2.7",
     "@nestjs/typeorm": "^10.0.0",
     "@nestjs/websockets": "^10.2.7",
+    "2fa-util": "^1.2.0",
     "image-to-base64": "^2.2.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.1",

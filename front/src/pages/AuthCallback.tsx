@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { bake_cookie } from 'sfcookies';
 import { useNavigate } from 'react-router';
+import Cookies from 'js-cookie';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const AuthCallback: React.FC = () => {
     const jwtParam = new URLSearchParams(queryString).get('jwt');
 
     if (jwtParam != null) {
-      bake_cookie('jwt', jwtParam);
+      Cookies.set('jwt', jwtParam);
       navigate('/');
     } else {
       setError('JWT non trouvé dans la réponse.');

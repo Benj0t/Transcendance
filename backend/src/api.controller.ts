@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserHasFriendEntity } from './entities/user_has_friend.entity';
 import { MatchEntity } from './entities/match.entity';
@@ -372,6 +372,55 @@ export class ApiController {
    * @author Komqdo
    */
 
+  @Post('auth/generate')
+  // @UseGuards(JwtAuthGuard)
+  async authGenerate(): Promise<string>
+  {
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
+    const a2fsecret = a2fdata.secret;
+    const a2fqrcode = a2fdata.qrcode;
+    const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
+    if (!updatedUser) {
+      throw new InternalServerErrorException('a2f enable error');
+    }
+    if (!a2fdata) {
+      throw new InternalServerErrorException('a2f enable error');
+    }
+    return a2fqrcode;
+  }
+  
+  @Get('auth/verify')
+  // @UseGuards(JwtAuthGuard)
+  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
+  {
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    const ret = await this.auth_service.verifyTwoFactor(OTP, user.two_factor_secret);
+    if (ret)
+      await this.user_service.enableTwoFactor(user_id);
+    return(ret);
+  }
+
+  @Get('auth/enabled')
+  // @UseGuards(JwtAuthGuard)
+  async authEnabled(): Promise<boolean>
+  {
+    const user_id = 1; // ID from jwt
+    const user = await this.user_service.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${user_id} not found.`);
+    }
+    return(user.two_factor_enable);
+  }
+
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
 
@@ -379,8 +428,11 @@ export class ApiController {
      * Client id and secret
      */
 
-    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
-    const client_secret = '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';
+    const client_id = 'u-s4t2ud-27c5fb840f81c2a38a58bfd6fa422c4074dc4cb4c95b8a50e91485257e7c419a';
+    const client_secret = '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';
+
+
+    const client_username = 'bonjour';
 
     /**
      * Build a payload with the arguments for the
@@ -393,6 +445,13 @@ export class ApiController {
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: 'http://localhost:8080/api/auth/callback',
+    };
+
+    const twoFactor = {
+      client_id: client_id,
+      client_username: client_username,
+      client_secret: '',
+      code: '',
     };
 
     try {
@@ -438,6 +497,8 @@ export class ApiController {
         res.status(HttpStatus.NOT_FOUND).send('Authentication failed.');
         return;
       }
+
+      // TODO if twoFactorEnable is true navigate(/AuthTwoFactor)
 
       /**
        * Redirect the user to main page.

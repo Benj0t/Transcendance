@@ -13,8 +13,11 @@ export class UserEntity {
   @Column()
   avatar_base64: string;
 
+  @Column({ default: null })
+  two_factor_secret: string;
+
   @Column({ default: false })
-  two_factor_auth: boolean;
+  two_factor_enable: boolean;
 
   @Column({ unique: true })
   user_42_id: number;
