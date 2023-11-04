@@ -1,0 +1,17 @@
+import Entity from './Entity';
+import type Size from './Size';
+
+export class Racket extends Entity {
+  userId: number;
+
+  constructor(userId: number, size: Size) {
+    super(size);
+    this.userId = userId;
+  }
+
+  getUserId(): number {
+    return this.userId;
+  }
+}
+
+export default Racket;
