@@ -37,7 +37,7 @@ const ConfirmTwoFactor: React.FC = () => {
       .get(`http://localhost:8080/api/auth/verify/`, requestData)
       .then((response) => {
         console.log(requestData.params.OTP);
-        if (response.data === true) navigate('/'); // TODO Set twofactorenable boolean to true
+        if (response.data === true) navigate('/');
       })
       .catch((error) => {
         console.error('Request Error: ', error);
@@ -50,7 +50,7 @@ const ConfirmTwoFactor: React.FC = () => {
       setTwoFactorCode('');
     }
   };
-  // TODO change img with qrcode from db
+
   return (
     <Box>
       <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>

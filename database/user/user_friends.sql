@@ -13,16 +13,16 @@ create or replace view "v_user_has_friend" as select * from "user_has_friend";
 -- Get the friendships for the specified user.
 
 drop function "get_user_friendships";
-create or replace function "get_user_friendships"(user_id integer)
+create or replace function "get_user_friendships"(param_id integer)
 returns setof "v_user_has_friend" as $$
 begin
-    return query select * from "v_user_has_friend" where user_id = user_id;
+    return query select * from "v_user_has_friend" where user_id = param_id;
 end;
 $$ language plpgsql;
 
 -- Gauthier friend with Benjamin
 
-insert into "user_has_friend" ("userId", "friendId") values (
+insert into "user_has_friend" ("user_id", "friend_id") values (
     18, 19
 );
 
