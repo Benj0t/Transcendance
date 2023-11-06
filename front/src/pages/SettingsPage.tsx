@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import AuthEnabled from '../requests/getAuthEnabled';
+import AuthGenerate from '../requests/postAuthGenerate';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
@@ -12,24 +12,13 @@ const SettingsPage: React.FC = () => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const navigate = useNavigate();
 
-  const handleEnableTwoFactor = (): void => {
-    const jwt = Cookies.get('jwt');
-    if (jwt === undefined) navigate('/login');
-    const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-    const requestData = {
-      headers: {
-        Authorization: authHeader,
-      },
-    };
-    axios
-      .post(`http://localhost:8080/api/auth/generate/`, requestData)
-      .then((response) => {
-        const responseData = encodeURIComponent(response.data);
-        navigate(`/ConfirmTwoFactor?param=${responseData}`);
-      })
-      .catch((error) => {
-        console.error('Request Error: ', error);
-      });
+  const handleEnableTwoFactor = async (): Promise<void> => {
+    try {
+      const qrcode = await AuthGenerate();
+      if (qrcode !== '') navigate(`/ConfirmTwoFactor?param=${qrcode}`);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleChange = (color: string): void => {
@@ -49,18 +38,16 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:8080/api/auth/enabled/`)
-      .then((response) => {
-        const ret = response.data;
-        const boolret = typeof ret === 'boolean' ? ret : false;
-        console.log(boolret);
-        if (boolret) setTwoFactorEnabled(true);
-        return boolret;
-      })
-      .catch((error) => {
-        console.error('Request Error: ', error);
-      });
+    async function fetchData(): Promise<any> {
+      try {
+        const verified = await AuthEnabled();
+        if (verified.data === true) setTwoFactorEnabled(true);
+      } catch (error) {
+        console.log('error');
+      }
+    }
+    const test = fetchData();
+    void test;
   }, []);
 
   return (
@@ -105,7 +92,9 @@ const SettingsPage: React.FC = () => {
           <Button
             size="large"
             variant="outlined"
-            onClick={handleEnableTwoFactor}
+            onClick={() => {
+              void handleEnableTwoFactor();
+            }}
             disabled={twoFactorEnabled}
           >
             Enable 2fa

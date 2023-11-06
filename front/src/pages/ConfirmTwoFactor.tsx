@@ -3,8 +3,7 @@ import { Box, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 import TwoFactorInput from '../components/TwoFactorInput';
 import { useLocation, useNavigate } from 'react-router';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import AuthVerify from '../requests/getAuthVerify';
 
 const ConfirmTwoFactor: React.FC = () => {
   /**
@@ -21,32 +20,19 @@ const ConfirmTwoFactor: React.FC = () => {
   /**
    * Handlers
    */
-  const onTwoFactorTest = (twoFactorCode: { text: string }): void => {
-    const jwt = Cookies.get('jwt');
-    if (jwt === undefined) navigate('/login');
-    const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-    const requestData = {
-      headers: {
-        Authorization: authHeader,
-      },
-      params: {
-        OTP: twoFactorCode.text,
-      },
-    };
-    axios
-      .get(`http://localhost:8080/api/auth/verify/`, requestData)
-      .then((response) => {
-        console.log(requestData.params.OTP);
-        if (response.data === true) navigate('/');
-      })
-      .catch((error) => {
-        console.error('Request Error: ', error);
-      });
+
+  const onTwoFactorTest = async (twoFactorCode: { text: string }): Promise<void> => {
+    try {
+      const verified = await AuthVerify(twoFactorCode.text);
+      if (verified.data === true) navigate('/');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleTwoFactor = (): void => {
     if (twoFactorCode.trim() !== '') {
-      onTwoFactorTest({ text: twoFactorCode });
+      void onTwoFactorTest({ text: twoFactorCode });
       setTwoFactorCode('');
     }
   };
