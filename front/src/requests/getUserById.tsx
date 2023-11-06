@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const GetUserById = async (friendid: number): Promise<any> => {
+const GetUserById = async (userid: number): Promise<any> => {
   let data = { error: '', loading: false, data: {} };
 
   const jwt = Cookies.get('jwt');
@@ -13,7 +13,7 @@ const GetUserById = async (friendid: number): Promise<any> => {
   };
 
   await axios
-    .get(`http://localhost:8080/api/user/${friendid}/`, requestData)
+    .get(`http://localhost:8080/api/user/${userid}/`, requestData)
     .then(function (response) {
       data = { error: '', loading: false, data: response.data };
     })

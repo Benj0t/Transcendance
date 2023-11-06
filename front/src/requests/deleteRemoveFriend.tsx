@@ -17,7 +17,7 @@ const AddFriend = async (friendid: number): Promise<any> => {
   };
 
   await axios
-    .post(`http://localhost:8080/api/user/${userid}/friends/`, requestData)
+    .delete(`http://localhost:8080/api/user/${userid}/friends/`, requestData)
     .then(function (response) {
       data = { error: '', loading: false, data: response.data };
     })
