@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, Patch, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
@@ -10,9 +10,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserHasFriendEntity } from './entities/user_has_friend.entity';
 import { MatchEntity } from './entities/match.entity';
 import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entity';
-import { ChannelService } from './entities/channel.service';
-import { channel } from 'diagnostics_channel';
-import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
+import { stringify } from 'querystring';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -29,20 +27,19 @@ export class ApiController {
   constructor(
     private readonly http_service: HttpService,
     private readonly user_service: UserService,
-    private readonly channel_service: ChannelService,
     private readonly auth_service: AuthService
   ) { }
 
-  /**
-  * @returns   The users
-  * 
-  * @author Komqdo
-  */
-
+   /**
+   * @returns   The users
+   * 
+   * @author Komqdo
+   */
+  
   @Get('valid-jwt/')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   validJWT(): { message: string } {
-    return ({ message: "valid jwt" });
+    return ({ message: "valid jwt"});
   }
 
   /**
@@ -50,7 +47,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  
   @Get('user/')
   // @UseGuards(JwtAuthGuard)
   getUser(): Promise<UserEntity[] | { message: string }> {
@@ -145,7 +142,7 @@ export class ApiController {
    * @param id  The user id
    * @returns   The friend relationships for the specified user.
    */
-
+  
   @Get('user/:id/friends')
   // @UseGuards(JwtAuthGuard)
   async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
@@ -252,7 +249,7 @@ export class ApiController {
    */
 
   @Post('user/:id/matches')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async addMatch(
     @Param('id') user_id: number,
     @Query('opponent_id') opponent_id: number,
@@ -268,7 +265,7 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
+  
   /**
    * Get the blocked users for an user.
    * 
@@ -280,7 +277,7 @@ export class ApiController {
    */
 
   @Get('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
 
     try {
@@ -293,7 +290,7 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
+  
   /**
    * Block an user for an user.
    * 
@@ -306,7 +303,7 @@ export class ApiController {
    */
 
   @Post('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async blockUser(
     @Param('id') user_id: number,
     @Query('blocked_id') blocked_user_id: number,
@@ -348,6 +345,20 @@ export class ApiController {
     }
   }
 
+  // @Get('user/:id/chat/:channel_id/messages')
+  // @UseGuards(JwtAuthGuard)
+  // async getChannelMessages(
+  //   @Param('id') id: number,
+  //   @Param('channel_id') channel_id: number
+  // ): Promise<ChannelMessageEntity[]> {
+  //   try {
+  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
+  //     return channelMessages;
+  //   } catch (error) {
+  //     throw new NotFoundException(`User with id ${id} not found.`);
+  //   }
+  // }
+
   /**
    * Authentificate an user and exchange the specified code with
    * an access token, register the user if needed, then returns it and
@@ -362,13 +373,14 @@ export class ApiController {
 
   @Post('auth/generate')
   // @UseGuards(JwtAuthGuard)
-  async authGenerate(): Promise<string> {
+  async authGenerate(): Promise<string>
+  {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    const a2fdata = await this.auth_service.generateQR(user.nickname, user.id);
+    const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
     const a2fsecret = a2fdata.secret;
     const a2fqrcode = a2fdata.qrcode;
     const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
@@ -380,10 +392,11 @@ export class ApiController {
     }
     return a2fqrcode;
   }
-
+  
   @Get('auth/verify')
   // @UseGuards(JwtAuthGuard)
-  async authVerify(@Query('OTP') OTP: string): Promise<boolean> {
+  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
+  {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
@@ -392,18 +405,19 @@ export class ApiController {
     const ret = await this.auth_service.verifyTwoFactor(OTP, user.two_factor_secret);
     if (ret)
       await this.user_service.enableTwoFactor(user_id);
-    return (ret);
+    return(ret);
   }
 
   @Get('auth/enabled')
   // @UseGuards(JwtAuthGuard)
-  async authEnabled(): Promise<boolean> {
+  async authEnabled(): Promise<boolean>
+  {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    return (user.two_factor_secret != null);
+    return(user.two_factor_enable);
   }
 
   @Get('auth/callback')
@@ -493,270 +507,6 @@ export class ApiController {
     } catch (error) {
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
-    }
-  }
-
-  /**
-   * Get user channels
-   * 
-   * @param user_id The user id
-   * 
-   * @returns The channels of the specified user.
-   * 
-   * @author Komqdo
-   */
-
-  @Get('user/:user/channels')
-  getUserChannels(@Param('user') user_id: number) {
-    try {
-      return this.channel_service.getUserChannels(user_id);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Create a channel between many users.
-   * 
-   * @param body 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('channels/')
-  createChannel(@Body() body: { title: string; password: string; members: number[] }) {
-    try {
-      return this.channel_service.createChannel(body.title, body.members, body.password);
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
-  }
-
-  /**
-   * Delete a channel.
-   * 
-   * @param channel_id 
-   * 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Delete('channels/:channel_id')
-  deleteChannel(@Param('channel_id') channel_id: number) {
-    try {
-      return this.channel_service.deleteChannel(channel_id);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Get a channel
-   * 
-   * @param channel_id The id of the channel. 
-   * 
-   * @returns The channel.
-   * 
-   * @author Komqdo
-   */
-
-  @Get('channels/:channel_id')
-  getChannel(@Param('channel_id') channel_id: number) {
-    return this.channel_service.findOne(channel_id);
-  }
-
-  /**
-   * Update a channel. (Title, password, ...)
-   * 
-   * @param channel_id The channel id
-   * @param body The data to update
-   * 
-   * @author Komqdo
-   */
-
-  @Patch('channels/:channel_id')
-  updateChannel(@Param('channel_id') channel_id: number, @Body() body: any) {
-    //TODO
-  }
-
-  /**
-   * Get the messages of a channel
-   * 
-   * @param channel_id The id of the channel. 
-   * 
-   * @returns The messages of this channel.
-   * 
-   * @author Komqdo
-   */
-
-  @Get('channels/:channel_id/messages')
-  getMessages(@Param('channel_id') channelId: number): Promise<ChannelHasMessageEntity[]> {
-    try {
-      return this.channel_service.getMessages(channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Push a message to a channel.
-   * 
-   * @param channel_id The channel id.
-   * @param body The data about the message.
-   * 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('channels/:channel_id/messages')
-  sendMessage(
-    @Param('channel_id') channel_id: number,
-    @Body() body: { user_id: number; message: string },
-  ) {
-    try {
-      return this.channel_service.sendMessage(body.user_id, channel_id, body.message);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Push a direct message to a private channel (DM).
-   * 
-   * @param body The data about the message.
-   * 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('channels/dm')
-  sendDM(
-    @Body() body: { user_id: number; recipitent_id: number, message: string },
-  ) {
-    try {
-      return this.channel_service.sendDM(body.user_id, body.recipitent_id, body.message);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Join a channel
-   * 
-   * @param body The data about joining the channel.
-   * 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('channels/:channel_id/join')
-  joinChannel(@Param('channel_id') channel_id: number,
-    @Body() body: { user_id: number; password: string }
-  ) {
-    try {
-      return this.channel_service.joinChannel(body.user_id, channel_id, body.password);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Mute an user.
-   * 
-   * @param channel_id 
-   * @param body The data about the mute.
-   * 
-   * @returns The feedback message.
-   * 
-   * @author Komqdo
-   */
-
-  @Post('channels/:channel_id/mute')
-  muteUser(
-    @Param('channel_id') channel_id: number,
-    @Body() body: { moderatorId: number; targetId: number; muteTime: string },
-  ) {
-    try {
-      return this.channel_service.muteUser(body.moderatorId, body.targetId, channel_id, body.muteTime);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Delete('channels/:channel_id/mute')
-  unmuteUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { moderatorId: number; targetId: number },
-  ) {
-    try {
-      return this.channel_service.unmuteUser(body.moderatorId, body.targetId, channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Post('channels/:channel_id/kick')
-  kickUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { moderatorId: number; targetId: number },
-  ) {
-    try {
-      return this.channel_service.kickUser(body.moderatorId, body.targetId, channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Post('channels/:channel_id/ban')
-  banUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { moderatorId: number; targetId: number; banTime: string },
-  ) {
-    try {
-      return this.channel_service.banUser(body.moderatorId, body.targetId, channelId, body.banTime);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Delete('channels/:channel_id/ban')
-  pardonUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { moderatorId: number; targetId: number },
-  ) {
-    try {
-      return this.channel_service.pardonUser(body.moderatorId, body.targetId, channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Post('channels/:channel_id/op')
-  opUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { ownerId: number; targetId: number },
-  ) {
-    try {
-      return this.channel_service.opUser(body.ownerId, body.targetId, channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  @Delete('channels/:channel_id/op')
-  deopUser(
-    @Param('channel_id') channelId: number,
-    @Body() body: { ownerId: number; targetId: number },
-  ) {
-    try {
-      return this.channel_service.deopUser(body.ownerId, body.targetId, channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
     }
   }
 }

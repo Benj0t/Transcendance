@@ -10,7 +10,6 @@ export class Connected {
     public match: any;
     public readonly client: Socket; 
     public readonly pong_server: PongServer;
-    public pingInterval: NodeJS.Timeout;
 
     private closed: boolean;
 
@@ -22,28 +21,27 @@ export class Connected {
         this.closed = false;
     }
 
-    close() {
+    close(): void {
         this.closed = true;
-        this.pong_server.handleDisconnect(this.client);
+        const index = this.pong_server.connecteds.indexOf(this);
+      if (index > -1) {
+        this.pong_server.connecteds.splice(index, 1);
+      }
     }
 
-    getUserId() {
+    getUserId(): number {
         return this.userId;
     }
 
-    getPing() {
+    getPing(): number {
         return this.ping;
     }
 
-    isTimeout() {
+    isTimeout(): boolean {
         return Date.now() - this.lastSocketTimestamp >= 5000;
     }
 
-    hasMatch() {
+    hasMatch(): boolean {
         return this.match != null;
-    }
-    
-    stop(): void {
-        clearInterval(this.pingInterval);
     }
 }
