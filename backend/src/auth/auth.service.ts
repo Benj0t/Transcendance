@@ -3,26 +3,27 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../jwt.config';
 import { generateSecret, verify } from '2fa-util';
 
+export type JwtPayload = {
+  username: string;
+  sub: number;
+};
+
 @Injectable()
 export class AuthService {
   private secrets: Map<number, string> = new Map();
   constructor(private jwt_service: JwtService) { }
 
-  async createToken(payload: any): Promise<string> {
+  async createToken(payload: JwtPayload): Promise<string> {
     return this.jwt_service.sign(payload, {
       secret: jwtConstants.secret,
       expiresIn: jwtConstants.expiresIn,
     });
   }
 
-  async validateToken(token: string): Promise<any> {
-    try {
+  async validateToken(token: string): Promise<JwtPayload> {
       return this.jwt_service.verify(token, {
         secret: jwtConstants.secret,
       });
-    } catch (error) {
-      return null;
-    }
   }
 
   async generateQR(client_nickname: any, client_id: any): Promise<any> {

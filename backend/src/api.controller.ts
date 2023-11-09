@@ -1,11 +1,11 @@
-import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, Patch, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, Patch, InternalServerErrorException, Req } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
-import { AuthService } from './auth/auth.service';
+import { AuthService, JwtPayload } from './auth/auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserHasFriendEntity } from './entities/user_has_friend.entity';
 import { MatchEntity } from './entities/match.entity';
@@ -13,6 +13,7 @@ import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entit
 import { ChannelService } from './entities/channel.service';
 import { channel } from 'diagnostics_channel';
 import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -396,7 +397,6 @@ export class ApiController {
   }
 
   @Get('auth/enabled')
-  // @UseGuards(JwtAuthGuard)
   async authEnabled(): Promise<boolean> {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
@@ -506,10 +506,21 @@ export class ApiController {
    * @author Komqdo
    */
 
+  @UseGuards(JwtAuthGuard)
   @Get('user/:user/channels')
   getUserChannels(@Param('user') user_id: number) {
     try {
       return this.channel_service.getUserChannels(user_id);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/channels')
+  getMyChannels(@Req() {jwtPayload}: {jwtPayload: JwtPayload}) {
+    try {
+      return this.channel_service.getUserChannels(jwtPayload.sub);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }
@@ -711,7 +722,6 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
   @Post('channels/:channel_id/ban')
   banUser(
     @Param('channel_id') channelId: number,
