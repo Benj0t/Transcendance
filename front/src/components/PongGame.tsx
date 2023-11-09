@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/PongGame.css';
-import type Area from '../../../backend/src/utils/Area';
-// import io from 'socket.io-client';
+import Area from './utils/Area';
 import { PacketInKeepAlive } from './packet/in/PacketInKeepAlive';
 import { pongSocket } from '../components/pongSocket';
 
 const PongGame: React.FC = (): any => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  // const socket = io('http://localhost:8001');
   const [racketY, setRacketY] = useState(0);
   const [isChoosingMatchmaking, setIsChoosingMatchmaking] = useState(false);
   const [isChoosingDuel, setIsChoosingDuel] = useState(false);
   const [isGameStarted, setGameStarted] = useState(false);
-  const [opponentId, setOpponentId] = useState<number | null>(null);
-  const [area, setArea] = useState<Area | null>(null);
+  const [opponentId, setOpponentId] = useState(0);
+  const [area] = useState<Area | null>(new Area(800, 400, 0, 0));
+  const [ballXPCent, setBallX] = useState(0)
+  const [ballYPCent, setBallY] = useState(0)
+  // const [toLeft, setToLeft] = useState(true)
+  const [opponentYPCent, setOpponentY] = useState(0)
+  // const [playing, setPlaying] = useState(false)
+  // const [time, setTime] = useState(0)
+  const [scorePlayer] = useState(0);
+  const [scoreOpponent] = useState(0);
 
   const sendMatchmakingPacket = (): any => {
     pongSocket.emit('dual_packet', 0);
@@ -31,7 +37,12 @@ const PongGame: React.FC = (): any => {
   };
 
   const receivePacket = (data: any): void => {
-    setArea(data.area);
+    setBallX(data.ballXPCent);
+    setBallY(data.ballYPCent);
+    // setToLeft(data.toLeft);
+    setOpponentY(data.opponentYPCent);
+    // setPlaying(data.playing);
+    // setTime(data.time);
   };
 
   // const setIdle = (): any => {
@@ -51,7 +62,12 @@ const PongGame: React.FC = (): any => {
     if (area == null) return;
 
     const handleSocketData = (data: any): void => {
-      setArea(data);
+      setBallX(data.ballXPCent);
+      setBallY(data.ballYPCent);
+      // setToLeft(data.toLeft);
+      setOpponentY(data.opponentYPCent);
+      // setPlaying(data.playing);
+      // setTime(data.time);
     };
 
     pongSocket.on('AreaPacket', handleSocketData);
@@ -77,7 +93,6 @@ const PongGame: React.FC = (): any => {
         if (isChoosingMatchmaking) {
           sendMatchmakingPacket();
         } else if (isChoosingDuel) {
-          const opponentId = 123;
           sendDualPacket(opponentId);
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -98,8 +113,6 @@ const PongGame: React.FC = (): any => {
         ctx.lineTo(canvas.width / 2, canvas.height);
         ctx.stroke();
 
-        const opponent = area.getOpponent();
-        const ballEntity = area.getBall();
         const racketSize = area.racketSize();
         const ballSize = area.ballSize();
 
@@ -111,7 +124,7 @@ const PongGame: React.FC = (): any => {
 
         ctx.fillRect(
           canvas.width - racketSize.getWidth() - offsetFromEdge,
-          opponent.getLocation().getY(),
+          opponentYPCent,
           racketSize.getWidth(),
           racketSize.getHeight(),
         );
@@ -122,13 +135,13 @@ const PongGame: React.FC = (): any => {
 
         const scoreY = 40; // Position verticale commune pour les scores
 
-        ctx.fillText(`1`, canvas.width / 3, scoreY);
-        ctx.fillText(`4`, (2 * canvas.width) / 3, scoreY);
+        ctx.fillText(String(scorePlayer), canvas.width / 3, scoreY);
+        ctx.fillText(String(scoreOpponent), (2 * canvas.width) / 3, scoreY);
 
         ctx.beginPath();
         ctx.arc(
-          ballEntity.getLocation().getX(),
-          ballEntity.getLocation().getY(),
+          ballXPCent * canvas.width,
+          ballYPCent * canvas.height,
           ballSize.getWidth() / 2,
           0,
           Math.PI * 2,

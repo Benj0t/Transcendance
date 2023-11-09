@@ -8,6 +8,8 @@ export class Match {
   public user1: Connected;
   public user2: Connected;
   public closed: boolean;
+  public scoreUser1 = 0;
+  public scoreUser2 = 0;
 
   public time: TickValue;
 
@@ -29,7 +31,7 @@ export class Match {
   /**
    * Ferme le match.
    */
-  
+
   public close(): void {
     if (this.closed) {
       return;
@@ -110,6 +112,13 @@ export class Match {
         this.updateBallAngle(this.area.getOpponent());
         collision = true;
       }
+      else
+      {
+        this.scoreUser1++;
+        this.area.ball.getLocation().setXY(50, 50);
+        this.ballAngle = 0;
+        this.ballSpeed = 2
+      }
     }
 
     if (
@@ -126,6 +135,13 @@ export class Match {
         console.log('[LOG] detected collision (user 1)');
         this.updateBallAngle(this.area.getPlayer());
         collision = true;
+      }
+      else
+      {
+        this.scoreUser2++;
+        this.area.ball.getLocation().setXY(50, 50);
+        this.ballAngle = 0;
+        this.ballSpeed = 2
       }
     }
 
