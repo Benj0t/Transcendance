@@ -14,6 +14,7 @@ import { ChannelService } from './entities/channel.service';
 import { channel } from 'diagnostics_channel';
 import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
 import { AuthGuard } from '@nestjs/passport';
+import { stringify } from 'querystring';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -34,16 +35,16 @@ export class ApiController {
     private readonly auth_service: AuthService
   ) { }
 
-  /**
-  * @returns   The users
-  * 
-  * @author Komqdo
-  */
-
+   /**
+   * @returns   The users
+   * 
+   * @author Komqdo
+   */
+  
   @Get('valid-jwt/')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   validJWT(): { message: string } {
-    return ({ message: "valid jwt" });
+    return ({ message: "valid jwt"});
   }
 
   /**
@@ -51,7 +52,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  
   @Get('user/')
   // @UseGuards(JwtAuthGuard)
   getUser(): Promise<UserEntity[] | { message: string }> {
@@ -146,7 +147,7 @@ export class ApiController {
    * @param id  The user id
    * @returns   The friend relationships for the specified user.
    */
-
+  
   @Get('user/:id/friends')
   // @UseGuards(JwtAuthGuard)
   async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
@@ -253,7 +254,7 @@ export class ApiController {
    */
 
   @Post('user/:id/matches')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async addMatch(
     @Param('id') user_id: number,
     @Query('opponent_id') opponent_id: number,
@@ -269,7 +270,7 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
+  
   /**
    * Get the blocked users for an user.
    * 
@@ -281,7 +282,7 @@ export class ApiController {
    */
 
   @Get('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
 
     try {
@@ -294,7 +295,7 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
+  
   /**
    * Block an user for an user.
    * 
@@ -307,7 +308,7 @@ export class ApiController {
    */
 
   @Post('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async blockUser(
     @Param('id') user_id: number,
     @Query('blocked_id') blocked_user_id: number,
@@ -349,6 +350,20 @@ export class ApiController {
     }
   }
 
+  // @Get('user/:id/chat/:channel_id/messages')
+  // @UseGuards(JwtAuthGuard)
+  // async getChannelMessages(
+  //   @Param('id') id: number,
+  //   @Param('channel_id') channel_id: number
+  // ): Promise<ChannelMessageEntity[]> {
+  //   try {
+  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
+  //     return channelMessages;
+  //   } catch (error) {
+  //     throw new NotFoundException(`User with id ${id} not found.`);
+  //   }
+  // }
+
   /**
    * Authentificate an user and exchange the specified code with
    * an access token, register the user if needed, then returns it and
@@ -363,13 +378,14 @@ export class ApiController {
 
   @Post('auth/generate')
   // @UseGuards(JwtAuthGuard)
-  async authGenerate(): Promise<string> {
+  async authGenerate(): Promise<string>
+  {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    const a2fdata = await this.auth_service.generateQR(user.nickname, user.id);
+    const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
     const a2fsecret = a2fdata.secret;
     const a2fqrcode = a2fdata.qrcode;
     const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
@@ -381,10 +397,11 @@ export class ApiController {
     }
     return a2fqrcode;
   }
-
+  
   @Get('auth/verify')
   // @UseGuards(JwtAuthGuard)
-  async authVerify(@Query('OTP') OTP: string): Promise<boolean> {
+  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
+  {
     const user_id = 1; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
@@ -393,7 +410,7 @@ export class ApiController {
     const ret = await this.auth_service.verifyTwoFactor(OTP, user.two_factor_secret);
     if (ret)
       await this.user_service.enableTwoFactor(user_id);
-    return (ret);
+    return(ret);
   }
 
   @Get('auth/enabled')
@@ -403,7 +420,7 @@ export class ApiController {
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
     }
-    return (user.two_factor_secret != null);
+    return(user.two_factor_enable);
   }
 
   @Get('auth/callback')
