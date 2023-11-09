@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/PongGame.css';
 import type Area from '../../../backend/src/utils/Area';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 import { PacketInKeepAlive } from './packet/in/PacketInKeepAlive';
+import { pongSocket } from '../components/pongSocket';
 
 const PongGame: React.FC = (): any => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const socket = io('http://localhost:8001');
+  // const socket = io('http://localhost:8001');
   const [racketY, setRacketY] = useState(0);
   const [isChoosingMatchmaking, setIsChoosingMatchmaking] = useState(false);
   const [isChoosingDuel, setIsChoosingDuel] = useState(false);
@@ -15,18 +16,18 @@ const PongGame: React.FC = (): any => {
   const [area, setArea] = useState<Area | null>(null);
 
   const sendMatchmakingPacket = (): any => {
-    socket.emit('DualPacket', 0);
+    pongSocket.emit('dual_packet', 0);
     setGameStarted(true);
   };
 
   const sendDualPacket = (opponentId: number): any => {
-    socket.emit('DualPacket', opponentId);
+    pongSocket.emit('dual_packet', opponentId);
     setIsChoosingDuel(true);
     setGameStarted(true);
   };
 
   const sendKeepAlivePacket = (racketY: number): any => {
-    socket.emit('keep_alive_packet', socket, new PacketInKeepAlive(racketY));
+    pongSocket.emit('keep_alive_packet', pongSocket, new PacketInKeepAlive(racketY));
   };
 
   const receivePacket = (data: any): void => {
@@ -53,7 +54,7 @@ const PongGame: React.FC = (): any => {
       setArea(data);
     };
 
-    socket.on('AreaPacket', handleSocketData);
+    pongSocket.on('AreaPacket', handleSocketData);
 
     console.log('Canvas Width:', canvas.width);
     console.log('Canvas Height:', canvas.height);
@@ -70,7 +71,7 @@ const PongGame: React.FC = (): any => {
 
     const draw = (): void => {
       if (isGameStarted) {
-        socket.on('AreaPacket', (data) => {
+        pongSocket.on('AreaPacket', (data: any) => {
           receivePacket(data);
         });
         if (isChoosingMatchmaking) {
@@ -147,7 +148,7 @@ const PongGame: React.FC = (): any => {
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [socket, racketY, isGameStarted]);
+  }, [pongSocket, racketY, isGameStarted]);
 
   return (
     <div>

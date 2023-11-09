@@ -15,6 +15,9 @@ export class UserEntity {
 
   @Column({ default: null })
   two_factor_secret: string;
+
+  @Column({ default: false })
+  two_factor_enable: boolean;
   
   @Column({ unique: true })
   user_42_id: number;
