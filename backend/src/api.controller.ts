@@ -15,6 +15,8 @@ import { channel } from 'diagnostics_channel';
 import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { stringify } from 'querystring';
+import { ChannelHasMemberEntity } from './entities/channel_has_member.entity';
+import { ChannelHasBannedUserEntity } from './entities/channel_has_banned_user.entity';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -254,7 +256,7 @@ export class ApiController {
    */
 
   @Post('user/:id/matches')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async addMatch(
     @Param('id') user_id: number,
     @Query('opponent_id') opponent_id: number,
@@ -282,7 +284,7 @@ export class ApiController {
    */
 
   @Get('user/:id/blockeds')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
 
     try {
@@ -308,7 +310,7 @@ export class ApiController {
    */
 
   @Post('user/:id/blockeds')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async blockUser(
     @Param('id') user_id: number,
     @Query('blocked_id') blocked_user_id: number,
@@ -523,7 +525,7 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('user/:user/channels')
   getUserChannels(@Param('user') user_id: number) {
     try {
@@ -533,7 +535,7 @@ export class ApiController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('user/channels')
   getMyChannels(@Req() {jwtPayload}: {jwtPayload: JwtPayload}) {
     try {
@@ -629,6 +631,44 @@ export class ApiController {
   }
 
   /**
+   * Get the members of a channel
+   * 
+   * @param channel_id The id of the channel. 
+   * 
+   * @returns The members of this channel.
+   * 
+   * @author Komqdo
+   */
+
+  @Get('channels/:channel_id/members')
+  getMembers(@Param('channel_id') channelId: number): Promise<ChannelHasMemberEntity[]> {
+    try {
+      return this.channel_service.getMembers(channelId);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Get the banned users of a channel
+   * 
+   * @param channel_id The id of the channel. 
+   * 
+   * @returns The banned users of this channel.
+   * 
+   * @author Komqdo
+   */
+
+  @Get('channels/:channel_id/banneds')
+  getBanneds(@Param('channel_id') channelId: number): Promise<ChannelHasBannedUserEntity[]> {
+    try {
+      return this.channel_service.getBanneds(channelId);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
    * Push a message to a channel.
    * 
    * @param channel_id The channel id.
@@ -688,6 +728,27 @@ export class ApiController {
   ) {
     try {
       return this.channel_service.joinChannel(body.user_id, channel_id, body.password);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  /**
+   * Leave a channel
+   * 
+   * @param body The data about leaving the channel.
+   * 
+   * @returns The feedback message.
+   * 
+   * @author Komqdo
+   */
+
+  @Post('channels/:channel_id/leave')
+  quitChannel(@Param('channel_id') channel_id: number,
+    @Body() body: { user_id: number; }
+  ) {
+    try {
+      return this.channel_service.leaveChannel(body.user_id, channel_id);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }

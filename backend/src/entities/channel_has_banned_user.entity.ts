@@ -8,6 +8,9 @@ export class ChannelHasBannedUserEntity {
   @PrimaryColumn()
   user_id: number;
 
+  @PrimaryColumn()
+  ban_id: number;
+
   @Column({ type: 'timestamp with time zone', nullable: true })
   expiry_at?: Date;
 }

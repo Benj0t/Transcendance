@@ -31,9 +31,13 @@ create table channel_has_message (
 
 -- Channel has banned user
 
-create table channel_has_banned_user (
-    "channel_id" int references "channel"(id),
-    "user_id" int references "user"(id),
+CREATE TABLE channel_has_banned_user (
+    "ban_id" serial primary key,
+    "channel_id" int not null references "channel"(id),
+    "user_id" int not null references "user"(id),
     "expiry_at" timestamptz,
-    primary key (channel_id, user_id)
+    "pardonned" boolean not null default false
 );
+
+create or replace view "v_active_channel_has_banned_user" as
+select * from "channel_has_banned_user" where expiry_at >= now() and pardonned = false;

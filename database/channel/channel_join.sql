@@ -25,3 +25,22 @@ begin
     return 'ok';
 end;
 $$ language plpgsql;
+
+-- Leave a channel
+
+create or replace function leave_channel(p_user_id int, p_channel_id int) returns text as $$
+begin
+
+    if not is_member(p_user_id, p_channel_id) then
+        return 'User is not a member of the channel.';
+    end if;
+
+    if (select owner_id from "channel" where id = p_channel_id) = p_user_id then
+        return 'Channel owner cannot leave the channel. Please delete the channel or transfer ownership first.';
+    end if;
+
+    delete from "channel_has_member" where user_id = p_user_id and channel_id = p_channel_id;
+    
+    return 'ok';
+end;
+$$ language plpgsql;

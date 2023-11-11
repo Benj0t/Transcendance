@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { ChannelEntity } from './channel.entity';
 import { ChannelHasMessageEntity } from './channel_has_message.entity';
+import { ChannelHasMemberEntity } from './channel_has_member.entity';
+import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
 
 @Injectable()
 export class ChannelService {
@@ -52,6 +54,20 @@ export class ChannelService {
 		return messages;
 	}
 
+	async getMembers(channelId: number): Promise<ChannelHasMemberEntity[]> {
+		const members = await this.channelRepository.query(`
+			select * from channel_has_member WHERE channel_id = $1
+		`, [channelId]);
+		return members;
+	}
+
+	async getBanneds(channelId: number): Promise<ChannelHasBannedUserEntity[]> {
+		const members = await this.channelRepository.query(`
+			select * from v_active_channel_has_banned_user WHERE channel_id = $1
+		`, [channelId]);
+		return members;
+	}
+
 	async deleteChannel(channelId: number): Promise<string> {
 		try {
 			const result = await this.channelRepository.query(
@@ -76,7 +92,7 @@ export class ChannelService {
 		}
 	}
 
-	async joinChannel(user_id: number, channel_id: number, password: string) {
+	async joinChannel(user_id: number, channel_id: number, password: string): Promise<string> {
 		try {
 			const result = await this.channelRepository.query(
 				`select join_channel($1, $2, $3)`,
@@ -88,15 +104,28 @@ export class ChannelService {
 		}
 	}
 
+	async leaveChannel(user_id: number, channel_id: number): Promise<string> {
+		try {
+			const result = await this.channelRepository.query(
+				`select leave_channel($1, $2)`,
+				[user_id, channel_id]
+			);
+			return result[0].leave_channel;
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	// POST /api/channels/{channel_id}/messages
 	async sendMessage(userId: number, channelId: number, message: string): Promise<string> {
 		const result = await this.channelRepository.query('select send_message($1, $2, $3)', [userId, channelId, message]);
 		return result[0].send_message;
 	}
-
+	
 	// POST /api/channels/{channel_id}/mute
 	async muteUser(moderatorId: number, targetId: number, channelId: number, muteTime: string): Promise<string> {
-		const result = await this.channelRepository.query(`select mute_user(${moderatorId}, ${targetId}, ${channelId}, ${muteTime})`);
+		const result = await this.channelRepository.query(`select mute_user($1, $2, $3, $4)`,
+			[moderatorId, targetId, channelId, muteTime]);
 		return result[0].mute_user;
 	}
 
@@ -121,7 +150,8 @@ export class ChannelService {
 
 	// POST /api/channels/{channel_id}/ban
 	async banUser(moderatorId: number, targetId: number, channelId: number, banTime: string): Promise<string> {
-		const result = await this.channelRepository.query(`select ban_user(${moderatorId}, ${targetId}, ${channelId}, ${banTime})`);
+		const result = await this.channelRepository.query(`select ban_user($1, $2, $3, $4)`,
+			[moderatorId, targetId, channelId, banTime]);
 		return result[0].ban_user;
 	}
 

@@ -71,7 +71,7 @@ begin
         return 'User not permitted to ban.';
     end if;
     
-    select exists(select 1 from channel_has_banned_user where channel_id = p_channel_id and user_id = p_target_id) into is_already_banned;
+    select exists(select 1 from v_active_channel_has_banned_user where channel_id = p_channel_id and user_id = p_target_id) into is_already_banned;
     
     if is_already_banned then
         return 'User already banned.';
@@ -98,7 +98,7 @@ begin
         return 'User not permitted to pardon.';
     end if;
 
-    delete from "channel_has_banned_user" where channel_id = p_channel_id and user_id = p_target_id;
+    update "channel_has_banned_user" set "pardonned" = true where channel_id = p_channel_id and user_id = p_target_id;
     return 'ok';
 end;
 $$ language plpgsql;

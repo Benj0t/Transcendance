@@ -7,7 +7,7 @@ declare
     v_target_role int;
 begin
 
-    if not is_member(p_moderator_id, p_channel_id) or v_target_role is null then
+    if not is_member(p_moderator_id, p_channel_id) then
         return false;
     end if;
 
