@@ -13,18 +13,12 @@ export class UserEntity {
   @Column()
   avatar_base64: string;
 
-  @Column({ default: false })
-  two_factor_auth: boolean;
+  @Column({ default: null })
+  two_factor_secret: string;
 
+  @Column({ default: false })
+  two_factor_enable: boolean;
+  
   @Column({ unique: true })
   user_42_id: number;
-
-  @OneToMany(() => UserHasFriendEntity, (userHasFriend) => userHasFriend.user)
-  friends: UserHasFriendEntity[];
-
-  @OneToMany(() => UserHasBlockedUserEntity, (userHasBlockedUser) => userHasBlockedUser.user)
-  blockedUsers: UserHasBlockedUserEntity[];
-
-  @OneToMany(() => UserHasBlockedUserEntity, (userHasBlockedUser) => userHasBlockedUser.blockedUser)
-  blockedBy: UserHasBlockedUserEntity[];
 }

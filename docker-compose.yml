@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+     context: ./database
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./database/.env
+    volumes:
+      - ~/transcendance/psql_data:/var/lib/postgresql/data
+    networks:
+      - internal_network
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - internal_network
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
+volumes:
+  psql-data:
+
+
+networks:
+  internal_network:
+    driver: bridge

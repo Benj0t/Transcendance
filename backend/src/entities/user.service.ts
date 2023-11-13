@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
@@ -25,7 +25,7 @@ export class UserService {
 	async getFriends(id: number): Promise<UserHasFriendEntity[]> {
 		
 		const friends = await this.usersRepository.query(
-			`select * from get_user_friends($1)`,
+			`select * from get_user_friendships($1)`,
 			[id]
 		);
 		
@@ -85,7 +85,51 @@ export class UserService {
 		}
 	}
 
+	async updateSecret(user_id: number, user_secret: string): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+	
+		  user.two_factor_secret = user_secret;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
+
+	async enableTwoFactor(user_id: number): Promise<UserEntity | null> {
+		
+		try {
+
+		  const user = await this.findOne(user_id);
+	
+		  if (!user) {
+			return null;
+		  }
+	
+		  user.two_factor_enable = true;
+	
+		  await this.usersRepository.save(user);
+	
+		  return user;
+		} catch (error) {
+		  throw error;
+		}
+	}
+
 	async addFriend(user_id: number, friend_id: number): Promise<string> {
+
+		if (!friend_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 
@@ -102,6 +146,10 @@ export class UserService {
 	}
 	
 	async removeFriend(user_id: number, friend_id: number): Promise<string> {
+		
+		if (!friend_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
@@ -117,6 +165,10 @@ export class UserService {
 	}
 
 	async addMatch(user_id: number, opponent_id: number, winner_id: number): Promise<string> {
+		
+		if (!opponent_id || !winner_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 
@@ -125,7 +177,7 @@ export class UserService {
 			[user_id, opponent_id, winner_id]
 		  );
 
-		  return result[0];
+		  return result[0].add_match;
 
 		} catch (error) {
 		  throw error;
@@ -133,6 +185,10 @@ export class UserService {
 	}
 
 	async blockUser(userId: number, blocked_user_id: number): Promise<string> {
+		
+		if (!blocked_user_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
@@ -147,12 +203,16 @@ export class UserService {
 		}
 	}
 	
-	async unblockUser(user_id: number, blocked_user_id: number): Promise<string> {
+	async unblockUser(user_id: number, unblocked_user_id: number): Promise<string> {
+		
+		if (!unblocked_user_id) {
+			throw new BadRequestException("Missing required parameter.");
+		}
 
 		try {
 		  const result = await this.usersRepository.query(
 			`select unblock_user($1, $2)`,
-			[user_id, blocked_user_id]
+			[user_id, unblocked_user_id]
 		  );
 
 		  return result[0];
