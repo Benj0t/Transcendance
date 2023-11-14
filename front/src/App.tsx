@@ -15,7 +15,6 @@ import SettingsPage from './pages/SettingsPage';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
-import AuthTwoFactor from './pages/AuthTwoFactor';
 import { UserContext } from './context/userContext';
 // import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
@@ -163,14 +162,6 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <ConfirmTwoFactor />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/authTwoFactor"
-                element={
-                  <PrivateRoute>
-                    <AuthTwoFactor />
                   </PrivateRoute>
                 }
               />

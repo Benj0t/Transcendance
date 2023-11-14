@@ -38,7 +38,7 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    AuthEnabled()
+    AuthEnabled(null)
       .then((req) => {
         console.log(req);
         setTwoFactorEnabled(req);
