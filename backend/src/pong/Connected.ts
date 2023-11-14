@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import { Match } from './Match';
 import { PongServer } from './pong.server';
 
 export class Connected {
@@ -7,7 +8,7 @@ export class Connected {
     public userId: number;
     public ping: number;
     public opponentId: number | null;
-    public match: any;
+    public match: Match;
     public readonly client: Socket; 
     public readonly pong_server: PongServer;
 
@@ -19,6 +20,8 @@ export class Connected {
         this.socket = client;
         this.lastSocketTimestamp = Date.now();
         this.closed = false;
+        this.opponentId = null;
+        this.match = null;
     }
 
     close(): void {

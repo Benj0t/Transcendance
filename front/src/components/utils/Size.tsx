@@ -12,8 +12,8 @@ export class Size {
   sizeFor(widthPercent: number, heightPercent: number): Size {
     const width = this.scaled_width.valueFor(widthPercent);
     const height = this.scaled_height.valueFor(heightPercent);
-    console.log('Width - >', width);
-    console.log('height - >', height);
+    // console.log('Width - >', width);
+    // console.log('height - >', height);
 
     return new Size(width, height);
   }

@@ -74,7 +74,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
 			ball_x_pcent = connected.match.getArea().getBall().getLocation().getXPercent();
 			ball_y_pcent = connected.match.getArea().getBall().getLocation().getYPercent();
-			to_left = connected.match.user1.user_id != connected.getUserId();
+			to_left = connected.match.user1.userId != connected.getUserId();
 
 			const opponent: Racket = to_left ? connected.match.getArea().getPlayer() : connected.match.getArea().getOpponent();
 
@@ -85,7 +85,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
 		const packet: PacketOutTimeUpdate = new PacketOutTimeUpdate(
 				ball_x_pcent, ball_y_pcent, to_left, opponent_y_pcent, connected.opponentId,
-				connected.hasMatch(), match_time, connected.match.scoreUser1, connected.match.scoreUser2);
+				connected.hasMatch(), match_time, connected.hasMatch() ? connected.match.scoreUser1 : null,
+        connected.hasMatch() ? connected.match.scoreUser2 : null );
 
     connected.client.emit('time_packet', packet);
   }
@@ -111,7 +112,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   }
 
   handleDisconnect(client: Socket): void {
-    this.getConnected(client).close();
+    if (this.getConnected(client))
+      this.getConnected(client).close();
   }
 
   onModuleDestroy(): void {
@@ -125,9 +127,10 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     connected.lastSocketTimestamp = Date.now(); // temps actuel en ms
     connected.userId = packet.userid;
+    console.log(packet.yPcent);
 
-    if (connected.hasMatch() && packet.y_pcent != null) {
-      connected.match.getRacket(connected).getLocation().setY(packet.y_pcent);
+    if (connected.hasMatch() && packet.yPcent != null) {
+      connected.match.getRacket(connected).getLocation().setY(packet.yPcent);
     }
   }
 
@@ -147,6 +150,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
 
     connected.opponentId = packet.opponentId;
+    return ;
   }
 
   @SubscribeMessage('dual_cancel_packet')

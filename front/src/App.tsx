@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -11,11 +11,13 @@ import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
-import { pongSocket } from './components/pongSocket';
+// import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
 import AuthTwoFactor from './pages/AuthTwoFactor';
+import { UserContext } from './context/userContext';
+// import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   console.log(Cookies.get('jwt'));
@@ -71,129 +73,126 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {
-      console.log(pongSocket.id);
-      pongSocket.emit('keep_alive_packet', packetOutTime);
-    });
-  }, []);
+  const [userMe, setUserMe] = useState({ id: '0', nickname: '', yPcent: 0 });
   return (
     <CssBaseline>
       <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ThemeProvider theme={darkTheme}>
+        <UserContext.Provider value={{ user: userMe, setUser: setUserMe }}>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <HomePage />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/waiting-room"
+                element={
+                  <ThemeProvider theme={lightTheme}>
+                    <PongGame />
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/game"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <Game />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <Chat />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/friends"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <Friends />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/history"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <History />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <SettingsPage />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/confirmTwoFactor"
+                element={
                   <PrivateRoute>
-                    <HomePage />
+                    <ConfirmTwoFactor />
                   </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PublicRoute>
-                    <LoginPage />
-                  </PublicRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/waiting-room"
-              element={
-                <ThemeProvider theme={lightTheme}>
-                  <PongGame />
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ThemeProvider theme={darkTheme}>
+                }
+              />
+              <Route
+                path="/authTwoFactor"
+                element={
                   <PrivateRoute>
-                    <Game />
+                    <AuthTwoFactor />
                   </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/chat"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <Chat />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/friends"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <Friends />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/history"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <History />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <SettingsPage />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/confirmTwoFactor"
-              element={
-                <PrivateRoute>
-                  <ConfirmTwoFactor />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/authTwoFactor"
-              element={
-                <PrivateRoute>
-                  <AuthTwoFactor />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/auth/callback"
-              element={
-                <CallbackRoute>
-                  <AuthCallback />
-                </CallbackRoute>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <NoMatch />
-                </ThemeProvider>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
+                }
+              />
+              <Route
+                path="/auth/callback"
+                element={
+                  <CallbackRoute>
+                    <AuthCallback />
+                  </CallbackRoute>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <NoMatch />
+                  </ThemeProvider>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </UserContext.Provider>
       </div>
     </CssBaseline>
   );

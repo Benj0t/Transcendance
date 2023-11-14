@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
+import { getPongSocket } from '../components/pongSocket';
+import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
+import { UserContext } from '../context/userContext';
 
 const HomePage: React.FC = () => {
+  const me = useContext(UserContext).user;
+  const keepInterval = setInterval(() => {
+    pongSocket.emit('keep_alive_packet', new PacketInKeepAlive(me.yPcent));
+  }, 50);
+  void keepInterval;
   /**
    * States
    */
   const navigate = useNavigate();
+  const pongSocket = getPongSocket();
   /**
    * Handlers
    */
@@ -17,6 +26,11 @@ const HomePage: React.FC = () => {
   const handleChat = (): void => {
     navigate('/chat');
   };
+  useEffect(() => {
+    pongSocket?.on('time_packet', (packetOutTime) => {
+      console.log(pongSocket.id);
+    });
+  }, []);
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
       <ProfileButton />
