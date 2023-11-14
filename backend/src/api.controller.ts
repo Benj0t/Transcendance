@@ -72,6 +72,26 @@ export class ApiController {
    * @author Komqdo 
    */
 
+  /**
+   * Get user channels
+   * 
+   * @param none
+   * 
+   * @returns The channels of the specified user.
+   * 
+   * @author Komqdo
+   */
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/channels')
+  getMyChannels(@Req() {jwtPayload}: {jwtPayload: JwtPayload}) {
+    try {
+      return this.channel_service.getUserChannels(jwtPayload.sub);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
   @Get('user/:id')
   // @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
@@ -415,6 +435,7 @@ export class ApiController {
     return(ret);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('auth/enabled')
   async authEnabled(): Promise<boolean> {
     const user_id = 1; // ID from jwt
@@ -512,36 +533,6 @@ export class ApiController {
     } catch (error) {
       console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Authentication failed.');
-    }
-  }
-
-  /**
-   * Get user channels
-   * 
-   * @param user_id The user id
-   * 
-   * @returns The channels of the specified user.
-   * 
-   * @author Komqdo
-   */
-
-  // @UseGuards(JwtAuthGuard)
-  @Get('user/:user/channels')
-  getUserChannels(@Param('user') user_id: number) {
-    try {
-      return this.channel_service.getUserChannels(user_id);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  // @UseGuards(JwtAuthGuard)
-  @Get('user/channels')
-  getMyChannels(@Req() {jwtPayload}: {jwtPayload: JwtPayload}) {
-    try {
-      return this.channel_service.getUserChannels(jwtPayload.sub);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
     }
   }
 

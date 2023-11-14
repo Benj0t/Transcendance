@@ -12,10 +12,10 @@ const PongGame: React.FC = (): any => {
   const [isGameStarted, setGameStarted] = useState(false);
   const [opponentId, setOpponentId] = useState(0);
   const [area] = useState<Area | null>(new Area(800, 400, 0, 0));
-  const [ballXPCent, setBallX] = useState(0)
-  const [ballYPCent, setBallY] = useState(0)
+  const [ballXPCent, setBallX] = useState(0);
+  const [ballYPCent, setBallY] = useState(0);
   // const [toLeft, setToLeft] = useState(true)
-  const [opponentYPCent, setOpponentY] = useState(0)
+  const [opponentYPCent, setOpponentY] = useState(0);
   // const [playing, setPlaying] = useState(false)
   // const [time, setTime] = useState(0)
   const [scorePlayer] = useState(0);

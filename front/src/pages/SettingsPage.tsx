@@ -38,18 +38,16 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    async function fetchData(): Promise<any> {
-      try {
-        const verified = await AuthEnabled();
-        if (verified.data === true) setTwoFactorEnabled(true);
-      } catch (error) {
-        console.log('error');
-      }
-    }
-    const test = fetchData();
-    void test;
+    AuthEnabled()
+      .then((req) => {
+        console.log(req);
+        setTwoFactorEnabled(req);
+      })
+      .catch(() => {
+        console.log('coucou');
+      });
   }, []);
-
+  console.log(twoFactorEnabled);
   return (
     <Box
       height="100%"

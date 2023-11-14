@@ -1,11 +1,26 @@
-Changer lib cookies -> js-cookies
-Remplacer fake cookie -> JWT
+on disconnect:
+C:\Users\benja\Desktop\Transcendance\backend\src\pong\pong.server.ts:114
+    this.getConnected(client).close();
+                             ^
+TypeError: Cannot read properties of null (reading 'close')
+    at PongServer.handleDisconnect (C:\Users\benja\Desktop\Transcendance\backend\src\pong\pong.server.ts:114:30)
+    at ConsumerObserver.next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subscriber.ts:161:25)
+    at SafeSubscriber.Subscriber._next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subscriber.ts:119:22)
+    at SafeSubscriber.Subscriber.next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subscriber.ts:75:12)
+    at C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\operators\distinctUntilChanged.ts:173:22
+    at OperatorSubscriber._this._next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\operators\OperatorSubscriber.ts:70:13)
+    at OperatorSubscriber.Subscriber.next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subscriber.ts:75:12)
+    at C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subject.ts:68:20
+    at Object.errorContext (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\util\errorContext.ts:29:5)
+    at Subject.next (C:\Users\benja\Desktop\Transcendance\backend\node_modules\rxjs\src\internal\Subject.ts:61:5)
+PS C:\Users\benja\Desktop\Transcendance\backend> 
 
+PongServer :86
 
-chat/userid
-getParams l'id, request ses infos au backend et show ses datas
+		const packet: PacketOutTimeUpdate = new PacketOutTimeUpdate(
+				ball_x_pcent, ball_y_pcent, to_left, opponent_y_pcent, connected.opponentId,
+				connected.hasMatch(), match_time, 0, 0);
+        //Issue with connected.match.scoreUser1 doesnt exists, replace by 0 temp
+    connected.client.emit('time_packet', packet);
 
-Refaire le bouton de la LoginPage
-
-
-Gauthier: Rename la var access_token
+/// IS OK

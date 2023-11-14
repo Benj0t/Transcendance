@@ -1,7 +1,9 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const AuthEnabled = async (): Promise<boolean> => {
+const getUserChannels = async (): Promise<any> => {
+  let data = { error: '', loading: false, data: {} };
+
   const jwt = Cookies.get('jwt');
   const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
   const requestData = {
@@ -9,17 +11,16 @@ const AuthEnabled = async (): Promise<boolean> => {
       Authorization: authHeader,
     },
   };
-  let data = false;
+
   await axios
-    .get(`http://localhost:8080/api/auth/enabled/`, requestData)
+    .get(`http://localhost:8080/api/user/channels/`, requestData)
     .then(function (response) {
-      console.log(response.data);
-      data =  response.data;
+      data = { error: '', loading: false, data: response.data };
     })
     .catch(function (error) {
       console.log(error);
-      throw error;
     });
+  console.log(data);
   return data;
 };
-export default AuthEnabled;
+export default getUserChannels;

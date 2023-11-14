@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import ProfileButton from '../components/profileButton';
 import TwoFactorInput from '../components/TwoFactorInput';
 import AuthVerify from '../requests/getAuthVerify';
 import { useNavigate } from 'react-router';
+import AuthEnabled from '../requests/getAuthEnabled';
 
 const AuthTwoFactor: React.FC = () => {
   /**
@@ -11,7 +11,18 @@ const AuthTwoFactor: React.FC = () => {
    */
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const navigate = useNavigate();
+  const [data, setData] = useState<boolean>(false);
 
+  useEffect(() => {
+    AuthEnabled()
+      .then((reqdata) => {
+        setData(reqdata);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+  if (!data) navigate('/');
   /**
    * Handlers
    */
@@ -32,9 +43,6 @@ const AuthTwoFactor: React.FC = () => {
   };
   return (
     <Box>
-      <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
-        <ProfileButton />
-      </Box>
       <Box
         display="flex"
         justifyContent="center"

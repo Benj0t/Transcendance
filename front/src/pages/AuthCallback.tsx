@@ -8,12 +8,11 @@ const AuthCallback: React.FC = () => {
 
   const handleAuthCallback = (): void => {
     const queryString = window.location.search;
-    console.log('COUCOU');
     const jwtParam = new URLSearchParams(queryString).get('jwt');
 
     if (jwtParam != null) {
       Cookies.set('jwt', jwtParam);
-      navigate('/');
+      navigate('/authTwoFactor');
     } else {
       setError('JWT non trouvé dans la réponse.');
     }
