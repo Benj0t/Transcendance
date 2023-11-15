@@ -4,12 +4,14 @@ import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
+import LoadingPage from './LoadingPage';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
   const [color, setColor] = useState('#aabbcc');
   const [name, setName] = useState('Benjot');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const handleEnableTwoFactor = async (): Promise<void> => {
@@ -38,6 +40,7 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     AuthEnabled(null)
       .then((req) => {
         console.log(req);
@@ -45,9 +48,13 @@ const SettingsPage: React.FC = () => {
       })
       .catch(() => {
         console.log('coucou');
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
   console.log(twoFactorEnabled);
+  if (loading) return <LoadingPage />;
   return (
     <Box
       height="100%"
