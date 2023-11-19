@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import AuthEnabled from '../requests/getAuthEnabled';
 import { Box } from '@mui/material';
 import TwoFactorInput from '../components/TwoFactorInput';
-import AuthVerify from '../requests/getAuthVerify';
+import AuthVerifyWithoutCookie from '../requests/getAuthVerifyWithoutCookies';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -18,14 +18,12 @@ const AuthCallback: React.FC = () => {
       .then((reqdata) => {
         console.log('data: ', reqdata);
         if (!reqdata && jwtParam !== null) {
-          console.log('AUYIOFCBDYU*WEBYUBWDYUIKDBWYUIKBYU');
           Cookies.set('jwt', jwtParam);
           navigate('/');
         }
       })
       .catch((error) => {
         console.log(error);
-        // return error page
       });
   }, []);
   /**
@@ -33,9 +31,9 @@ const AuthCallback: React.FC = () => {
    */
   const onTwoFactorTest = async (twoFactorCode: { text: string }): Promise<void> => {
     try {
-      const verified = await AuthVerify(twoFactorCode.text);
+      const verified = await AuthVerifyWithoutCookie(twoFactorCode.text, jwtParam);
       if (verified.data === true) {
-        if (jwtParam != null) Cookies.set('jwt', jwtParam);
+        if (jwtParam !== null) Cookies.set('jwt', jwtParam);
         navigate('/');
       }
     } catch (error) {

@@ -92,6 +92,16 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('user/me')
+  async getUserMe(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserEntity | { message: string }> {
+    const user = await this.user_service.findOne(jwtPayload.sub);
+    if (!user) {
+      throw new NotFoundException(`User with id ${jwtPayload.sub} not found.`);
+    }
+    return user;
+  }
+
   @Get('user/:id')
   // @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
@@ -420,8 +430,8 @@ export class ApiController {
     return a2fqrcode;
   }
   
+  @UseGuards(JwtAuthGuard)
   @Get('auth/verify')
-  // @UseGuards(JwtAuthGuard)
   async authVerify(@Query('OTP') OTP: string): Promise<boolean>
   {
     const user_id = 1; // ID from jwt

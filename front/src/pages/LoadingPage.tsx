@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import React from 'react';
 
 const LoadingPage: React.FC = () => {
@@ -9,7 +9,7 @@ const LoadingPage: React.FC = () => {
       alignItems="center"
       sx={{ height: '100%', width: '100%' }}
     >
-      <p style={{ fontSize: '100px' }}>Loading resources</p>
+      <CircularProgress />
     </Box>
   );
 };
