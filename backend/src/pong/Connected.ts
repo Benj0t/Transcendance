@@ -22,6 +22,7 @@ export class Connected {
         this.closed = false;
         this.opponentId = null;
         this.match = null;
+        this.userId = 0;
     }
 
     close(): void {

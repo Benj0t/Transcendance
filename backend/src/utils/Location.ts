@@ -27,7 +27,7 @@ export class Location {
   }
 
   setY(yPcent: number): void {
-    this.scaledY.setPercent(yPcent);
+    this.scaledY.setPercent(yPcent * 100 / 360);
   }
 
   setXY(xPcent: number, yPcent: number): void {

@@ -72,7 +72,7 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  const [userMe, setUserMe] = useState({ id: '0', nickname: '', yPcent: 0 });
+  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0 });
   return (
     <CssBaseline>
       <div className="App">

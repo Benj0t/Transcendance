@@ -15,6 +15,7 @@ import { PacketOutTimeUpdate } from "./packet/PacketTime";
 import Racket from "src/utils/Racket";
 import { PacketInDual } from "./packet/PacketInDual";
 import { PacketInDualCancel } from "./packet/PacketInDualCancel";
+import { PacketInHandshake } from "./packet/PacketInHandshake";
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
@@ -122,16 +123,21 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('keep_alive_packet')
   handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
-    console.log("received keep_alive_packet from", client.id);
+    // console.log("received keep_alive_packet from", client.id);
     const connected: Connected = this.getConnected(client);
 
     connected.lastSocketTimestamp = Date.now(); // temps actuel en ms
-    connected.userId = packet.userid;
-    console.log(packet.yPcent);
+    // console.log(packet.yPcent);
 
     if (connected.hasMatch() && packet.yPcent != null) {
       connected.match.getRacket(connected).getLocation().setY(packet.yPcent);
     }
+  }
+
+  @SubscribeMessage('handshake_packet')
+  handleHandshakePacket(client: Socket, packet: PacketInHandshake): void {
+    const connected: Connected = this.getConnected(client);
+    connected.userId = packet.userId;
   }
 
   @SubscribeMessage('dual_packet')

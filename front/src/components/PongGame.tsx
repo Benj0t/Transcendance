@@ -17,7 +17,7 @@ const PongGame: React.FC = (): any => {
   const [area] = useState<Area | null>(new Area(800, 400, 0, 0));
   const [ballXPCent, setBallX] = useState(0);
   const [ballYPCent, setBallY] = useState(0);
-  // const [toLeft, setToLeft] = useState(true)
+  const [toLeft, setToLeft] = useState(true);
   const [opponentYPCent, setOpponentY] = useState(0);
   // const [playing, setPlaying] = useState(false)
   // const [time, setTime] = useState(0)
@@ -56,7 +56,16 @@ const PongGame: React.FC = (): any => {
 
   // const setPlaying = (): any => {
   // };
+  const handleSocketData = (data: any): void => {
+    setBallX(data.ballXPCent);
+    setBallY(data.ballYPCent);
+    setToLeft(data.toLeft);
+    setOpponentY(data.opponentYPCent);
+    // setPlaying(data.playing);
+    // setTime(data.time);
+  };
 
+  pongSocket.on('time_packet', handleSocketData);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas == null) return;
@@ -65,17 +74,6 @@ const PongGame: React.FC = (): any => {
     if (ctx == null) return;
 
     if (area == null) return;
-
-    const handleSocketData = (data: any): void => {
-      setBallX(data.ballXPCent);
-      setBallY(data.ballYPCent);
-      // setToLeft(data.toLeft);
-      setOpponentY(data.opponentYPCent);
-      // setPlaying(data.playing);
-      // setTime(data.time);
-    };
-
-    pongSocket.on('time_packet', handleSocketData);
 
     // console.log('Canvas Width:', canvas.width);
     // console.log('Canvas Height:', canvas.height);
@@ -126,14 +124,28 @@ const PongGame: React.FC = (): any => {
         const offsetFromEdge = 10;
 
         // Dessiner les raquettes et la balle en utilisant les données de Area
-        ctx.fillRect(offsetFromEdge, racketY, racketSize.getWidth(), racketSize.getHeight());
+        toLeft
+          ? ctx.fillRect(
+              offsetFromEdge,
+              (opponentYPCent * 360) / 100,
+              racketSize.getWidth(),
+              racketSize.getHeight(),
+            )
+          : ctx.fillRect(offsetFromEdge, racketY, racketSize.getWidth(), racketSize.getHeight());
 
-        ctx.fillRect(
-          canvas.width - racketSize.getWidth() - offsetFromEdge,
-          opponentYPCent,
-          racketSize.getWidth(),
-          racketSize.getHeight(),
-        );
+        toLeft
+          ? ctx.fillRect(
+              canvas.width - racketSize.getWidth() - offsetFromEdge,
+              racketY,
+              racketSize.getWidth(),
+              racketSize.getHeight(),
+            )
+          : ctx.fillRect(
+              canvas.width - racketSize.getWidth() - offsetFromEdge,
+              (opponentYPCent * 360) / 100,
+              racketSize.getWidth(),
+              racketSize.getHeight(),
+            );
 
         // Dessiner le score
         ctx.font = '42px Arial';
@@ -143,11 +155,10 @@ const PongGame: React.FC = (): any => {
 
         ctx.fillText(String(scorePlayer), canvas.width / 3, scoreY);
         ctx.fillText(String(scoreOpponent), (2 * canvas.width) / 3, scoreY);
-
         ctx.beginPath();
         ctx.arc(
-          ballXPCent * canvas.width,
-          ballYPCent * canvas.height,
+          (ballXPCent * canvas.width) / 100,
+          (ballYPCent * canvas.height) / 100,
           ballSize.getWidth() / 2,
           0,
           Math.PI * 2,
@@ -156,19 +167,22 @@ const PongGame: React.FC = (): any => {
         ctx.fill();
 
         if (canvas != null) sendKeepAlivePacket(racketY);
-        requestAnimationFrame(draw);
       }
     };
 
-    draw();
+    requestAnimationFrame(draw);
+    // const animate = (): void => {
+    //   draw(); // Appel initial à la fonction de dessin
+    // };
+
+    // animate();
 
     canvas.addEventListener('mousemove', handleMouseMove);
 
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove);
-      pongSocket.off('time_packet', handleSocketData);
     };
-  }, [pongSocket, racketY, isGameStarted]);
+  }, [ballXPCent]);
 
   return (
     <div>

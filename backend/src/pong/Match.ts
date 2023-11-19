@@ -80,6 +80,8 @@ export class Match {
    */
 
   public update(): void {
+    // console.log('Y :' + this.area.getBall().getLocation().getY());
+    // console.log('X : ' + this.area.getBall().getLocation().getX());
     const direction = !this.ballToLeft ? 1 : -1;
 
     this.area.getBall().getLocation().addX(
