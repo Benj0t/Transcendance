@@ -23,9 +23,9 @@ services:
     networks:
       - internal_network
 
-  frontend:
+  front:
     build:
-      context: ./frontend
+      context: ./front
     ports:
       - "3000:3000"
     depends_on:
