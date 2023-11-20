@@ -1,10 +1,8 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
-import { useNavigate } from 'react-router';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const handleLogin = (): void => {
     navigate(
       '/auth/callback?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImJlbmphbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ.7dzL3yswoINVI2s8HvbLEYCJZMmCYTb1XCjaHAasjsg',
