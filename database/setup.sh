@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SQL_DIR="./"
+SQL_DIR="/etc/tables"
 
 SQL_FILES=(
   "achievement/achievement.sql"
