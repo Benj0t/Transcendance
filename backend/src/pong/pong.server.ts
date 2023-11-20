@@ -87,7 +87,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 		const packet: PacketOutTimeUpdate = new PacketOutTimeUpdate(
 				ball_x_pcent, ball_y_pcent, to_left, opponent_y_pcent, connected.opponentId,
 				connected.hasMatch(), match_time, connected.hasMatch() ? connected.match.scoreUser1 : null,
-        connected.hasMatch() ? connected.match.scoreUser2 : null );
+        connected.hasMatch() ? connected.match.scoreUser2 : null,
+        connected.hasMatch() ? connected.match.start : null );
 
     connected.client.emit('time_packet', packet);
   }
