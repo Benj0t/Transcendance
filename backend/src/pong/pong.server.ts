@@ -37,31 +37,17 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   }
 
   update() {
-    // Mets à jour les utilisateurs.
 
     for (const connected of this.connecteds) { // for each connected
-
-      // Envoie le PacketOutTimeUpdate.
-
       this.sendTimePacket(connected);
-
-      // Déconnecte l'utilisateur s'il n'a pas répondu depuis 5 secondes.
-
-      if (connected.isTimeout()) {
-        connected.close();
-        console.log(`[LOG] ${connected.socket} : timed out.`);
-        continue;
-      }
-
-      // Essaie de trouver et lancer le match pour l'utilisateur.
-
+      // if (connected.isTimeout()) {
+      //   connected.close();
+      //   console.log(`[LOG] ${connected.socket} : timed out.`);
+      //   continue;
+      // }
       this.checkMatchStart(connected);
     }
-
-    // Mets à jour les matches en cours.
-
     this.updateMatches();
-
   }
 
   sendTimePacket(connected: Connected) {
@@ -114,8 +100,11 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   }
 
   handleDisconnect(client: Socket): void {
+    if (this.getConnected(client).match !== null)
+      this.getConnected(client).opponentId = null;
     if (this.getConnected(client))
       this.getConnected(client).close();
+;
   }
 
   onModuleDestroy(): void {
@@ -165,7 +154,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     console.log("received dual_cancel_packet from", client.id);
     const connected: Connected = this.getConnected(client);
 
-    if (connected.opponentId == null) {
+    if (connected.opponentId === null) {
       return ;
     }
 
@@ -211,7 +200,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   updateMatches() {
     for (const match of Array.from(this.matches)) {
-      match.update();
+      if (match.closed === false) match.update();
     }
   }
 

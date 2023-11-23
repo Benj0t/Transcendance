@@ -10,6 +10,7 @@ export class Match {
   public closed: boolean;
   public scoreUser1 = 0;
   public scoreUser2 = 0;
+  public readonly pong_server: PongServer;
 
   public time: TickValue;
   public start: number;
@@ -28,6 +29,7 @@ export class Match {
     this.user2 = user2;
     this.user2.match = this;
     this.area = new Area(PongServer.option.display.height, PongServer.option.display.width, user1.getUserId(), user2.getUserId());
+    this.closed = false;
   }
 
   /**
@@ -49,6 +51,10 @@ export class Match {
 
     this.user2.opponentId = null;
     this.user2.match = null;
+
+    this.user1.client.emit('end_game_packet');
+    this.user2.client.emit('end_game_packet');
+
   }
 
   /**
@@ -84,6 +90,8 @@ export class Match {
   public update(): void {
     // console.log('Y :' + this.area.getBall().getLocation().getY());
     // console.log('X : ' + this.area.getBall().getLocation().getX());
+    if (this.scoreUser1 === 5 || this.scoreUser2 === 5)
+      this.close();
     this.time.incrementValue();
     if (Date.now() - this.start <= 5000)
       return ;

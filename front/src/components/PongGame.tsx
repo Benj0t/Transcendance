@@ -69,7 +69,29 @@ const PongGame: React.FC = (): any => {
     setStart(data.start);
   };
 
+  const handleEndGame = (): void => {
+    setRacketY(180);
+    setIsChoosingMatchmaking(false);
+    setIsChoosingDuel(false);
+    setGameStarted(false);
+    setOpponentId(0);
+    setBallX(0);
+    setBallY(0);
+    setToLeft(true);
+    setOpponentY(180);
+    setTime(0);
+    setStart(0);
+    setScorePlayer(0);
+    setScoreOpponent(0);
+  };
+
+  window.addEventListener('popstate', (event) => {
+    event.preventDefault();
+    pongSocket.emit('dual_cancel_packet');
+  });
+
   pongSocket.on('time_packet', handleSocketData);
+  pongSocket.on('end_game_packet', handleEndGame);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas == null) return;
@@ -222,7 +244,23 @@ const PongGame: React.FC = (): any => {
     <div>
       <div className="centered-container">
         {isGameStarted ? (
-          <canvas ref={canvasRef} width={800} height={400} />
+          start !== null ? (
+            <canvas ref={canvasRef} width={800} height={400} />
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                textAlign: 'center',
+              }}
+            >
+              <center>
+                <h3> Waiting for opponent... </h3>
+              </center>
+            </div>
+          )
         ) : (
           <div>
             {isChoosingMatchmaking ? (

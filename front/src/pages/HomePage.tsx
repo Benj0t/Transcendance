@@ -32,13 +32,18 @@ const HomePage: React.FC = () => {
       });
   }, []);
 
+  pongSocket.on('reconnect', (attemptNumber: number) => {
+    console.log(`Socket reconnected after ${attemptNumber} attempts`);
+    // Effectuez des actions spécifiques après la reconnexion
+  });
+
   const keepInterval = setInterval(() => {
     pongSocket.emit('keep_alive_packet', new PacketInKeepAlive(me.yPcent));
   }, 50);
   void keepInterval;
 
   const handleGame = (): void => {
-    navigate('/waiting-room');
+    navigate('/game');
   };
   const handleChat = (): void => {
     navigate('/chat');
