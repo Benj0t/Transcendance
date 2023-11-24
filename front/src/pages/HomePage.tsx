@@ -5,11 +5,6 @@ import ProfileButton from '../components/profileButton';
 import { getPongSocket } from '../components/pongSocket';
 import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
 import { UserContext } from '../context/userContext';
-// import {
-//   notifyToasterError,
-//   notifyToasterInfo,
-//   notifyToasterSuccess,
-// } from '../components/utils/toaster';
 
 const HomePage: React.FC = () => {
   const me = useContext(UserContext).user;
@@ -35,9 +30,6 @@ const HomePage: React.FC = () => {
     pongSocket?.on('time_packet', (packetOutTime) => {
       console.log(pongSocket.id);
     });
-    // notifyToasterSuccess('pouet');
-    // notifyToasterError('popo');
-    // notifyToasterInfo('papa');
   }, []);
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
