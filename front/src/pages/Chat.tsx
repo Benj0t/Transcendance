@@ -35,7 +35,6 @@ const Chat: React.FC = () => {
     ],
   };
 
-  const friends = ['Sophie', 'Marc', 'Mohammed'];
   const channelsMembers = [
     { id: 1, names: ['Michel'] },
     { id: 10, names: ['Sophie'] },
@@ -45,6 +44,7 @@ const Chat: React.FC = () => {
 
   const channelTest = getUserChannels();
   console.log('Channels: ', channelTest);
+
   const channels = [
     { id: 1, name: 'Michel' },
     { id: 10, name: 'Sophie' },
@@ -127,7 +127,7 @@ const Chat: React.FC = () => {
           </Box>
         </Box>
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
-          <ButtonCreateChannel friends={friends} />
+          <ButtonCreateChannel />
           <ButtonJoinChannel />
           <AdminPanel isAdmin={isAdmin} />
         </Box>

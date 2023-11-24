@@ -15,6 +15,7 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('Please provide token');
       }
       const authToken = authorization.replace(/bearer/gim, '').trim();
+      console.log(authToken);
       const jwtPayload = await this.authService.validateToken(authToken)
       request.jwtPayload = jwtPayload
       return true;

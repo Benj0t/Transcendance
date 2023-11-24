@@ -102,8 +102,57 @@ export class ApiController {
     return user;
   }
 
+  /**
+   * Get the friend relationships for an user.
+   * 
+   * @param id  The user id
+   * @returns   The friend relationships for the specified user.
+   */
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('user/friends')
+  async getUserFriends(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserHasFriendEntity[]> {
+    try {
+
+      const friends = await this.user_service.getFriends(jwtPayload.sub);
+
+      return friends;
+
+    } catch (error) {
+      throw new NotFoundException('Error: ' + error);
+    }
+  }
+
+  /**
+   * Add a friend for an user.
+   * 
+   * @param user_id   The user id.
+   * @param friend_id The friend id.
+   * 
+   * @returns         The callback message. 
+   * 
+   * @author Komqdo
+   */
+
+  @UseGuards(JwtAuthGuard)
+  @Post('user/friends')
+  async addFriend(
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Query('friend_id') friend_id: number,
+  ): Promise<{ message: string }> {
+
+    try {
+
+      const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('user/:id')
-  // @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
     const user = await this.user_service.findOne(id);
     if (!user) {
@@ -173,54 +222,7 @@ export class ApiController {
     }
   }
 
-  /**
-   * Get the friend relationships for an user.
-   * 
-   * @param id  The user id
-   * @returns   The friend relationships for the specified user.
-   */
-  
-  @Get('user/:id/friends')
-  // @UseGuards(JwtAuthGuard)
-  async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
-    try {
 
-      const friends = await this.user_service.getFriends(id);
-
-      return friends;
-
-    } catch (error) {
-      throw new NotFoundException('Error: ' + error);
-    }
-  }
-
-  /**
-   * Add a friend for an user.
-   * 
-   * @param user_id   The user id.
-   * @param friend_id The friend id.
-   * 
-   * @returns         The callback message. 
-   * 
-   * @author Komqdo
-   */
-
-  @Post('user/:id/friends')
-  // @UseGuards(JwtAuthGuard)
-  async addFriend(
-    @Param('id') user_id: number,
-    @Query('friend_id') friend_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-
-      const message = await this.user_service.addFriend(user_id, friend_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
 
   /**
    * Delete a friend for an user.

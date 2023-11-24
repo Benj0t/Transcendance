@@ -1,13 +1,6 @@
 
 -- Represent an achievement.
 
-create table "achievement" (
-    "id" serial primary key,
-    "name" varchar(50),
-	"caption" text,
-    "icon_url" varchar(255)
-);
-
 create or replace view "v_achievement" as select * from "achievement";
 
 insert into

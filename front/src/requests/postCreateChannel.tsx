@@ -1,7 +1,11 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const AddFriend = async (friendid: number): Promise<any> => {
+const CreateChannel = async (
+  channelName: string,
+  channelPass: string,
+  channelMembers: number[],
+): Promise<any> => {
   let data = { error: '', loading: false, data: {} };
 
   const jwt = Cookies.get('jwt');
@@ -11,12 +15,14 @@ const AddFriend = async (friendid: number): Promise<any> => {
       Authorization: authHeader,
     },
     params: {
-      friend_id: friendid,
+      title: channelName,
+      password: channelPass,
+      members: channelMembers,
     },
   };
 
   await axios
-    .post(`http://localhost:8080/api/user/friends/`, requestData)
+    .post(`http://localhost:8080/api/channel/`, requestData)
     .then(function (response) {
       data = { error: '', loading: false, data: response.data };
     })
@@ -26,4 +32,4 @@ const AddFriend = async (friendid: number): Promise<any> => {
 
   return data;
 };
-export default AddFriend; // untested
+export default CreateChannel; // untested
