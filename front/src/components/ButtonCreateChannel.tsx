@@ -19,7 +19,7 @@ import GetUserById from '../requests/getUserById';
 
 const ButtonCreateChannel: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [passEnable, setPassEnable] = useState<boolean>(true);
+  const [passEnable, setPassEnable] = useState<boolean>(false);
   const [name, setName] = useState('');
   const [pass, setPass] = useState('');
   const [error, setError] = useState(false);
@@ -27,8 +27,10 @@ const ButtonCreateChannel: React.FC = () => {
   const [friendsName, setFriendsName] = useState<string[]>([]);
   const [member, setMember] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [nameError, setNameError] = useState(false);
   const [passError, setPassError] = useState(false);
+  const [memberError, setMemberError] = useState(false);
 
   const handleChange = (event: SelectChangeEvent<typeof member>): void => {
     const options = event.target.value as number[];
@@ -53,24 +55,33 @@ const ButtonCreateChannel: React.FC = () => {
     if (reason !== 'backdropClick') {
       setOpen(false);
     }
+    setMember([]);
   };
-  const validateName = (): void => {
+  const validateName = (): boolean => {
     const regex = /^[a-zA-Z\s]+$/;
-    if (regex.test(name)) setNameError(false);
-    else setNameError(true);
+    const nameIsGood = name === '' || !regex.test(name);
+    setNameError(nameIsGood);
+    return nameIsGood;
   };
-  const validatePass = (): void => {
+  const validatePass = (): boolean => {
+    if (!passEnable) return false;
     const regex = /^\S+$/;
-    if (regex.test(name)) setPassError(false);
-    else setPassError(true);
+    const passIsGood = pass === '' || !regex.test(name);
+    setPassError(passIsGood);
+    return passIsGood;
   };
+  const validateMembers = (): boolean => {
+    const memberIsGood = member.length < 2;
+    setMemberError(memberIsGood);
+    return memberIsGood;
+  };
+
   const handleSubmit = (): void => {
-    validateName();
-    if (passEnable) validatePass();
-    if (nameError || passError) return;
-    CreateChannel(name, pass, member).finally(() => {
-      console.log('channel created');
-    });
+    console.log(nameError, passError, memberError);
+    if (!validateName() && !validatePass() && !validateMembers())
+      CreateChannel(name, pass, member).finally(() => {
+        console.log('channel created');
+      });
   };
 
   useEffect(() => {
@@ -128,6 +139,7 @@ const ButtonCreateChannel: React.FC = () => {
                 id="demo-dialog-select"
                 value={member}
                 onChange={handleChange}
+                error={memberError}
                 input={<OutlinedInput label="Invite" />}
               >
                 {friendsName.map((msg, index) => (
@@ -139,7 +151,7 @@ const ButtonCreateChannel: React.FC = () => {
             </FormControl>
             <FormControl sx={{ m: 1 }}>
               <FormControlLabel
-                control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
+                control={<Checkbox checked={passEnable} onChange={handleEnablePass} />}
                 label="Channel privé"
               />
               <TextField
