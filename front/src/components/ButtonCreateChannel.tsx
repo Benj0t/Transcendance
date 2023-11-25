@@ -11,20 +11,24 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import { Checkbox, FormControlLabel, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
+import CreateChannel from '../requests/postCreateChannel';
+import LoadingPage from '../pages/LoadingPage';
+import getUserFriends, { type getUserFriendsRequest } from '../requests/getUserFriends';
 
-interface ButtonCreateChannelProps {
-  friends: string[];
-}
-
-const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) => {
-  // export default function DialogSelect(): React.FC {
-  const [open, setOpen] = React.useState(false);
-  const [passEnable, setPassEnable] = React.useState<boolean>(true);
-  const [member, setMember] = React.useState<string[]>([]);
+const ButtonCreateChannel: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [passEnable, setPassEnable] = useState<boolean>(true);
+  const [name, setName] = useState('');
+  const [pass, setPass] = useState('');
+  const [error, setError] = useState(false);
+  const [friends, setFriends] = useState<getUserFriendsRequest[]>([]);
+  const [member, setMember] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleChange = (event: SelectChangeEvent<typeof member>): void => {
-    const options = event.target.value as string[];
-    const value: string[] = [];
+    const options = event.target.value as number[];
+    const value: number[] = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
       value.push(options[i]);
     }
@@ -46,7 +50,29 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
       setOpen(false);
     }
   };
+  const handleSubmit = (): void => {
+    CreateChannel(name, pass, member).finally(() => {
+      console.log('channel created');
+    });
+  };
 
+  useEffect(() => {
+    getUserFriends()
+      .then((req) => {
+        console.log(req);
+        setFriends(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (error) return <p>Error: could not resolve data</p>;
+  if (loading) return <LoadingPage />;
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
@@ -57,7 +83,12 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
         <DialogContent>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <TextField label="Nom du channel"></TextField>
+              <TextField
+                label="Nom du channel"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setName(event.target.value);
+                }}
+              />
             </FormControl>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="ChannelInvite">Membres</InputLabel>
@@ -72,7 +103,7 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
               >
                 {friends.map((msg, index) => (
                   <MenuItem key={index} value={index}>
-                    {msg}
+                    {msg.friend_id}
                   </MenuItem>
                 ))}
               </Select>
@@ -82,13 +113,19 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
                 control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
                 label="Channel privé"
               />
-              <TextField disabled={passEnable} label="Mot de Passe"></TextField>
+              <TextField
+                disabled={passEnable}
+                label="Mot de Passe"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setPass(event.target.value);
+                }}
+              ></TextField>
             </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
+          <Button onClick={handleSubmit}>Ok</Button>
         </DialogActions>
       </Dialog>
     </div>

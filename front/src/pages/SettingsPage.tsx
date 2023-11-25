@@ -12,6 +12,7 @@ const SettingsPage: React.FC = () => {
   const [name, setName] = useState('Benjot');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleEnableTwoFactor = async (): Promise<void> => {
@@ -40,13 +41,13 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     AuthEnabled(null)
       .then((req) => {
         console.log(req);
         setTwoFactorEnabled(req);
       })
       .catch(() => {
+        setError(true);
         console.log('coucou');
       })
       .finally(() => {
@@ -54,6 +55,7 @@ const SettingsPage: React.FC = () => {
       });
   }, []);
   console.log(twoFactorEnabled);
+  if (error) return <p>Something bad happened</p>;
   if (loading) return <LoadingPage />;
   return (
     <Box

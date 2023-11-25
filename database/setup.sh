@@ -3,6 +3,10 @@
 SQL_DIR="/etc/tables"
 
 SQL_FILES=(
+  "user/user.sql"
+  "user/user_blocked.sql"
+  "user/user_friends.sql"
+  "user/user_rank.sql"
   "achievement/achievement.sql"
   "channel/channel.sql"
   "channel/channel_create.sql"
@@ -12,10 +16,6 @@ SQL_FILES=(
   "channel/channel_push.sql"
   "match/match.sql"
   "rank/rank.sql"
-  "user/user.sql"
-  "user/user_blocked.sql"
-  "user/user_friends.sql"
-  "user/user_rank.sql"
 )
 
 for file in "${SQL_FILES[@]}"; do

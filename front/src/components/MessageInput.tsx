@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { type Socket } from 'socket.io-client';
 
-function MessageInput({ socket }: { socket: Socket }) {
+const MessageInput: React.FC<Socket> = (socket) => {
   const [value, setValue] = useState('');
 
-  const send = (value: string) => {
+  const send = (value: string): void => {
     socket?.emit('message', value);
   };
 
-  const changeTime = (value: number) => {
+  const changeTime = (value: number): void => {
     socket?.emit('updateTimer', value);
   };
 
-  const changeClient1 = (value: number) => {
+  const changeClient1 = (value: number): void => {
     socket?.emit('updateClient1', value);
   };
 
@@ -61,5 +61,5 @@ function MessageInput({ socket }: { socket: Socket }) {
       </div>
     </>
   );
-}
+};
 export default MessageInput;

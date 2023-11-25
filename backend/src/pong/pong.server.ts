@@ -122,12 +122,12 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('keep_alive_packet')
   handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
-    console.log("received keep_alive_packet from", client.id);
+    // console.log("received keep_alive_packet from", client.id);
     const connected: Connected = this.getConnected(client);
 
     connected.lastSocketTimestamp = Date.now(); // temps actuel en ms
     connected.userId = packet.userid;
-    console.log(packet.yPcent);
+    // console.log(packet.yPcent);
 
     if (connected.hasMatch() && packet.yPcent != null) {
       connected.match.getRacket(connected).getLocation().setY(packet.yPcent);
