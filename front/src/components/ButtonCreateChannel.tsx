@@ -27,6 +27,8 @@ const ButtonCreateChannel: React.FC = () => {
   const [friendsName, setFriendsName] = useState<string[]>([]);
   const [member, setMember] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [nameError, setNameError] = useState(false);
+  const [passError, setPassError] = useState(false);
 
   const handleChange = (event: SelectChangeEvent<typeof member>): void => {
     const options = event.target.value as number[];
@@ -52,7 +54,20 @@ const ButtonCreateChannel: React.FC = () => {
       setOpen(false);
     }
   };
+  const validateName = (): void => {
+    const regex = /^[a-zA-Z\s]+$/;
+    if (regex.test(name)) setNameError(false);
+    else setNameError(true);
+  };
+  const validatePass = (): void => {
+    const regex = /^\S+$/;
+    if (regex.test(name)) setPassError(false);
+    else setPassError(true);
+  };
   const handleSubmit = (): void => {
+    validateName();
+    if (passEnable) validatePass();
+    if (nameError || passError) return;
     CreateChannel(name, pass, member).finally(() => {
       console.log('channel created');
     });
@@ -98,6 +113,7 @@ const ButtonCreateChannel: React.FC = () => {
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
                 label="Nom du channel"
+                error={nameError}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setName(event.target.value);
                 }}
@@ -129,6 +145,7 @@ const ButtonCreateChannel: React.FC = () => {
               <TextField
                 disabled={passEnable}
                 label="Mot de Passe"
+                error={passError}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setPass(event.target.value);
                 }}
