@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import CreateChannel from '../requests/postCreateChannel';
 import LoadingPage from '../pages/LoadingPage';
 import getUserFriends, { type getUserFriendsRequest } from '../requests/getUserFriends';
+import GetUserById from '../requests/getUserById';
 
 const ButtonCreateChannel: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,8 @@ const ButtonCreateChannel: React.FC = () => {
   const [name, setName] = useState('');
   const [pass, setPass] = useState('');
   const [error, setError] = useState(false);
-  const [friends, setFriends] = useState<getUserFriendsRequest[]>([]);
+  const [friendsId, setFriendsId] = useState<getUserFriendsRequest[]>([]);
+  const [friendsName, setFriendsName] = useState<string[]>([]);
   const [member, setMember] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,17 +62,28 @@ const ButtonCreateChannel: React.FC = () => {
     getUserFriends()
       .then((req) => {
         console.log(req);
-        setFriends(req);
+        setFriendsId(req);
       })
       .catch((err) => {
         console.log(err);
         setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
       });
   }, []);
 
+  useEffect(() => {
+    const size = Object.keys(friendsId).length;
+    console.log('tab length: ', size);
+    for (let i = 0; i < size; i++) {
+      GetUserById(friendsId[i].friend_id)
+        .then((req) => {
+          setFriendsName((prevName) => [...prevName, req.nickname]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setLoading(false);
+  }, [friendsId]);
   if (error) return <p>Error: could not resolve data</p>;
   if (loading) return <LoadingPage />;
   return (
@@ -101,9 +114,9 @@ const ButtonCreateChannel: React.FC = () => {
                 onChange={handleChange}
                 input={<OutlinedInput label="Invite" />}
               >
-                {friends.map((msg, index) => (
+                {friendsName.map((msg, index) => (
                   <MenuItem key={index} value={index}>
-                    {msg.friend_id}
+                    {msg}
                   </MenuItem>
                 ))}
               </Select>
