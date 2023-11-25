@@ -5,6 +5,7 @@ import AuthEnabled from '../requests/getAuthEnabled';
 import { Box } from '@mui/material';
 import TwoFactorInput from '../components/TwoFactorInput';
 import AuthVerifyWithoutCookie from '../requests/getAuthVerifyWithoutCookies';
+import LoadingPage from './LoadingPage';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,8 @@ const AuthCallback: React.FC = () => {
   const queryString = window.location.search;
   const jwtParam = new URLSearchParams(queryString).get('jwt');
   const [twoFactorCode, setTwoFactorCode] = useState('');
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   useEffect(() => {
     AuthEnabled(jwtParam)
       .then((reqdata) => {
@@ -22,7 +24,11 @@ const AuthCallback: React.FC = () => {
         }
       })
       .catch((error) => {
+        setError(true);
         console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
   /**
@@ -46,6 +52,8 @@ const AuthCallback: React.FC = () => {
       setTwoFactorCode('');
     }
   };
+  if (error) return <p>Something bad happened</p>;
+  if (loading) return <LoadingPage />;
   return (
     <Box>
       <Box

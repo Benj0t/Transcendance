@@ -1,28 +1,16 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from '../components/utils/axios';
 
-// Pass the string when Auth isnt done and you need to set the 2FA pass to log and set the JwtCookie
-// Pass null if you have to get the jwt from Cookies
-const GetUserMe = async (): Promise<any> => {
-  let data = { error: '', loading: false, data: {} };
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
 
-  const jwt = Cookies.get('jwt');
-  const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-  const requestData = {
-    headers: {
-      Authorization: authHeader,
-    },
-  };
-
-  await axios
-    .get(`http://localhost:8080/api/user/me/`, requestData)
-    .then(function (response) {
-      data = { error: '', loading: false, data: response.data };
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-  return data;
+const getUserMe = async (): Promise<getUserMeResponse> => {
+  const response = await axios.get<getUserMeResponse>(`http://localhost:8080/api/user/me`);
+  return response.data;
 };
-export default GetUserMe;
+export default getUserMe;

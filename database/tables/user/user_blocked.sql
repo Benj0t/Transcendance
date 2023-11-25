@@ -6,9 +6,10 @@ create table "user_has_blocked_user" (
     "blocked_user_id" integer references "user"(id)
 );
 
-insert into "user_has_blocked_user" ("user_id", "blocked_user_id") values (
+-- 
+--insert into "user_has_blocked_user" ("user_id", "blocked_user_id") values (
 	18, 19
-);
+-- );
 
 create or replace view "v_user_has_blocked_user" as select * from "user_has_blocked_user";
 

@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Res, Param, NotFoundException, HttpStatus, UseGuards, Delete, Post, Body, BadRequestException, Patch, InternalServerErrorException, Req } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
-import { Response } from 'express';
+import { Response, query } from 'express';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './entities/user.service';
 import * as imageToBase64 from 'image-to-base64';
@@ -17,6 +17,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { stringify } from 'querystring';
 import { ChannelHasMemberEntity } from './entities/channel_has_member.entity';
 import { ChannelHasBannedUserEntity } from './entities/channel_has_banned_user.entity';
+import { jwtConstants } from './jwt.config';
+import { JwtSecretRequestType } from '@nestjs/jwt';
 
 /**
  * Authentication pearl with API 42 by intercepting the response and exchanging the
@@ -43,8 +45,8 @@ export class ApiController {
    * @author Komqdo
    */
   
-  @Get('valid-jwt/')
   @UseGuards(JwtAuthGuard)
+  @Get('valid-jwt/')
   validJWT(): { message: string } {
     return ({ message: "valid jwt"});
   }
@@ -55,8 +57,8 @@ export class ApiController {
    * @author Komqdo
    */
   
+  @UseGuards(JwtAuthGuard)
   @Get('user/')
-  // @UseGuards(JwtAuthGuard)
   getUser(): Promise<UserEntity[] | { message: string }> {
     return this.user_service.findAll().catch(error => {
       console.error("Error fetching users: ", error);
@@ -117,8 +119,56 @@ export class ApiController {
     return user;
   }
 
+  /**
+   * Get the friend relationships for an user.
+   * 
+   * @param id  The user id
+   * @returns   The friend relationships for the specified user.
+   */
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('user/friends')
+  async getUserFriends(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserHasFriendEntity[]> {
+    try {
+
+      const friends = await this.user_service.getFriends(jwtPayload.sub);
+
+      return friends;
+
+    } catch (error) {
+      throw new NotFoundException('Error: ' + error);
+    }
+  }
+
+  /**
+   * Add a friend for an user.
+   * 
+   * @param user_id   The user id.
+   * @param friend_id The friend id.
+   * 
+   * @returns         The callback message. 
+   * 
+   * @author Komqdo
+   */
+
+  @UseGuards(JwtAuthGuard)
+  @Post('user/friends')
+  async addFriend(
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Query('friend_id') friend_id: number
+  ): Promise<{ message: string }> {
+
+    try {
+      const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
+      return { message };
+
+    } catch (error) {
+      throw (`Not found: ` + error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('user/:id')
-  // @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
     const user = await this.user_service.findOne(id);
     if (!user) {
@@ -137,12 +187,12 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Get('user/:id/avatar')
-  // @UseGuards(JwtAuthGuard)
-  async getUserAvatar(@Param('id') id: number, @Res() res: Response): Promise<void> {
-    const user = await this.user_service.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  @Get('user/avatar')
+  async getUserAvatar(@Req() {jwtPayload}: {jwtPayload: JwtPayload}, @Res() res: Response): Promise<void> {
+    const user = await this.user_service.findOne(jwtPayload.sub);
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found.`);
+      throw new NotFoundException(`User with id ${jwtPayload.sub} not found.`);
     }
 
     if (!user.avatar_base64) {
@@ -164,17 +214,17 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Post('user/:id/avatar')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @Post('user/avatar')
   async updateUserAvatar(
-    @Param('id') id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Body('avatar_base64') avatar_base64: string,
     @Res() res: Response,
   ): Promise<void> {
 
     try {
 
-      const tmp = await this.user_service.updateAvatar(id, avatar_base64);
+      const tmp = await this.user_service.updateAvatar(jwtPayload.sub, avatar_base64);
 
       if (!tmp) {
         res.status(HttpStatus.NOT_FOUND).send('User not found.');
@@ -188,54 +238,7 @@ export class ApiController {
     }
   }
 
-  /**
-   * Get the friend relationships for an user.
-   * 
-   * @param id  The user id
-   * @returns   The friend relationships for the specified user.
-   */
-  
-  @Get('user/:id/friends')
-  // @UseGuards(JwtAuthGuard)
-  async getUserFriends(@Param('id') id: number): Promise<UserHasFriendEntity[]> {
-    try {
 
-      const friends = await this.user_service.getFriends(id);
-
-      return friends;
-
-    } catch (error) {
-      throw new NotFoundException('Error: ' + error);
-    }
-  }
-
-  /**
-   * Add a friend for an user.
-   * 
-   * @param user_id   The user id.
-   * @param friend_id The friend id.
-   * 
-   * @returns         The callback message. 
-   * 
-   * @author Komqdo
-   */
-
-  @Post('user/:id/friends')
-  // @UseGuards(JwtAuthGuard)
-  async addFriend(
-    @Param('id') user_id: number,
-    @Query('friend_id') friend_id: number,
-  ): Promise<{ message: string }> {
-
-    try {
-
-      const message = await this.user_service.addFriend(user_id, friend_id);
-      return { message };
-
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
 
   /**
    * Delete a friend for an user.
@@ -247,15 +250,15 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Delete('user/:id/friends')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @Delete('user/friends')
   async removeFriend(
-    @Param('id') user_id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('friend_id') friend_id: number,
   ): Promise<{ message: string }> {
 
     try {
-      const message = await this.user_service.removeFriend(user_id, friend_id);
+      const message = await this.user_service.removeFriend(jwtPayload.sub, friend_id);
       return { message };
 
     } catch (error) {
@@ -273,9 +276,9 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Get('user/:id/matches')
-  // @UseGuards(JwtAuthGuard)
-  async getUserMatches(@Param('id') id: number): Promise<MatchEntity[]> {
+  @UseGuards(JwtAuthGuard)
+  @Get('user/matches')
+  async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
 
     try {
 
@@ -300,17 +303,17 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Post('user/:id/matches')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @Post('user/matches')
   async addMatch(
-    @Param('id') user_id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('opponent_id') opponent_id: number,
     @Query('winner_id') winner_id: number,
   ): Promise<{ message: string }> {
 
     try {
 
-      const message = await this.user_service.addMatch(user_id, opponent_id, winner_id);
+      const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id);
       return { message };
 
     } catch (error) {
@@ -328,13 +331,13 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Get('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
-  async getUserBlockedUsers(@Param('id') id: number): Promise<UserHasBlockedUserEntity[]> {
+  @UseGuards(JwtAuthGuard)
+  @Get('user/blockeds')
+  async getUserBlockedUsers(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserHasBlockedUserEntity[]> {
 
     try {
 
-      const blockedUsers = await this.user_service.getBlockeds(id);
+      const blockedUsers = await this.user_service.getBlockeds(jwtPayload.sub);
 
       return blockedUsers;
 
@@ -354,16 +357,16 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Post('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @Post('user/blockeds')
   async blockUser(
-    @Param('id') user_id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('blocked_id') blocked_user_id: number,
   ): Promise<{ message: string }> {
 
     try {
 
-      const message = await this.user_service.blockUser(user_id, blocked_user_id);
+      const message = await this.user_service.blockUser(jwtPayload.sub, blocked_user_id);
       return { message };
 
     } catch (error) {
@@ -382,15 +385,15 @@ export class ApiController {
    * @author Komqdo
    */
 
-  @Delete('user/:id/blockeds')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @Delete('user/blockeds')
   async unblockUser(
-    @Param('id') user_id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('unblocked_id') unblocked_id: number,
   ): Promise<{ message: string }> {
 
     try {
-      const message = await this.user_service.unblockUser(user_id, unblocked_id);
+      const message = await this.user_service.unblockUser(jwtPayload.sub, unblocked_id);
       return { message };
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
@@ -423,19 +426,18 @@ export class ApiController {
    * @author Komqdo
    */
 
+  @UseGuards(JwtAuthGuard)
   @Post('auth/generate')
-  // @UseGuards(JwtAuthGuard)
-  async authGenerate(): Promise<string>
+  async authGenerate(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<string>
   {
-    const user_id = 1; // ID from jwt
-    const user = await this.user_service.findOne(user_id);
+    const user = await this.user_service.findOne(jwtPayload.sub);
     if (!user) {
-      throw new NotFoundException(`User with id ${user_id} not found.`);
+      throw new NotFoundException(`User with id ${jwtPayload.sub} not found.`);
     }
     const a2fdata = await this.auth_service.generateQR( user.nickname, user.id );
     const a2fsecret = a2fdata.secret;
     const a2fqrcode = a2fdata.qrcode;
-    const updatedUser = await this.user_service.updateSecret(user_id, a2fsecret);
+    const updatedUser = await this.user_service.updateSecret(jwtPayload.sub, a2fsecret);
     if (!updatedUser) {
       throw new InternalServerErrorException('a2f enable error');
     }
@@ -569,7 +571,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/')
   createChannel(@Body() body: { title: string; password: string; members: number[] }) {
     try {
@@ -588,7 +590,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Delete('channels/:channel_id')
   deleteChannel(@Param('channel_id') channel_id: number) {
     try {
@@ -607,7 +609,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id')
   getChannel(@Param('channel_id') channel_id: number) {
     return this.channel_service.findOne(channel_id);
@@ -621,7 +623,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Patch('channels/:channel_id')
   updateChannel(@Param('channel_id') channel_id: number, @Body() body: any) {
     //TODO
@@ -636,7 +638,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id/messages')
   getMessages(@Param('channel_id') channelId: number): Promise<ChannelHasMessageEntity[]> {
     try {
@@ -655,7 +657,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id/members')
   getMembers(@Param('channel_id') channelId: number): Promise<ChannelHasMemberEntity[]> {
     try {
@@ -674,7 +676,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id/banneds')
   getBanneds(@Param('channel_id') channelId: number): Promise<ChannelHasBannedUserEntity[]> {
     try {
@@ -694,7 +696,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/messages')
   sendMessage(
     @Param('channel_id') channel_id: number,
@@ -716,13 +718,14 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/dm')
   sendDM(
-    @Body() body: { user_id: number; recipitent_id: number, message: string },
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Body() body: { recipient_id: number, message: string },
   ) {
     try {
-      return this.channel_service.sendDM(body.user_id, body.recipitent_id, body.message);
+      return this.channel_service.sendDM(jwtPayload.sub, body.recipient_id, body.message);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }
@@ -737,13 +740,14 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/join')
   joinChannel(@Param('channel_id') channel_id: number,
-    @Body() body: { user_id: number; password: string }
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Body() body: { password: string }
   ) {
     try {
-      return this.channel_service.joinChannel(body.user_id, channel_id, body.password);
+      return this.channel_service.joinChannel(jwtPayload.sub, channel_id, body.password);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }
@@ -758,13 +762,13 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/leave')
   quitChannel(@Param('channel_id') channel_id: number,
-    @Body() body: { user_id: number; }
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload}
   ) {
     try {
-      return this.channel_service.leaveChannel(body.user_id, channel_id);
+      return this.channel_service.leaveChannel(jwtPayload.sub, channel_id);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }
@@ -780,7 +784,7 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/mute')
   muteUser(
     @Param('channel_id') channel_id: number,
@@ -793,6 +797,7 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('channels/:channel_id/mute')
   unmuteUser(
     @Param('channel_id') channelId: number,
@@ -805,6 +810,7 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/kick')
   kickUser(
     @Param('channel_id') channelId: number,
@@ -816,6 +822,8 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
+
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/ban')
   banUser(
     @Param('channel_id') channelId: number,
@@ -828,6 +836,7 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('channels/:channel_id/ban')
   pardonUser(
     @Param('channel_id') channelId: number,
@@ -839,7 +848,8 @@ export class ApiController {
       throw new NotFoundException(`Not found: ` + error);
     }
   }
-
+  
+  @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/op')
   opUser(
     @Param('channel_id') channelId: number,
@@ -852,6 +862,7 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('channels/:channel_id/op')
   deopUser(
     @Param('channel_id') channelId: number,

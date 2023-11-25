@@ -1,4 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { ToastContainer } from 'react-toastify';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -91,6 +93,7 @@ const App: React.FC = () => {
   return (
     <CssBaseline>
       <div className="App">
+        <ToastContainer />
         <UserContext.Provider value={{ user: userMe, setUser: setUserMe }}>
           <BrowserRouter>
             <Routes>

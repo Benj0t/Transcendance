@@ -1,16 +1,8 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from '../components/utils/axios';
 
 const AuthGenerate = async (): Promise<string> => {
-  const jwt = Cookies.get('jwt');
-  const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-  const requestData = {
-    headers: {
-      Authorization: authHeader,
-    },
-  };
   try {
-    const response = await axios.post(`http://localhost:8080/api/auth/generate/`, requestData);
+    const response = await axios.post(`http://localhost:8080/api/auth/generate/`);
     const responseData = encodeURIComponent(response.data);
     return responseData;
   } catch (error) {

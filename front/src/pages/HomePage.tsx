@@ -49,9 +49,7 @@ const HomePage: React.FC = () => {
     navigate('/chat');
   };
   useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {
-      console.log(pongSocket.id);
-    });
+    pongSocket?.on('time_packet', (packetOutTime) => {});
   }, []);
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
