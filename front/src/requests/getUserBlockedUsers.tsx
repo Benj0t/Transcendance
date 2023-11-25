@@ -5,4 +5,4 @@ const GetUserBlockedUsers = async (): Promise<any> => {
 
   return response.data;
 };
-export default GetUserBlockedUsers; // untested
+export default GetUserBlockedUsers;

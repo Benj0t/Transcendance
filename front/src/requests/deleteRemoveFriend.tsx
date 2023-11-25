@@ -9,4 +9,4 @@ const AddFriend = async (friendid: number): Promise<any> => {
   const response = await axios.delete(`http://localhost:8080/api/user/friends/`, requestData);
   return response.data;
 };
-export default AddFriend; // untested
+export default AddFriend;

@@ -7,7 +7,7 @@ import getUserMe from '../requests/getUserMe';
 import LoadingPage from './LoadingPage';
 import postAddFriend from '../requests/postAddFriend';
 import {
-  notifyToasterError,
+  // notifyToasterError,
   notifyToasterInfo,
   notifyToasterSuccess,
 } from '../components/utils/toaster';
@@ -45,7 +45,8 @@ const FriendList: React.FC = () => {
         })
         .catch((err) => {
           console.log(err);
-          notifyToasterError(`Impossible d'ajouter l'identifiant: ${addName}`);
+          // notifyToasterError(`Impossible d'ajouter l'identifiant: ${addName}`);
+          alert('AAA');
         });
       setAddName('');
     }
