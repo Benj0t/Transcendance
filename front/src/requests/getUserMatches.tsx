@@ -1,27 +1,12 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from '../components/utils/axios';
 
-const GetUserMatches = async (): Promise<any> => {
-  let data = { error: '', loading: false, data: {} };
-  const userid = 1;
-
-  const jwt = Cookies.get('jwt');
-  const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
+const GetUserMatches = async (userID: number): Promise<any> => {
   const requestData = {
-    headers: {
-      Authorization: authHeader,
+    params: {
+      id: userID,
     },
   };
-
-  await axios
-    .get(`http://localhost:8080/api/user/${userid}/matches/`, requestData)
-    .then(function (response) {
-      data = { error: '', loading: false, data: response.data };
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-  return data;
+  const response = await axios.get(`http://localhost:8080/api/user/matches/`, requestData);
+  return response.data;
 };
 export default GetUserMatches; // untested

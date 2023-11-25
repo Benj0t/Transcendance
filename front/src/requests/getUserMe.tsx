@@ -1,5 +1,4 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from '../components/utils/axios';
 
 interface getUserMeResponse {
   id: number;
@@ -11,18 +10,7 @@ interface getUserMeResponse {
 }
 
 const getUserMe = async (): Promise<getUserMeResponse> => {
-  const jwt = Cookies.get('jwt');
-  const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-  const requestData = {
-    headers: {
-      Authorization: authHeader,
-    },
-  };
-
-  const response = await axios.get<getUserMeResponse>(
-    `http://localhost:8080/api/user/me`,
-    requestData,
-  );
+  const response = await axios.get<getUserMeResponse>(`http://localhost:8080/api/user/me`);
   return response.data;
 };
 export default getUserMe;
