@@ -29,13 +29,13 @@ const FriendList: React.FC = () => {
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [friendName, setFriendName] = useState('');
+  const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+  const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      postAddFriend(parseInt(friendName))
+      postAddFriend(parseInt(addName))
         .then((req) => {
           console.log(req);
           if (req.message === 'ok') notifyToasterSuccess('Votre ami à été ajouté avec succès !');
@@ -45,9 +45,9 @@ const FriendList: React.FC = () => {
         })
         .catch((err) => {
           console.log(err);
-          notifyToasterError(`Impossible d'ajouter l'identifiant: ${friendName}`);
+          notifyToasterError(`Impossible d'ajouter l'identifiant: ${addName}`);
         });
-      setFriendName('');
+      setAddName('');
     }
   };
 
@@ -102,16 +102,16 @@ const FriendList: React.FC = () => {
         width: '100%',
       }}
     >
-      <Box>
-        <h1>Your userID: {userId}</h1>
+      <Box style={{ margin: 'auto', textAlign: 'center' }}>
+        <h1 style={{ color: 'grey' }}>Your userID: {userId}</h1>
         <TextField
-          label="Ajouter Ami"
+          label="Ajouter Ami (ID)"
           variant="outlined"
-          value={friendName}
+          value={addName}
           onChange={(e) => {
-            setFriendName(e.target.value);
+            setAddName(e.target.value);
           }}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDownAdd}
         />
       </Box>
       <Box width="75%" height="70%">
