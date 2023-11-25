@@ -6,6 +6,18 @@ import GetUserById from '../requests/getUserById';
 import getUserMe from '../requests/getUserMe';
 import LoadingPage from './LoadingPage';
 import postAddFriend from '../requests/postAddFriend';
+import {
+  notifyToasterError,
+  notifyToasterInfo,
+  notifyToasterSuccess,
+} from '../components/utils/toaster';
+
+interface Row {
+  id: number;
+  avatar: any;
+  name: any;
+  status: string;
+}
 
 const columns = [
   { field: 'avatar', headerName: 'Avatar', width: 400 },
@@ -18,21 +30,7 @@ const FriendList: React.FC = () => {
   const [userId, setUserId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [friendName, setFriendName] = useState('');
-  const [rows, setRows] = useState([
-    { id: 1, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 2, avatar: 'M', name: 'Michel', status: '🟥' },
-    { id: 3, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 4, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 5, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 6, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 7, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 8, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 9, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 10, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 11, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 12, avatar: 'J', name: 'John', status: '🟩' },
-    { id: 13, avatar: 'J', name: 'John', status: '🟩' },
-  ]);
+  const [rows, setRows] = useState<Row[]>([]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
@@ -40,11 +38,16 @@ const FriendList: React.FC = () => {
       postAddFriend(parseInt(friendName))
         .then((req) => {
           console.log(req);
+          if (req.message === 'ok') notifyToasterSuccess('Votre ami à été ajouté avec succès !');
+          else {
+            notifyToasterInfo('Vous êtes déjà ami avec cet utilisateur!');
+          }
         })
         .catch((err) => {
-          // toast
           console.log(err);
+          notifyToasterError(`Impossible d'ajouter l'identifiant: ${friendName}`);
         });
+      setFriendName('');
     }
   };
 
@@ -60,16 +63,18 @@ const FriendList: React.FC = () => {
       try {
         const req = await getUserFriends();
         const friends = req;
+        console.log(req);
         const keys = Object.keys(friends);
         const size = keys.length;
         for (let i = 0; i < size; i++) {
-          const friendid = friends[i].friendId;
+          const friendid = friends[i].friend_id;
           const addfriend = await GetUserById(friendid);
           const addid = 14 + i;
-          const addavatar = addfriend.data.avatar_base64;
-          const addname = addfriend.data.nickname;
+          const addavatar = addfriend.avatar_base64;
+          const addname = addfriend.nickname;
           const addrow = { id: addid, avatar: addavatar, name: addname, status: '🟩' };
-          setRows((rows) => [...rows, addrow]);
+          // Change status with socket idk how
+          setRows((prevRows) => [...prevRows, addrow]);
         }
       } catch (err) {
         if (err instanceof Error) {

@@ -3,7 +3,7 @@ import axios from '../components/utils/axios';
 export interface getUserFriendsRequest {
   id: number;
   userId: number;
-  friendId: number;
+  friend_id: number;
 }
 
 const getUserFriends = async (): Promise<getUserFriendsRequest[]> => {

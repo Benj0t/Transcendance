@@ -144,12 +144,11 @@ export class ApiController {
   ): Promise<{ message: string }> {
 
     try {
-
       const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
+      throw (`Not found: ` + error);
     }
   }
 

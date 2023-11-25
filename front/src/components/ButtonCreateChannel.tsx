@@ -103,7 +103,7 @@ const ButtonCreateChannel: React.FC = () => {
               >
                 {friends.map((msg, index) => (
                   <MenuItem key={index} value={index}>
-                    {msg.friendId}
+                    {msg.friend_id}
                   </MenuItem>
                 ))}
               </Select>
