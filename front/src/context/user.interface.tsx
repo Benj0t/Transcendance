@@ -1,5 +1,5 @@
 export default interface User {
-    id: number;
-    nickname: string;
-    yPcent: number;
-  }
+  id: number;
+  nickname: string;
+  yPcent: number;
+}
