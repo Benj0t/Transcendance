@@ -66,6 +66,21 @@ export class ApiController {
     });
   }
 
+    /**
+   * @returns   The user's id
+   * 
+   */
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/me')
+  async getUserMe(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserEntity | { message: string }> {
+    const user = await this.user_service.findOne(jwtPayload.sub);
+    if (!user) {
+      throw new NotFoundException(`User with id ${jwtPayload.sub} not found.`);
+    }
+    return user;
+  }
+
   /**
    * @param id  The user id.
    * 

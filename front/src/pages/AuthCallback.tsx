@@ -18,7 +18,6 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     AuthEnabled(jwtParam)
       .then((reqdata) => {
-        console.log('data: ', reqdata);
         if (!reqdata && jwtParam !== null) {
           Cookies.set('jwt', jwtParam);
           navigate('/');

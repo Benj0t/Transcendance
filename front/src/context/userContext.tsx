@@ -8,7 +8,7 @@ export interface context {
 
 export const UserContext = createContext<context>({
   user: {
-    id: '1',
+    id: 0,
     nickname: '',
     yPcent: 0,
   },

@@ -22,11 +22,17 @@ export class Connected {
         this.closed = false;
         this.opponentId = null;
         this.match = null;
+        this.userId = 0;
     }
 
     close(): void {
         this.closed = true;
         const index = this.pong_server.connecteds.indexOf(this);
+      if (this.match)
+      {
+        this.match.close();
+        console.log(`[LOG] ${this.client.id}: has left the game.`);
+      }
       if (index > -1) {
         this.pong_server.connecteds.splice(index, 1);
       }

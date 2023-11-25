@@ -18,6 +18,9 @@ import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
 import { UserContext } from './context/userContext';
+import GetUserMe from './requests/getUserMe';
+import { getPongSocket } from './components/pongSocket';
+import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
 // import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
@@ -39,8 +42,20 @@ function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
 
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = Cookies.get('jwt');
-  // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated !== undefined) return <>{children}</>;
+  const me = useContext(UserContext).user;
+  const pongSocket = getPongSocket();
+  if (userIsAuthenticated !== undefined) {
+    GetUserMe()
+      .then((reqdata) => {
+        me.id = Math.random() * 10; // replace with redata.data.id /!\
+        pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+      })
+      .catch((error) => {
+        console.log(error);
+        // return error page
+      });
+    return <>{children}</>;
+  }
   return (
     <div
       style={{
@@ -74,7 +89,7 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  const [userMe, setUserMe] = useState({ id: '0', nickname: '', yPcent: 0 });
+  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0 });
   return (
     <CssBaseline>
       <div className="App">
@@ -106,7 +121,7 @@ const App: React.FC = () => {
                 path="/waiting-room"
                 element={
                   <ThemeProvider theme={lightTheme}>
-                    <PongGame />
+                    <Game />
                   </ThemeProvider>
                 }
               />
@@ -115,7 +130,7 @@ const App: React.FC = () => {
                 element={
                   <ThemeProvider theme={darkTheme}>
                     <PrivateRoute>
-                      <Game />
+                      <PongGame />
                     </PrivateRoute>
                   </ThemeProvider>
                 }
