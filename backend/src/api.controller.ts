@@ -109,16 +109,6 @@ export class ApiController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('user/me')
-  async getUserMe(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserEntity | { message: string }> {
-    const user = await this.user_service.findOne(jwtPayload.sub);
-    if (!user) {
-      throw new NotFoundException(`User with id ${jwtPayload.sub} not found.`);
-    }
-    return user;
-  }
-
   /**
    * Get the friend relationships for an user.
    * 
