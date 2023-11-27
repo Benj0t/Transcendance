@@ -8,6 +8,7 @@ import ButtonCreateChannel from '../components/ButtonCreateChannel';
 import ButtonJoinChannel from '../components/ButtonJoinChannel';
 import MemberList from '../components/MemberList';
 import AdminPanel from '../components/AdminPanel';
+import getUserChannels from '../requests/getUserChannels';
 
 const Chat: React.FC = () => {
   const fakeDatas: Record<number, Array<{ text: string; sender: string }>> = {
@@ -34,13 +35,15 @@ const Chat: React.FC = () => {
     ],
   };
 
-  const friends = ['Sophie', 'Marc', 'Mohammed'];
   const channelsMembers = [
     { id: 1, names: ['Michel'] },
     { id: 10, names: ['Sophie'] },
     { id: 100, names: ['Jack'] },
     { id: 1000, names: ['Michel', 'Jacky', 'Medhi', 'Elias', 'Daniel'] },
   ];
+
+  const channelTest = getUserChannels();
+  console.log('Channels: ', channelTest);
 
   const channels = [
     { id: 1, name: 'Michel' },
@@ -124,7 +127,7 @@ const Chat: React.FC = () => {
           </Box>
         </Box>
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
-          <ButtonCreateChannel friends={friends} />
+          <ButtonCreateChannel />
           <ButtonJoinChannel />
           <AdminPanel isAdmin={isAdmin} />
         </Box>

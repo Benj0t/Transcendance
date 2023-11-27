@@ -1,27 +1,16 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from '../components/utils/axios';
 
-const GetUserFriends = async (): Promise<any> => {
-  let data = { error: '', loading: false, data: {} };
-  const userid = 1;
+export interface getUserFriendsRequest {
+  id: number;
+  userId: number;
+  friend_id: number;
+}
 
-  const jwt = Cookies.get('jwt');
-  const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
-  const requestData = {
-    headers: {
-      Authorization: authHeader,
-    },
-  };
-
-  await axios
-    .get(`http://localhost:8080/api/user/${userid}/friends/`, requestData)
-    .then(function (response) {
-      data = { error: '', loading: false, data: response.data };
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-  return data;
+const getUserFriends = async (): Promise<getUserFriendsRequest[]> => {
+  const response = await axios.get<getUserFriendsRequest[]>(
+    `http://localhost:8080/api/user/friends/`,
+  );
+  return response.data;
 };
-export default GetUserFriends;
+
+export default getUserFriends;

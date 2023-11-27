@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { ToastContainer } from 'react-toastify';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -11,11 +13,16 @@ import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
-import { pongSocket } from './components/pongSocket';
+// import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
-import AuthTwoFactor from './pages/AuthTwoFactor';
+import { UserContext } from './context/userContext';
+import GetUserMe from './requests/getUserMe';
+import { getPongSocket } from './components/pongSocket';
+import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
+// import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
+import LoadingPage from './pages/LoadingPage';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   console.log(Cookies.get('jwt'));
@@ -36,8 +43,20 @@ function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
 
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = Cookies.get('jwt');
-  // requete backend avec le cookie d'auth -> le backend verifie que le cookie est valide aupres de l'auth42
-  if (userIsAuthenticated !== undefined) return <>{children}</>;
+  const me = useContext(UserContext).user;
+  const pongSocket = getPongSocket();
+  if (userIsAuthenticated !== undefined) {
+    GetUserMe()
+      .then((reqdata) => {
+        me.id = Math.random() * 10; // replace with redata.data.id /!\
+        pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+      })
+      .catch((error) => {
+        console.log(error);
+        // return error page
+      });
+    return <>{children}</>;
+  }
   return (
     <div
       style={{
@@ -71,129 +90,129 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {
-      console.log(pongSocket.id);
-      pongSocket.emit('keep_alive_packet', packetOutTime);
-    });
-  }, []);
+  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0 });
   return (
     <CssBaseline>
       <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <HomePage />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PublicRoute>
-                    <LoginPage />
-                  </PublicRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/waiting-room"
-              element={
-                <ThemeProvider theme={lightTheme}>
-                  <PongGame />
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
+        <ToastContainer />
+        <UserContext.Provider value={{ user: userMe, setUser: setUserMe }}>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <HomePage />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/loadingPage"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <LoadingPage />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/waiting-room"
+                element={
+                  <ThemeProvider theme={lightTheme}>
                     <Game />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/chat"
-              element={
-                <ThemeProvider theme={darkTheme}>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/game"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <PongGame />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <Chat />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/friends"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <Friends />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/history"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <History />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <PrivateRoute>
+                      <SettingsPage />
+                    </PrivateRoute>
+                  </ThemeProvider>
+                }
+              />
+              <Route
+                path="/confirmTwoFactor"
+                element={
                   <PrivateRoute>
-                    <Chat />
+                    <ConfirmTwoFactor />
                   </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/friends"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <Friends />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/history"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <History />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <PrivateRoute>
-                    <SettingsPage />
-                  </PrivateRoute>
-                </ThemeProvider>
-              }
-            />
-            <Route
-              path="/confirmTwoFactor"
-              element={
-                <PrivateRoute>
-                  <ConfirmTwoFactor />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/authTwoFactor"
-              element={
-                <PrivateRoute>
-                  <AuthTwoFactor />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/auth/callback"
-              element={
-                <CallbackRoute>
-                  <AuthCallback />
-                </CallbackRoute>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <ThemeProvider theme={darkTheme}>
-                  <NoMatch />
-                </ThemeProvider>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
+                }
+              />
+              <Route
+                path="/auth/callback"
+                element={
+                  <CallbackRoute>
+                    <AuthCallback />
+                  </CallbackRoute>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <ThemeProvider theme={darkTheme}>
+                    <NoMatch />
+                  </ThemeProvider>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </UserContext.Provider>
       </div>
     </CssBaseline>
   );

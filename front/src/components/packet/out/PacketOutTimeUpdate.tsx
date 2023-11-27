@@ -34,7 +34,6 @@ export class PacketOutTimeUpdate extends Packet {
     this.scoreOpponent = scoreOpponent;
   }
 
-
   isPlaying(): boolean {
     return !!(this.playing ?? false);
   }

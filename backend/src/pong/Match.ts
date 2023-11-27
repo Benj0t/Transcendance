@@ -10,8 +10,10 @@ export class Match {
   public closed: boolean;
   public scoreUser1 = 0;
   public scoreUser2 = 0;
+  public readonly pong_server: PongServer;
 
   public time: TickValue;
+  public start: number;
 
   private ballToLeft: boolean;
   private ballSpeed: number = 2;
@@ -21,11 +23,13 @@ export class Match {
 
   constructor(user1: Connected, user2: Connected) {
     this.time = new TickValue(0);
+    this.start = Date.now();
     this.user1 = user1;
     this.user1.match = this;
     this.user2 = user2;
     this.user2.match = this;
     this.area = new Area(PongServer.option.display.height, PongServer.option.display.width, user1.getUserId(), user2.getUserId());
+    this.closed = false;
   }
 
   /**
@@ -47,6 +51,10 @@ export class Match {
 
     this.user2.opponentId = null;
     this.user2.match = null;
+
+    this.user1.client.emit('end_game_packet');
+    this.user2.client.emit('end_game_packet');
+
   }
 
   /**
@@ -80,25 +88,24 @@ export class Match {
    */
 
   public update(): void {
+    // console.log('Y :' + this.area.getBall().getLocation().getY());
+    // console.log('X : ' + this.area.getBall().getLocation().getX());
+    if (this.scoreUser1 === 5 || this.scoreUser2 === 5)
+      this.close();
+    this.time.incrementValue();
+    if (Date.now() - this.start <= 5000)
+      return ;
     const direction = !this.ballToLeft ? 1 : -1;
 
     this.area.getBall().getLocation().addX(
-      direction * this.ballSpeed * Math.cos(this.ballAngle)
+      direction * this.ballSpeed * Math.abs(Math.cos(this.ballAngle))
     );
     this.area.getBall().getLocation().addY(this.ballSpeed * Math.sin(this.ballAngle));
 
-    if (this.area.getBall().getLocation().getYPercent() === 0) {
-      this.ballAngle = -this.ballAngle;
-    }
-
-    if (this.area.getBall().getLocation().getYPercent() === 100) {
-      this.ballAngle = -this.ballAngle;
-    }
-
     let collision = false;
-
     if (
-      this.area.getBall().getLocation().getXPercent() === 100 &&
+      this.area.getBall().getLocation().getXPercent() >= 95 &&
+      this.area.getBall().getLocation().getXPercent() <= 99 &&
       !this.ballToLeft
     ) {
       if (
@@ -112,17 +119,28 @@ export class Match {
         this.updateBallAngle(this.area.getOpponent());
         collision = true;
       }
-      else
-      {
-        this.scoreUser1++;
-        this.area.ball.getLocation().setXY(50, 50);
-        this.ballAngle = 0;
-        this.ballSpeed = 2
-      }
+      // else
+      // {
+      //   this.scoreUser1++;
+      //   this.area.ball.getLocation().setXY(50, 50);
+      //   this.ballAngle = 0;
+      //   this.ballSpeed = 2
+      // }
     }
 
     if (
-      this.area.getBall().getLocation().getXPercent() === 0 &&
+      this.area.getBall().getLocation().getXPercent() === 100 &&
+      !this.ballToLeft
+    ) {
+      this.scoreUser1++;
+      this.area.ball.getLocation().setXY(50, 180);
+      this.ballAngle = 0;
+      this.ballSpeed = 2
+    }
+
+    if (
+      this.area.getBall().getLocation().getXPercent() <= 5 &&
+      this.area.getBall().getLocation().getXPercent() >= 1 &&
       this.ballToLeft
     ) {
       if (
@@ -136,13 +154,31 @@ export class Match {
         this.updateBallAngle(this.area.getPlayer());
         collision = true;
       }
-      else
-      {
-        this.scoreUser2++;
-        this.area.ball.getLocation().setXY(50, 50);
-        this.ballAngle = 0;
-        this.ballSpeed = 2
-      }
+      // else
+      // {
+      //   this.scoreUser2++;
+      //   this.area.ball.getLocation().setXY(50, 50);
+      //   this.ballAngle = 0;
+      //   this.ballSpeed = 2
+      // }
+    }
+
+    if (
+      this.area.getBall().getLocation().getXPercent() === 0 &&
+      this.ballToLeft
+    ) {
+      this.scoreUser2++;
+      this.area.ball.getLocation().setXY(50, 180);
+      this.ballAngle = 0;
+      this.ballSpeed = 2
+    }
+
+    if (this.area.getBall().getLocation().getYPercent() === 0) {
+      this.ballAngle = -this.ballAngle;
+    }
+
+    if (this.area.getBall().getLocation().getYPercent() === 100) {
+      this.ballAngle = -this.ballAngle;
     }
 
     if (collision) {
@@ -160,8 +196,6 @@ export class Match {
         this.ballSpeed = 15;
       }
     }
-
-    this.time.incrementValue();
   }
 
   /**

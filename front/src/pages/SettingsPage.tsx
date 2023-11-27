@@ -4,12 +4,15 @@ import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
+import LoadingPage from './LoadingPage';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
   const [color, setColor] = useState('#aabbcc');
   const [name, setName] = useState('Benjot');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleEnableTwoFactor = async (): Promise<void> => {
@@ -38,18 +41,22 @@ const SettingsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    async function fetchData(): Promise<any> {
-      try {
-        const verified = await AuthEnabled();
-        if (verified.data === true) setTwoFactorEnabled(true);
-      } catch (error) {
-        console.log('error');
-      }
-    }
-    const test = fetchData();
-    void test;
+    AuthEnabled(null)
+      .then((req) => {
+        console.log(req);
+        setTwoFactorEnabled(req);
+      })
+      .catch(() => {
+        setError(true);
+        console.log('coucou');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
-
+  console.log(twoFactorEnabled);
+  if (error) return <p>Something bad happened</p>;
+  if (loading) return <LoadingPage />;
   return (
     <Box
       height="100%"

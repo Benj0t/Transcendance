@@ -22,9 +22,9 @@ $$ language plpgsql;
 
 -- Gauthier friend with Benjamin
 
-insert into "user_has_friend" ("user_id", "friend_id") values (
-    18, 19
-);
+-- insert into "user_has_friend" ("user_id", "friend_id") values (
+--    18, 19
+--);
 
 -- Add friend for the specified user.
 

@@ -1,11 +1,5 @@
-Changer lib cookies -> js-cookies
-Remplacer fake cookie -> JWT
+Passer PublicRoute avec le /auth/verify
 
+TODO promise.all quand plusieurs query
 
-chat/userid
-getParams l'id, request ses infos au backend et show ses datas
-
-Refaire le bouton de la LoginPage
-
-
-Gauthier: Rename la var access_token
+TODO auth peut pas renvoyer jwt sans la 2FA

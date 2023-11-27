@@ -11,20 +11,30 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import { Checkbox, FormControlLabel, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
+import CreateChannel from '../requests/postCreateChannel';
+import LoadingPage from '../pages/LoadingPage';
+import getUserFriends, { type getUserFriendsRequest } from '../requests/getUserFriends';
+import GetUserById from '../requests/getUserById';
 
-interface ButtonCreateChannelProps {
-  friends: string[];
-}
+const ButtonCreateChannel: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [passEnable, setPassEnable] = useState<boolean>(false);
+  const [name, setName] = useState('');
+  const [pass, setPass] = useState('');
+  const [error, setError] = useState(false);
+  const [friendsId, setFriendsId] = useState<getUserFriendsRequest[]>([]);
+  const [friendsName, setFriendsName] = useState<string[]>([]);
+  const [member, setMember] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) => {
-  // export default function DialogSelect(): React.FC {
-  const [open, setOpen] = React.useState(false);
-  const [passEnable, setPassEnable] = React.useState<boolean>(true);
-  const [member, setMember] = React.useState<string[]>([]);
+  const [nameError, setNameError] = useState(false);
+  const [passError, setPassError] = useState(false);
+  const [memberError, setMemberError] = useState(false);
 
   const handleChange = (event: SelectChangeEvent<typeof member>): void => {
-    const options = event.target.value as string[];
-    const value: string[] = [];
+    const options = event.target.value as number[];
+    const value: number[] = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
       value.push(options[i]);
     }
@@ -45,8 +55,63 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
     if (reason !== 'backdropClick') {
       setOpen(false);
     }
+    setMember([]);
+  };
+  const validateName = (): boolean => {
+    const regex = /^[a-zA-Z\s]+$/;
+    const nameIsGood = name === '' || !regex.test(name);
+    setNameError(nameIsGood);
+    return nameIsGood;
+  };
+  const validatePass = (): boolean => {
+    if (!passEnable) return false;
+    const regex = /^\S+$/;
+    const passIsGood = pass === '' || !regex.test(name);
+    setPassError(passIsGood);
+    return passIsGood;
+  };
+  const validateMembers = (): boolean => {
+    const memberIsGood = member.length < 2;
+    setMemberError(memberIsGood);
+    return memberIsGood;
   };
 
+  const handleSubmit = (): void => {
+    console.log(nameError, passError, memberError);
+    if (!validateName() && !validatePass() && !validateMembers())
+      CreateChannel(name, pass, member).finally(() => {
+        console.log('channel created');
+      });
+  };
+
+  useEffect(() => {
+    getUserFriends()
+      .then((req) => {
+        console.log(req);
+        setFriendsId(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+  }, []);
+
+  useEffect(() => {
+    const size = Object.keys(friendsId).length;
+    console.log('tab length: ', size);
+    for (let i = 0; i < size; i++) {
+      GetUserById(friendsId[i].friend_id)
+        .then((req) => {
+          setFriendsName((prevName) => [...prevName, req.nickname]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setLoading(false);
+  }, [friendsId]);
+  if (error) return <p>Error: could not resolve data</p>;
+  if (loading) return <LoadingPage />;
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
@@ -57,7 +122,13 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
         <DialogContent>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <TextField label="Nom du channel"></TextField>
+              <TextField
+                label="Nom du channel"
+                error={nameError}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setName(event.target.value);
+                }}
+              />
             </FormControl>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="ChannelInvite">Membres</InputLabel>
@@ -68,9 +139,10 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
                 id="demo-dialog-select"
                 value={member}
                 onChange={handleChange}
+                error={memberError}
                 input={<OutlinedInput label="Invite" />}
               >
-                {friends.map((msg, index) => (
+                {friendsName.map((msg, index) => (
                   <MenuItem key={index} value={index}>
                     {msg}
                   </MenuItem>
@@ -79,16 +151,23 @@ const ButtonCreateChannel: React.FC<ButtonCreateChannelProps> = ({ friends }) =>
             </FormControl>
             <FormControl sx={{ m: 1 }}>
               <FormControlLabel
-                control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
+                control={<Checkbox checked={passEnable} onChange={handleEnablePass} />}
                 label="Channel privé"
               />
-              <TextField disabled={passEnable} label="Mot de Passe"></TextField>
+              <TextField
+                disabled={passEnable}
+                label="Mot de Passe"
+                error={passError}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setPass(event.target.value);
+                }}
+              ></TextField>
             </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
+          <Button onClick={handleSubmit}>Ok</Button>
         </DialogActions>
       </Dialog>
     </div>

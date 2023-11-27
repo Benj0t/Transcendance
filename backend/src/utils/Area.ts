@@ -11,14 +11,14 @@ export class Area {
   constructor(width: number, height: number, playerId: number, opponentId: number) {
     this.size = new Size(width, height);
     this.player = new Racket(playerId, this.size);
-    this.player.getLocation().setY(50);
+    this.player.getLocation().setY(180);
 
     this.opponent = new Racket(opponentId, this.size);
-    this.opponent.getLocation().setY(50);
+    this.opponent.getLocation().setY(180);
     this.opponent.getLocation().setToLeft(true);
 
     this.ball = new Entity(this.size);
-    this.ball.getLocation().setXY(50, 50);
+    this.ball.getLocation().setXY(50, 180);
   }
 
   racketSize(): Size {

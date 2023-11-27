@@ -20,6 +20,13 @@ insert into "user" ("nickname", "avatar_base64", "two_factor_secret", "user_42_i
 
 -- Represent user's achievements.
 
+create table "achievement" (
+    "id" serial primary key,
+    "name" varchar(50),
+	"caption" text,
+    "icon_url" varchar(255)
+);
+
 create table "user_has_achievement" (
     "id" serial primary key,
     "user_id" integer references "user"(id),
