@@ -1,6 +1,11 @@
 import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import getUserMe from '../requests/getUserMe';
+import getUserMatches from '../requests/getUserMatches';
+import { UserContext } from '../context/userContext';
+import LoadingPage from './LoadingPage';
+// import GetUserById from '../requests/getUserById';
 
 interface Row {
   id: number;
@@ -18,6 +23,8 @@ const columns = [
   { field: 'score', headerName: 'Score', width: 200 },
   { field: 'gameLength', headerName: 'Durée', width: 200 },
 ];
+
+// const [rows, setRows] = useState<Row[]>([]);
 
 const rows: Row[] = [
   {
@@ -109,8 +116,63 @@ const rows: Row[] = [
     gameLength: '5m34s',
   },
 ];
-
 const History: React.FC = () => {
+  const [error, setError] = useState('');
+  const [userId, setUserId] = useState(0);
+  const [loading, setLoading] = useState(true);
+  // const [addName, setAddName] = useState('');
+  // const [rows, setRows] = useState<Row[]>([]);
+  const me = useContext(UserContext).user;
+  void userId;
+  useEffect(() => {
+    getUserMe()
+      .then((req) => {
+        setUserId(req.id);
+      })
+      .catch((err) => {
+        setError(err);
+      });
+    async function fetchData(): Promise<any> {
+      try {
+        const req = await getUserMatches(me.id);
+        const matches = req;
+        console.log(req);
+        const keys = Object.keys(matches);
+        const size = keys.length;
+        for (let i = 0; i < size; i++) {
+          // const gameid = i;
+          // let opponent;
+          // let result;
+          // if (me.id === matches[i].winner_id)
+          //   result = '🟢';
+          // else
+          //   result = '🔴';
+          // if (matches[i].user_id === me.id)
+          //   opponent = await GetUserById(matches[i].user_id);
+          // else
+          //   opponent = await GetUserById(matches[i].opponent_id);
+          // const opponentAvatar = opponent.avatar_base64;
+          // const opponentName = opponent.nickname;
+          // const addScore = ??????S
+          // const addGameLength = ???????
+          // const addrow = { id: gameid, avatar: opponentAvatar, name: opponentName, status: result, score: addScore, gameLenght: addGameLenght };
+          // setRows((prevRows) => [...prevRows, addrow]);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          console.log(err.message);
+          setError(err.message);
+        }
+      }
+    }
+    setLoading(false);
+    const test = fetchData();
+    void test;
+  }, []);
+  // if (error !== '') return <h1>Something bad happened: {error}</h1>;
+  if (loading) return <LoadingPage />;
+  console.log(error);
+
   return (
     <Box
       display="flex"

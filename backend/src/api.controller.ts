@@ -157,6 +157,31 @@ export class ApiController {
     }
   }
 
+    /**
+   * Get the match history for an user.
+   * 
+   * @param id  The user id.
+   * 
+   * @returns   The match history for the specified user.
+   * 
+   * @author Komqdo
+   */
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('user/matches')
+  async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
+
+    try {
+
+      const matches = await this.user_service.getMatches(id);
+
+      return matches;
+
+    } catch (error) {
+      throw new NotFoundException('Error: ' + error);
+    }
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('user/:id')
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
@@ -253,31 +278,6 @@ export class ApiController {
 
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
-   * Get the match history for an user.
-   * 
-   * @param id  The user id.
-   * 
-   * @returns   The match history for the specified user.
-   * 
-   * @author Komqdo
-   */
-
-  @UseGuards(JwtAuthGuard)
-  @Get('user/matches')
-  async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
-
-    try {
-
-      const matches = await this.user_service.getMatches(id);
-
-      return matches;
-
-    } catch (error) {
-      throw new NotFoundException('Error: ' + error);
     }
   }
 

@@ -3,6 +3,7 @@ import { Area } from '../utils/Area';
 import { Racket } from '../utils/Racket';
 import { TickValue } from '../utils/TickValue';
 import { PongServer } from './pong.server';
+import { NotFoundException } from '@nestjs/common';
 
 export class Match {
   public user1: Connected;
@@ -10,6 +11,7 @@ export class Match {
   public closed: boolean;
   public scoreUser1 = 0;
   public scoreUser2 = 0;
+  public mode: number;
   public readonly pong_server: PongServer;
 
   public time: TickValue;
@@ -21,7 +23,8 @@ export class Match {
 
   private area: Area;
 
-  constructor(user1: Connected, user2: Connected) {
+  constructor(user1: Connected, user2: Connected, mode: number) {
+    
     this.time = new TickValue(0);
     this.start = Date.now();
     this.user1 = user1;
@@ -30,6 +33,26 @@ export class Match {
     this.user2.match = this;
     this.area = new Area(PongServer.option.display.height, PongServer.option.display.width, user1.getUserId(), user2.getUserId());
     this.closed = false;
+    this.mode = mode;
+    if(mode === -2)
+      this.mode = 1;
+    else if(mode === -1)
+      this.mode = 3;
+    else
+      this.mode = 2;
+    this.ballSpeed = this.mode;
+  }
+
+  public async postHistory()
+  {
+    // try {
+    //   if (this.scoreUser1 === 5)
+    //     await this.user_service.addMatch(this.user1.getUserId(), this.user2.getUserId(), this.user1.getUserId());
+    //   else
+    //     await this.user_service.addMatch(this.user1.getUserId(), this.user2.getUserId(), this.user2.getUserId());
+    // } catch (error) {
+    //   throw new NotFoundException(`Not found: ` + error);
+    // }
   }
 
   /**
@@ -52,9 +75,23 @@ export class Match {
     this.user2.opponentId = null;
     this.user2.match = null;
 
+    this.postHistory();
+
     this.user1.client.emit('end_game_packet');
     this.user2.client.emit('end_game_packet');
 
+  }
+
+  /**
+   * Gère l'abandon d'un joueur
+   */
+
+  public forfeit(leaverId: number): void {
+    if (this.user1.getUserId() === leaverId)
+      this.scoreUser1 = 5;
+    else
+      this.scoreUser2 = 5;
+    this.close();
   }
 
   /**
@@ -88,8 +125,6 @@ export class Match {
    */
 
   public update(): void {
-    // console.log('Y :' + this.area.getBall().getLocation().getY());
-    // console.log('X : ' + this.area.getBall().getLocation().getX());
     if (this.scoreUser1 === 5 || this.scoreUser2 === 5)
       this.close();
     this.time.incrementValue();
@@ -119,13 +154,6 @@ export class Match {
         this.updateBallAngle(this.area.getOpponent());
         collision = true;
       }
-      // else
-      // {
-      //   this.scoreUser1++;
-      //   this.area.ball.getLocation().setXY(50, 50);
-      //   this.ballAngle = 0;
-      //   this.ballSpeed = 2
-      // }
     }
 
     if (
@@ -135,7 +163,7 @@ export class Match {
       this.scoreUser1++;
       this.area.ball.getLocation().setXY(50, 180);
       this.ballAngle = 0;
-      this.ballSpeed = 2
+      this.ballSpeed = this.mode;
     }
 
     if (
@@ -154,13 +182,6 @@ export class Match {
         this.updateBallAngle(this.area.getPlayer());
         collision = true;
       }
-      // else
-      // {
-      //   this.scoreUser2++;
-      //   this.area.ball.getLocation().setXY(50, 50);
-      //   this.ballAngle = 0;
-      //   this.ballSpeed = 2
-      // }
     }
 
     if (
@@ -170,7 +191,7 @@ export class Match {
       this.scoreUser2++;
       this.area.ball.getLocation().setXY(50, 180);
       this.ballAngle = 0;
-      this.ballSpeed = 2
+      this.ballSpeed = this.mode;
     }
 
     if (this.area.getBall().getLocation().getYPercent() === 0) {

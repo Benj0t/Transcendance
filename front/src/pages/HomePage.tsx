@@ -23,8 +23,9 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     GetUserMe()
       .then((reqdata) => {
-        me.id = Math.random() * 10; // replace with redata.data.id /!\
+        me.id = Math.ceil(Math.random() * 10); // replace with redata.data.id /!\
         pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+        console.log(me.id);
       })
       .catch((error) => {
         console.log(error);
@@ -32,15 +33,13 @@ const HomePage: React.FC = () => {
       });
   }, []);
 
-  pongSocket.on('reconnect', (attemptNumber: number) => {
-    console.log(`Socket reconnected after ${attemptNumber} attempts`);
-    // Effectuez des actions spécifiques après la reconnexion
-  });
-
   const keepInterval = setInterval(() => {
     pongSocket.emit('keep_alive_packet', new PacketInKeepAlive(me.yPcent));
   }, 50);
-  void keepInterval;
+
+  pongSocket.on('disconnect', () => {
+    clearInterval(keepInterval);
+  });
 
   const handleGame = (): void => {
     navigate('/game');

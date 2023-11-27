@@ -104,7 +104,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       this.getConnected(client).opponentId = null;
     if (this.getConnected(client))
       this.getConnected(client).close();
-;
   }
 
   onModuleDestroy(): void {
@@ -151,7 +150,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('dual_cancel_packet')
   handleDualCancelPacket(client: Socket, packet: PacketInDualCancel): void {
-    console.log("received dual_cancel_packet from", client.id);
     const connected: Connected = this.getConnected(client);
 
     if (connected.opponentId === null) {
@@ -166,33 +164,33 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     connected.opponentId = null;
   }
 
-  createMatch(user1: Connected, user2: Connected) {
+  createMatch(user1: Connected, user2: Connected, mode: number) {
     if (user1.hasMatch() || user2.hasMatch()) return;
 
-    const match = new Match(user1, user2);
+    const match = new Match(user1, user2, mode);
     match.init();
     this.matches.add(match);
   }
 
   checkMatchStart(connected: Connected) {
     if (!connected.hasMatch() && connected.opponentId !== null) {
-      if (connected.opponentId === 0) {
-        const opponent = this.getWaitingOpponent(connected.userId);
+      if (connected.opponentId === 0 || connected.opponentId === -1 || connected.opponentId === -2) {
+        const opponent = this.getWaitingOpponent(connected.userId, connected.opponentId);
         console.log(
-          `[LOG] ${connected.client.id}: searching opponent...: ${opponent?.client.id}`
+          `[LOG] ${connected.client.id}: searching opponent...`
         );
 
         if (opponent) {
           console.log(
-            `[LOG] ${connected.client.id}: found opponent: ${opponent.client.id}`
+            `[LOG] ${connected.client.id}: found opponent: ${opponent.op.client.id}`
           );
-          this.createMatch(connected, opponent);
+          this.createMatch(connected, opponent.op, opponent.mode);
         }
       } else {
         const opponent = this.getConnectedByUserId(connected.opponentId);
 
         if (opponent && opponent.opponentId !== null && opponent.opponentId === connected.userId) {
-          this.createMatch(connected, opponent);
+          this.createMatch(connected, opponent, 0);
         }
       }
     }
@@ -204,14 +202,14 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
   }
 
-  getWaitingOpponent(searcherId: number) {
+  getWaitingOpponent(searcherId: number, mode: number) {
     for (const connected of Array.from(this.connecteds)) {
       if (connected.userId === searcherId) {
         continue;
       }
 
-      if (connected.opponentId !== null && connected.opponentId === 0 && !connected.hasMatch()) {
-        return connected;
+      if (connected.opponentId !== null && connected.opponentId === mode && !connected.hasMatch()) {
+        return {op: connected, mode: mode};
       }
     }
     return null;

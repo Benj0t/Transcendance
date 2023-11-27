@@ -26,8 +26,18 @@ const PongGame: React.FC = (): any => {
   const [scoreOpponent, setScoreOpponent] = useState(0);
   const me = useContext(UserContext).user;
 
-  const sendMatchmakingPacket = (): void => {
+  const sendEasyMatchmakingPacket = (): void => {
+    pongSocket.emit('dual_packet', new PacketInDual(-2));
+    setGameStarted(true);
+  };
+
+  const sendNormalMatchmakingPacket = (): void => {
     pongSocket.emit('dual_packet', new PacketInDual(0));
+    setGameStarted(true);
+  };
+
+  const sendHardMatchmakingPacket = (): void => {
+    pongSocket.emit('dual_packet', new PacketInDual(-1));
     setGameStarted(true);
   };
 
@@ -85,14 +95,15 @@ const PongGame: React.FC = (): any => {
     setScoreOpponent(0);
   };
 
-  window.addEventListener('popstate', (event) => {
+  const handlePopstate = (event: any): void => {
     event.preventDefault();
     pongSocket.emit('dual_cancel_packet');
-  });
+  };
 
-  pongSocket.on('time_packet', handleSocketData);
-  pongSocket.on('end_game_packet', handleEndGame);
   useEffect(() => {
+    pongSocket.on('time_packet', handleSocketData);
+    pongSocket.on('end_game_packet', handleEndGame);
+    window.addEventListener('popstate', handlePopstate);
     const canvas = canvasRef.current;
     if (canvas == null) return;
 
@@ -227,16 +238,14 @@ const PongGame: React.FC = (): any => {
     };
 
     requestAnimationFrame(draw);
-    // const animate = (): void => {
-    //   draw(); // Appel initial à la fonction de dessin
-    // };
-
-    // animate();
 
     canvas.addEventListener('mousemove', handleMouseMove);
 
     return () => {
+      window.removeEventListener('popstate', handlePopstate);
       canvas.removeEventListener('mousemove', handleMouseMove);
+      pongSocket.off('time_packet', handleSocketData);
+      pongSocket.off('end_game_packet', handleEndGame);
     };
   }, [time]);
 
@@ -264,7 +273,11 @@ const PongGame: React.FC = (): any => {
         ) : (
           <div>
             {isChoosingMatchmaking ? (
-              <button onClick={sendMatchmakingPacket}>Start Matchmaking</button>
+              <div>
+                <button onClick={sendEasyMatchmakingPacket}>Easy</button>
+                <button onClick={sendNormalMatchmakingPacket}>Normal</button>
+                <button onClick={sendHardMatchmakingPacket}>Hard</button>
+              </div>
             ) : isChoosingDuel ? (
               <div>
                 <input

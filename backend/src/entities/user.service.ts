@@ -39,7 +39,7 @@ export class UserService {
 			[id]
 		);
 
-		return (matches);
+		return matches;
 	}
 
 	async getBlockeds(id: number): Promise<UserHasBlockedUserEntity[]> {
