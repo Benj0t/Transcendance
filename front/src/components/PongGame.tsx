@@ -2,12 +2,16 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import './styles/PongGame.css';
 import Area from './utils/Area';
 // import { PacketInKeepAlive } from './packet/in/PacketInKeepAlive';
-import { getPongSocket } from '../components/pongSocket';
+// import { getPongSocket } from '../context/pongSocket';
 import { PacketInDual } from './packet/in/PacketInDual';
 import { UserContext } from '../context/userContext';
+import postAddMatch from '../requests/postAddMatch';
+import { useWebSocket } from '../context/pongSocket';
+import { notifyToasterSuccess } from './utils/toaster';
+// import { notifyToasterSuccess } from './utils/toaster';
 
 const PongGame: React.FC = (): any => {
-  const pongSocket = getPongSocket();
+  // const pongSocket = getPongSocket();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [racketY, setRacketY] = useState(180);
   const [isChoosingMatchmaking, setIsChoosingMatchmaking] = useState(false);
@@ -25,41 +29,37 @@ const PongGame: React.FC = (): any => {
   const [scorePlayer, setScorePlayer] = useState(0);
   const [scoreOpponent, setScoreOpponent] = useState(0);
   const me = useContext(UserContext).user;
+  const { pongSocket, createSocket } = useWebSocket();
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
 
   const sendEasyMatchmakingPacket = (): void => {
-    pongSocket.emit('dual_packet', new PacketInDual(-2));
+    if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(-2));
     setGameStarted(true);
   };
 
   const sendNormalMatchmakingPacket = (): void => {
-    pongSocket.emit('dual_packet', new PacketInDual(0));
+    if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(0));
     setGameStarted(true);
   };
 
   const sendHardMatchmakingPacket = (): void => {
-    pongSocket.emit('dual_packet', new PacketInDual(-1));
+    if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(-1));
     setGameStarted(true);
   };
 
   const sendDualPacket = (opponentId: number): any => {
-    pongSocket.emit('dual_packet', new PacketInDual(opponentId));
+    if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(opponentId));
     setIsChoosingDuel(true);
     setGameStarted(true);
   };
 
   const sendKeepAlivePacket = (racketY: number): any => {
     me.yPcent = racketY;
-    // pongSocket.emit('keep_alive_packet', pongSocket, new PacketInKeepAlive(racketY));
   };
-
-  // const receivePacket = (data: any): void => {
-  //   setBallX(data.ballXPCent);
-  //   setBallY(data.ballYPCent);
-  //   // setToLeft(data.toLeft);
-  //   setOpponentY(data.opponentYPCent);
-  //   // setPlaying(data.playing);
-  //   // setTime(data.time);
-  // };
 
   // const setIdle = (): any => {
   //   setGameWindow(null);
@@ -67,18 +67,6 @@ const PongGame: React.FC = (): any => {
 
   // const setPlaying = (): any => {
   // };
-  const handleSocketData = (data: any): void => {
-    setBallX(data.ballXPCent);
-    setBallY(data.ballYPCent);
-    setToLeft(data.toLeft);
-    setOpponentY(data.opponentYPCent);
-    setScorePlayer(data.scorePlayer);
-    setScoreOpponent(data.scoreOpponent);
-    // setPlaying(data.playing);
-    setTime(data.time);
-    setStart(data.start);
-  };
-
   const handleEndGame = (): void => {
     setRacketY(180);
     setIsChoosingMatchmaking(false);
@@ -93,17 +81,47 @@ const PongGame: React.FC = (): any => {
     setStart(0);
     setScorePlayer(0);
     setScoreOpponent(0);
+    if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
+    if (pongSocket !== null) pongSocket.off('history', handleHistory);
+  };
+
+  const handleSocketData = (data: any): void => {
+    setBallX(data.ballXPCent);
+    setBallY(data.ballYPCent);
+    setToLeft(data.toLeft);
+    setOpponentY(data.opponentYPCent);
+    setScorePlayer(data.scorePlayer);
+    setScoreOpponent(data.scoreOpponent);
+    // setPlaying(data.playing);
+    setTime(data.time);
+    setStart(data.start);
+  };
+
+  const handleHistory = (): void => {
+    console.log('help');
+    postAddMatch(me.id, opponentId)
+      .then((req) => {
+        console.log(req);
+        if (req.message === 'ok') notifyToasterSuccess('You won !');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handlePopstate = (event: any): void => {
     event.preventDefault();
-    pongSocket.emit('dual_cancel_packet');
+    if (pongSocket !== null) pongSocket.emit('dual_cancel_packet');
   };
 
   useEffect(() => {
-    pongSocket.on('time_packet', handleSocketData);
-    pongSocket.on('end_game_packet', handleEndGame);
-    window.addEventListener('popstate', handlePopstate);
+    if (pongSocket !== null) pongSocket.on('history', handleHistory);
+  }, []);
+
+  useEffect(() => {
+    if (pongSocket !== null) pongSocket.on('time_packet', handleSocketData);
+    if (pongSocket !== null) pongSocket.on('end_game_packet', handleEndGame);
+    if (pongSocket !== null) window.addEventListener('popstate', handlePopstate);
     const canvas = canvasRef.current;
     if (canvas == null) return;
 
@@ -112,9 +130,6 @@ const PongGame: React.FC = (): any => {
 
     if (area == null) return;
 
-    // console.log('Canvas Width:', canvas.width);
-    // console.log('Canvas Height:', canvas.height);
-
     const handleMouseMove = (e: MouseEvent): void => {
       const canvasRect = canvas.getBoundingClientRect();
       const mouseY = e.clientY - canvasRect.top;
@@ -122,20 +137,11 @@ const PongGame: React.FC = (): any => {
       const newRacketY = Math.min(maxY, Math.max(0, mouseY));
 
       setRacketY(newRacketY);
-      // sendKeepAlivePacket(racketY);
       me.yPcent = racketY;
     };
 
     const draw = (): void => {
       if (isGameStarted) {
-        // pongSocket.on('time_packet', (data: any) => {
-        //   receivePacket(data);
-        // });
-        // if (isChoosingMatchmaking) {
-        //   sendMatchmakingPacket();
-        // } else if (isChoosingDuel) {
-        //   sendDualPacket(opponentId);
-        // }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Dessiner un rectangle noir qui remplit le canvas
@@ -244,8 +250,8 @@ const PongGame: React.FC = (): any => {
     return () => {
       window.removeEventListener('popstate', handlePopstate);
       canvas.removeEventListener('mousemove', handleMouseMove);
-      pongSocket.off('time_packet', handleSocketData);
-      pongSocket.off('end_game_packet', handleEndGame);
+      if (pongSocket !== null) pongSocket.off('time_packet', handleSocketData);
+      if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     };
   }, [time]);
 

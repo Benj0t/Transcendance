@@ -1,45 +1,43 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
-import { getPongSocket } from '../components/pongSocket';
-import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
-import { UserContext } from '../context/userContext';
-import { PacketInHandshake } from '../components/packet/in/PacketInHandshake';
-import GetUserMe from '../requests/getUserMe';
+// import { getPongSocket } from '../context/pongSocket';
+import { useWebSocket } from './../context/pongSocket';
+// import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
+// import { UserContext } from '../context/userContext';
+// import { PacketInHandshake } from '../components/packet/in/PacketInHandshake';
+// import GetUserMe from '../requests/getUserMe';
 
 const HomePage: React.FC = () => {
-  const me = useContext(UserContext).user;
+  // const me = useContext(UserContext).user;
   /**
    * States
    */
   const navigate = useNavigate();
-  const pongSocket = getPongSocket();
+  const { pongSocket, createSocket } = useWebSocket();
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
 
   /**
    * Handlers
    */
 
-  useEffect(() => {
-    GetUserMe()
-      .then((reqdata) => {
-        me.id = Math.ceil(Math.random() * 10); // replace with redata.data.id /!\
-        pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
-        console.log(me.id);
-      })
-      .catch((error) => {
-        console.log(error);
-        // return error page
-      });
-  }, []);
-
-  const keepInterval = setInterval(() => {
-    pongSocket.emit('keep_alive_packet', new PacketInKeepAlive(me.yPcent));
-  }, 50);
-
-  pongSocket.on('disconnect', () => {
-    clearInterval(keepInterval);
-  });
+  // useEffect(() => {
+  //   GetUserMe()
+  //     .then((reqdata) => {
+  //       me.id = Math.ceil(Math.random() * 10); // replace with redata.data.id /!\
+  //       if (pongSocket !== null) pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       // return error page
+  //     });
+  // }, []);
 
   const handleGame = (): void => {
     navigate('/game');
@@ -47,9 +45,9 @@ const HomePage: React.FC = () => {
   const handleChat = (): void => {
     navigate('/chat');
   };
-  useEffect(() => {
-    pongSocket?.on('time_packet', (packetOutTime) => {});
-  }, []);
+  // useEffect(() => {
+  //   pongSocket?.on('time_packet', (packetOutTime) => {});
+  // }, []);
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
       <ProfileButton />

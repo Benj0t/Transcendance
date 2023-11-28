@@ -3,7 +3,6 @@ import { Area } from '../utils/Area';
 import { Racket } from '../utils/Racket';
 import { TickValue } from '../utils/TickValue';
 import { PongServer } from './pong.server';
-import { NotFoundException } from '@nestjs/common';
 
 export class Match {
   public user1: Connected;
@@ -24,7 +23,6 @@ export class Match {
   private area: Area;
 
   constructor(user1: Connected, user2: Connected, mode: number) {
-    
     this.time = new TickValue(0);
     this.start = Date.now();
     this.user1 = user1;
@@ -41,18 +39,6 @@ export class Match {
     else
       this.mode = 2;
     this.ballSpeed = this.mode;
-  }
-
-  public async postHistory()
-  {
-    // try {
-    //   if (this.scoreUser1 === 5)
-    //     await this.user_service.addMatch(this.user1.getUserId(), this.user2.getUserId(), this.user1.getUserId());
-    //   else
-    //     await this.user_service.addMatch(this.user1.getUserId(), this.user2.getUserId(), this.user2.getUserId());
-    // } catch (error) {
-    //   throw new NotFoundException(`Not found: ` + error);
-    // }
   }
 
   /**
@@ -75,7 +61,10 @@ export class Match {
     this.user2.opponentId = null;
     this.user2.match = null;
 
-    this.postHistory();
+    if (this.scoreUser1 === 5)
+      this.user1.client.emit('history');
+    else
+      this.user2.client.emit('history');
 
     this.user1.client.emit('end_game_packet');
     this.user2.client.emit('end_game_packet');

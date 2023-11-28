@@ -40,11 +40,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     for (const connected of this.connecteds) { // for each connected
       this.sendTimePacket(connected);
-      // if (connected.isTimeout()) {
-      //   connected.close();
-      //   console.log(`[LOG] ${connected.socket} : timed out.`);
-      //   continue;
-      // }
       this.checkMatchStart(connected);
     }
     this.updateMatches();
@@ -127,6 +122,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   handleHandshakePacket(client: Socket, packet: PacketInHandshake): void {
     const connected: Connected = this.getConnected(client);
     connected.userId = packet.userId;
+    // this.userService.addMatch(packet.userId, packet.userId, packet.userId);
   }
 
   @SubscribeMessage('dual_packet')
