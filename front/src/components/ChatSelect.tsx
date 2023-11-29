@@ -6,30 +6,21 @@ import { Box } from '@mui/material';
 
 interface ChatSelectProps {
   changeChannel: React.Dispatch<React.SetStateAction<number>>;
-  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
   channel: number;
   channelsList: Array<{
-    id: number;
-    name: string;
+    channel_id: number;
+    is_private: boolean;
+    title: string;
   }>;
 }
 
-const ChatSelect: React.FC<ChatSelectProps> = ({
-  changeChannel,
-  channelsList,
-  channel,
-  setIsAdmin,
-}) => {
+const ChatSelect: React.FC<ChatSelectProps> = ({ changeChannel, channel, channelsList }) => {
   const handleChangeMultiple = (event: SelectChangeEvent<string>): void => {
     console.log(event.target.value);
     const selectedName = event.target.value;
-    const selectedChannel = channelsList.find((item) => item.name === selectedName);
+    const selectedChannel = channelsList.find((item) => item.title === selectedName);
     if (selectedChannel != null) {
-      changeChannel(selectedChannel.id);
-      if (selectedChannel.id === 1000) setIsAdmin(true);
-      else {
-        setIsAdmin(false);
-      }
+      changeChannel(selectedChannel.channel_id);
     }
     /// A remplacer par une vraie cond si l'User est admin du channel select
   };
@@ -42,14 +33,14 @@ const ChatSelect: React.FC<ChatSelectProps> = ({
         </InputLabel>
         <Select
           native
-          value={channelsList.find((item) => item.id === channel)?.name}
+          value={channelsList.find((item) => item.channel_id === channel)?.title}
           onChange={handleChangeMultiple}
           label="Salon"
           autoWidth
         >
           {channelsList.map((index) => (
-            <option key={index.id} value={index.name}>
-              {index.name}
+            <option key={index.channel_id} value={index.title}>
+              {index.title}
             </option>
           ))}
         </Select>

@@ -563,9 +563,10 @@ export class ApiController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('channels/')
-  createChannel(@Body() body: { title: string; password: string; members: number[] }) {
+  createChannel(@Body() requestBody: { title: string; password: string; members: number[] }) {
     try {
-      return this.channel_service.createChannel(body.title, body.members, body.password);
+      const { title, password, members } = requestBody;
+      return this.channel_service.createChannel(requestBody.title, requestBody.members, requestBody.password);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -689,11 +690,12 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/messages')
   sendMessage(
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Param('channel_id') channel_id: number,
-    @Body() body: { user_id: number; message: string },
+    @Body() body: {message: string },
   ) {
     try {
-      return this.channel_service.sendMessage(body.user_id, channel_id, body.message);
+      return this.channel_service.sendMessage(jwtPayload.sub, channel_id, body.message);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }

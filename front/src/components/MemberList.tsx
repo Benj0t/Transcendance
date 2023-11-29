@@ -5,25 +5,48 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
+import { useEffect, useState } from 'react';
+import LoadingPage from '../pages/LoadingPage';
+import GetUserById from '../requests/getUserById';
 
+interface channelUsersResponse {
+  channel_id: number;
+  user_id: number;
+  role: number;
+  mute_expiry_at?: Date;
+}
 interface MemberListProps {
-  channel: number;
-  channelsMembers: Array<{
-    id: number;
-    names: string[];
-  }>;
+  channelMembers: channelUsersResponse[];
 }
 
-const MemberList: React.FC<MemberListProps> = ({ channelsMembers, channel }) => {
+const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
+  const [members, setMembers] = useState<any>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const size = channelMembers.length;
+    const datas: any[][] = [];
+    for (let i = 0; i < size; i++) {
+      GetUserById(channelMembers[i].channel_id)
+        .then((req) => {
+          datas.push([req.id, req.nickname]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setMembers(datas);
+    setLoading(false);
+  }, [channelMembers]);
+
   const handleItemClick = (value: number): void => {
-    console.log(channelsMembers.find((item) => item.id === value));
+    console.log(channelMembers.find((item) => item.user_id === value));
   };
 
-  const currMembers = channelsMembers.find((item) => item.id === channel)?.names;
+  if (loading) return <LoadingPage />;
   return (
     <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      {// if (currMembers)
-      currMembers?.map((value, index) => {
+      {members.map((_value: any, index: number) => {
         // Set Friends ID instead of random numbers
         const labelId = `list-${index}`;
         return (
@@ -36,7 +59,7 @@ const MemberList: React.FC<MemberListProps> = ({ channelsMembers, channel }) => 
               <ListItemAvatar>
                 <Avatar src={`/static/images/avatar/${index + 1}.jpg`}>T</Avatar>
               </ListItemAvatar>
-              <ListItemText id={labelId} primary={currMembers[index]} />
+              <ListItemText id={labelId} primary={members[index]} />
             </ListItemButton>
           </ListItem>
         );

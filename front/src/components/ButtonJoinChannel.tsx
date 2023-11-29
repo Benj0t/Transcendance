@@ -7,10 +7,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import { Checkbox, FormControlLabel, TextField } from '@mui/material';
+import joinChannel from '../requests/postJoinChannel';
+import { notifyToasterError, notifyToasterInfo, notifyToasterSuccess } from './utils/toaster';
 
 const ButtonJoinChannel: React.FC = () => {
   const [open, setOpen] = React.useState(false);
-  const [passEnable, setPassEnable] = React.useState<boolean>(true);
+  const [passEnable, setPassEnable] = React.useState<boolean>(false);
+
+  const [name, setName] = React.useState('');
+  const [pass, setPass] = React.useState('');
 
   const handleEnablePass = (): void => {
     setPassEnable((prevState) => {
@@ -28,6 +33,32 @@ const ButtonJoinChannel: React.FC = () => {
     }
   };
 
+  const validatePass = (): boolean => {
+    console.log(passEnable);
+    if (!passEnable) return true;
+    const regex = /^\S+$/;
+    return pass === '' || !regex.test(name);
+  };
+
+  const handleSubmit = (): void => {
+    if (!/^[0-9]+$/.test(name)) notifyToasterError('ID must only contains digits');
+    else if (!validatePass()) {
+      notifyToasterError('Pass is invalid');
+    } else {
+      joinChannel(name, passEnable ? pass : '')
+        .then((req) => {
+          if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
+          else {
+            console.log('ici');
+            notifyToasterInfo(req);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          notifyToasterError('Could not join desired channel');
+        });
+    }
+  };
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
@@ -38,20 +69,31 @@ const ButtonJoinChannel: React.FC = () => {
         <DialogContent>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <TextField label="Nom du channel"></TextField>
+              <TextField
+                label="ID du Channel"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setName(event.target.value);
+                }}
+              ></TextField>
             </FormControl>
           </Box>
           <FormControl sx={{ m: 1 }}>
             <FormControlLabel
-              control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
+              control={<Checkbox checked={passEnable} onChange={handleEnablePass} />}
               label="Channel privé"
             />
-            <TextField disabled={passEnable} label="Mot de Passe"></TextField>
+            <TextField
+              disabled={!passEnable}
+              label="Mot de Passe"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setPass(event.target.value);
+              }}
+            ></TextField>
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
+          <Button onClick={handleSubmit}>Ok</Button>
         </DialogActions>
       </Dialog>
     </div>
