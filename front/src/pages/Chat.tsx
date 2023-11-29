@@ -9,6 +9,10 @@ import ButtonJoinChannel from '../components/ButtonJoinChannel';
 import MemberList from '../components/MemberList';
 import AdminPanel from '../components/AdminPanel';
 import getUserChannels from '../requests/getUserChannels';
+import { useWebSocket } from '../context/pongSocket';
+import { useNavigate } from 'react-router';
+import { type PacketReceived } from '../components/packet/in/PacketReceived';
+import { notifyToasterInivtation } from '../components/utils/toaster';
 
 const Chat: React.FC = () => {
   const fakeDatas: Record<number, Array<{ text: string; sender: string }>> = {
@@ -61,6 +65,30 @@ const Chat: React.FC = () => {
     setHistory([...history, message]);
     console.log(message);
   };
+  const { pongSocket, createSocket } = useWebSocket();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  useEffect(() => {
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+    };
+  }, []);
 
   const handleSendMessage = (): void => {
     if (message.trim() !== '') {

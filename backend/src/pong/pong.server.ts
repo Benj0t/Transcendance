@@ -16,6 +16,8 @@ import Racket from "src/utils/Racket";
 import { PacketInDual } from "./packet/PacketInDual";
 import { PacketInDualCancel } from "./packet/PacketInDualCancel";
 import { PacketInHandshake } from "./packet/PacketInHandshake";
+import { PacketInInvite } from "./packet/PacketInvite";
+import { PacketReceived } from "./packet/PacketReceived";
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
@@ -124,7 +126,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   handleHandshakePacket(client: Socket, packet: PacketInHandshake): void {
     const connected: Connected = this.getConnected(client);
     connected.userId = packet.userId;
-    // this.userService.addMatch(packet.userId, packet.userId, packet.userId);
   }
 
   @SubscribeMessage('dual_packet')
@@ -136,14 +137,19 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       return ;
     }
 
-    if (connected.userId == packet.opponentId) {
+    if (connected.userId === packet.opponentId) { // ==
      console.log(`[ERR] user dual himself.`);
-      // System.exit(1); ??
       return ;
     }
 
     connected.opponentId = packet.opponentId;
     return ;
+  }
+
+  @SubscribeMessage('invite_packet')
+  handleInvitePacket(client: Socket, packet: PacketInInvite): void {
+    const invited = this.getConnectedByUserId(packet.opponentId);
+    if (invited !== null) invited.client.emit('invite_received', new PacketReceived(packet.senderId));
   }
 
   @SubscribeMessage('dual_cancel_packet')
@@ -155,8 +161,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
 
     if (connected.hasMatch()) {
-      connected.match.forfeit(connected.opponentId); // TO TEST
-      connected.match.close();
+      connected.match.forfeit(connected.opponentId);
+      // connected.match.close();
       return ;
     }
 

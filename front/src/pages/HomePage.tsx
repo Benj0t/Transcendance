@@ -4,6 +4,8 @@ import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 // import { getPongSocket } from '../context/pongSocket';
 import { useWebSocket } from './../context/pongSocket';
+import { notifyToasterInivtation } from '../components/utils/toaster';
+import { type PacketReceived } from '../components/packet/in/PacketReceived';
 // import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
 // import { UserContext } from '../context/userContext';
 // import { PacketInHandshake } from '../components/packet/in/PacketInHandshake';
@@ -16,6 +18,22 @@ const HomePage: React.FC = () => {
    */
   const navigate = useNavigate();
   const { pongSocket, createSocket } = useWebSocket();
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  useEffect(() => {
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+    };
+  }, []);
 
   useEffect(() => {
     if (pongSocket === null) {

@@ -17,3 +17,15 @@ export const notifyToasterError = (message: string, autoClose = 2500): void => {
     autoClose,
   });
 };
+
+export const notifyToasterInivtation = (
+  message: string,
+  arg: number,
+  acceptGame: (arg: number) => void,
+): void => {
+  toast.info(message, {
+    onClick: () => {
+      acceptGame(arg);
+    },
+  });
+};

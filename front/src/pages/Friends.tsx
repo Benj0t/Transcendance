@@ -9,8 +9,12 @@ import postAddFriend from '../requests/postAddFriend';
 import {
   notifyToasterError,
   notifyToasterInfo,
+  notifyToasterInivtation,
   notifyToasterSuccess,
 } from '../components/utils/toaster';
+import { useNavigate } from 'react-router';
+import { useWebSocket } from '../context/pongSocket';
+import { type PacketReceived } from '../components/packet/in/PacketReceived';
 
 interface Row {
   id: number;
@@ -31,6 +35,30 @@ const FriendList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
+  const { pongSocket, createSocket } = useWebSocket();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  useEffect(() => {
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+    };
+  }, []);
 
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {

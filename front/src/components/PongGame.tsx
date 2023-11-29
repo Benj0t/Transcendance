@@ -32,7 +32,18 @@ const PongGame: React.FC = (): any => {
   const me = useContext(UserContext).user;
   const { pongSocket, createSocket } = useWebSocket();
   const navigate = useNavigate();
+  const test = Date.now();
+  const [savedTimer, setSavedTimer] = useState(test);
+  const params = new URLSearchParams(location.search);
+  const param1 = params.get('param');
+  const tmp = typeof param1 === 'string' ? param1 : '';
+  const invited = tmp;
   useEffect(() => {
+    console.log(invited);
+    if (invited !== null && tmp !== '' && tmp !== undefined) {
+      console.log(parseInt(invited));
+      sendDualPacket(parseInt(invited));
+    }
     if (pongSocket === null) {
       createSocket();
     }
@@ -84,8 +95,8 @@ const PongGame: React.FC = (): any => {
     setScorePlayer(0);
     setScoreOpponent(0);
     // setOpponent(0);
-    if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     if (pongSocket !== null) pongSocket.off('history', handleHistory);
+    if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     navigate('/');
   };
 
@@ -104,7 +115,7 @@ const PongGame: React.FC = (): any => {
   };
 
   const handleHistory = (): void => {
-    postAddMatch(me.id, me.opponent)
+    postAddMatch(me.id, me.opponent, 5, scoreOpponent, Math.floor((Date.now() - savedTimer) / 1000))
       .then((req) => {
         console.log(req);
         if (req.message === 'ok') notifyToasterSuccess('You won !');
@@ -121,10 +132,16 @@ const PongGame: React.FC = (): any => {
 
   useEffect(() => {
     if (pongSocket !== null) pongSocket.on('history', handleHistory);
+    return () => {
+      pongSocket?.off('history', handleHistory);
+    };
   }, []);
 
   useEffect(() => {
     if (pongSocket !== null) pongSocket.on('end_game_packet', handleEndGame);
+    return () => {
+      pongSocket?.off('end_game_packet', handleEndGame);
+    };
   }, []);
 
   useEffect(() => {
@@ -228,6 +245,7 @@ const PongGame: React.FC = (): any => {
         // Dessiner le countdown de début de partie
 
         if ((Date.now() - start) / 1000 < 5) {
+          setSavedTimer(Date.now());
           ctx.font = '108px Arial';
           ctx.beginPath();
           ctx.arc(

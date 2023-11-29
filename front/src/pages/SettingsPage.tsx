@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
 import LoadingPage from './LoadingPage';
+import { useWebSocket } from '../context/pongSocket';
+import { PacketInInvite } from '../components/packet/in/PacketInvite';
+import { UserContext } from '../context/userContext';
+import { type PacketReceived } from '../components/packet/in/PacketReceived';
+import { notifyToasterInivtation } from '../components/utils/toaster';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
@@ -14,6 +19,30 @@ const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
+  const { pongSocket, createSocket } = useWebSocket();
+  const me = useContext(UserContext).user;
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  useEffect(() => {
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+    };
+  }, []);
 
   const handleEnableTwoFactor = async (): Promise<void> => {
     try {
@@ -37,7 +66,11 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleLogTest = (): void => {
-    navigate('/AuthTwoFactor');
+    const hello: number = 2;
+
+    navigate(`/game?param=${hello}`);
+    pongSocket?.emit('invite_packet', new PacketInInvite(2, me.id));
+    // navigate('/AuthTwoFactor');
   };
 
   useEffect(() => {
@@ -54,7 +87,6 @@ const SettingsPage: React.FC = () => {
         setLoading(false);
       });
   }, []);
-  console.log(twoFactorEnabled);
   if (error) return <p>Something bad happened</p>;
   if (loading) return <LoadingPage />;
   return (

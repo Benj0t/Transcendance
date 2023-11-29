@@ -297,12 +297,12 @@ export class ApiController {
   @Post('user/matches')
   async addMatch(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
-    @Body() requestBody: { opponent_id: number; winner_id: number }
+    @Body() requestBody: { opponent_id: number; winner_id: number; score_user_1: number; score_user_2: number; match_duration: number }
   ): Promise<{ message: string }> {
     try {
-      const { opponent_id, winner_id } = requestBody;
+      const { opponent_id, winner_id, score_user_1, score_user_2, match_duration } = requestBody;
 
-      const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id);
+      const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id, score_user_1, score_user_2, match_duration);
       return { message };
 
     } catch (error) {
