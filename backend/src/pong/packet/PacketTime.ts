@@ -11,6 +11,7 @@ export class PacketOutTimeUpdate extends Packet {
   scorePlayer: number | null;
   scoreOpponent: number | null;
   start: number | null;
+  opponent_id: number | null;
 
   constructor(
     ballXPCent: number | null,
@@ -23,6 +24,7 @@ export class PacketOutTimeUpdate extends Packet {
     scorePlayer: number | null,
     scoreOpponent: number | null,
     start: number | null,
+    opponent_id: number | null,
   ) {
     super();
     this.ballXPCent = ballXPCent;
@@ -35,6 +37,7 @@ export class PacketOutTimeUpdate extends Packet {
     this.scorePlayer = scorePlayer;
     this.scoreOpponent = scoreOpponent;
     this.start = start;
+    this.opponent_id = opponent_id;
   }
 
   isPlaying(): boolean {

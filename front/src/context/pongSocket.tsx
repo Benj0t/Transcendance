@@ -22,20 +22,23 @@ export const SocketProvider = (props: { children: ReactNode }): any => {
   const [pongSocket, setPongSocket] = useState<Socket | null>(null);
   const userIsAuthenticated = Cookies.get('jwt');
   const me = useContext(UserContext).user;
+  console.log(userIsAuthenticated);
 
   const createSocket = (): void => {
     const newSocket = io(URL, { transports: ['websocket'], withCredentials: true });
     setPongSocket(newSocket);
     let keepInterval: any;
-    if (newSocket !== null && userIsAuthenticated !== undefined) {
+    if (newSocket !== null) {
       keepInterval = setInterval(() => {
         newSocket.emit('keep_alive_packet', new PacketInKeepAlive(me.yPcent));
+        newSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+        console.log(me.id);
       }, 50);
       GetUserMe()
         .then((reqdata) => {
-          me.id = Math.ceil(Math.random() * 10); // replace with reqdata.id /!\
+          me.id = reqdata.id;
           if (pongSocket !== null) {
-            pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+            // pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
             pongSocket?.on('time_packet', (packetOutTime) => {});
           }
         })

@@ -31,6 +31,8 @@ export class Match {
     this.user2.match = this;
     this.area = new Area(PongServer.option.display.height, PongServer.option.display.width, user1.getUserId(), user2.getUserId());
     this.closed = false;
+    this.user1.setOponnentId(this.user2.getUserId());
+    this.user2.setOponnentId(this.user1.getUserId());
     this.mode = mode;
     if(mode === -2)
       this.mode = 1;
@@ -46,9 +48,9 @@ export class Match {
    */
 
   public close(): void {
-    if (this.closed) {
-      return;
-    }
+    // if (this.closed) {
+    //   return;
+    // }
 
     console.log(`[LOG] ${this.user1.client.id}: match closed.`);
     console.log(`[LOG] ${this.user2.client.id}: match closed.`);

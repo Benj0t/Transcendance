@@ -38,6 +38,10 @@ export class Connected {
       }
     }
 
+    setOponnentId(op: number): void {
+        this.opponentId = op;
+    }
+
     getUserId(): number {
         return this.userId;
     }

@@ -51,9 +51,10 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 		let to_left: boolean = null;
 		let opponent_y_pcent: number = null;
 		let match_time: number = null;
+    let opponent_id: number = null;
 
 		if (connected.hasMatch()) {
-
+      opponent_id = connected.match.user1.opponentId;
 			ball_x_pcent = connected.match.getArea().getBall().getLocation().getXPercent();
 			ball_y_pcent = connected.match.getArea().getBall().getLocation().getYPercent();
 			to_left = connected.match.user1.userId != connected.getUserId();
@@ -69,8 +70,9 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 				ball_x_pcent, ball_y_pcent, to_left, opponent_y_pcent, connected.opponentId,
 				connected.hasMatch(), match_time, connected.hasMatch() ? connected.match.scoreUser1 : null,
         connected.hasMatch() ? connected.match.scoreUser2 : null,
-        connected.hasMatch() ? connected.match.start : null );
-
+        connected.hasMatch() ? connected.match.start : null,
+        connected.hasMatch() ? connected.opponentId : null);
+        // connected.hasMatch() ? console.log(connected.match.user1.getUserId()) : console.log('');
     connected.client.emit('time_packet', packet);
   }
 
@@ -153,6 +155,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
 
     if (connected.hasMatch()) {
+      connected.match.forfeit(connected.opponentId); // TO TEST
       connected.match.close();
       return ;
     }

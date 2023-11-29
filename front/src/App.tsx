@@ -21,7 +21,7 @@ import { UserContext } from './context/userContext';
 import GetUserMe from './requests/getUserMe';
 // import { getPongSocket } from './context/pongSocket';
 import { SocketProvider, useWebSocket } from './context/pongSocket';
-import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
+// import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
 // import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
@@ -34,7 +34,8 @@ function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
 
 function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = Cookies.get('jwt');
-  console.log(cookie);
+  // console.log(cookie);
+  void cookie;
   if (Cookies.get('jwt') === undefined) {
     return <AuthCallback />;
   }
@@ -44,19 +45,19 @@ function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = Cookies.get('jwt');
   const me = useContext(UserContext).user;
-  const { pongSocket, createSocket } = useWebSocket();
+  // const { pongSocket, createSocket } = useWebSocket();
 
-  useEffect(() => {
-    if (pongSocket === null) {
-      createSocket();
-    }
+  // useEffect(() => {
+  //   if (pongSocket === null) {
+  //     createSocket();
+  //   }
 
-    return () => {
-      if (pongSocket !== null) {
-        pongSocket.disconnect();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (pongSocket !== null) {
+  //       pongSocket.disconnect();
+  //     }
+  //   };
+  // }, []);
   // ??
   // const sockContext = React.useContext(SocketContext);
   // const pongSocket = sockContext.pongSocket;
@@ -64,9 +65,8 @@ function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   if (userIsAuthenticated !== undefined) {
     GetUserMe()
       .then((reqdata) => {
-        me.id = Math.random() * 10; // replace with reqdata.id /!\
-        console.log(pongSocket);
-        if (pongSocket !== null) pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
+        me.id = reqdata.id;
+        // if (pongSocket !== null) pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
       })
       .catch((error) => {
         console.log(error);
@@ -107,7 +107,7 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0 });
+  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0, opponent: 0 });
   const { pongSocket, createSocket } = useWebSocket();
 
   useEffect(() => {

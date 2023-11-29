@@ -297,17 +297,16 @@ export class ApiController {
   @Post('user/matches')
   async addMatch(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
-    @Query('opponent_id') opponent_id: number,
-    @Query('winner_id') winner_id: number,
+    @Body() requestBody: { opponent_id: number; winner_id: number }
   ): Promise<{ message: string }> {
-
     try {
+      const { opponent_id, winner_id } = requestBody;
 
       const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id);
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
+      throw error;
     }
   }
   

@@ -8,6 +8,7 @@ import { UserContext } from '../context/userContext';
 import postAddMatch from '../requests/postAddMatch';
 import { useWebSocket } from '../context/pongSocket';
 import { notifyToasterSuccess } from './utils/toaster';
+import { useNavigate } from 'react-router';
 // import { notifyToasterSuccess } from './utils/toaster';
 
 const PongGame: React.FC = (): any => {
@@ -30,6 +31,7 @@ const PongGame: React.FC = (): any => {
   const [scoreOpponent, setScoreOpponent] = useState(0);
   const me = useContext(UserContext).user;
   const { pongSocket, createSocket } = useWebSocket();
+  const navigate = useNavigate();
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
@@ -81,8 +83,10 @@ const PongGame: React.FC = (): any => {
     setStart(0);
     setScorePlayer(0);
     setScoreOpponent(0);
+    // setOpponent(0);
     if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     if (pongSocket !== null) pongSocket.off('history', handleHistory);
+    navigate('/');
   };
 
   const handleSocketData = (data: any): void => {
@@ -95,11 +99,12 @@ const PongGame: React.FC = (): any => {
     // setPlaying(data.playing);
     setTime(data.time);
     setStart(data.start);
+    if (data.opponent_id !== 0 && data.opponent_id !== null && data.opponent_id !== undefined)
+      me.opponent = data.opponent_id;
   };
 
   const handleHistory = (): void => {
-    console.log('help');
-    postAddMatch(me.id, opponentId)
+    postAddMatch(me.id, me.opponent)
       .then((req) => {
         console.log(req);
         if (req.message === 'ok') notifyToasterSuccess('You won !');
@@ -119,8 +124,11 @@ const PongGame: React.FC = (): any => {
   }, []);
 
   useEffect(() => {
-    if (pongSocket !== null) pongSocket.on('time_packet', handleSocketData);
     if (pongSocket !== null) pongSocket.on('end_game_packet', handleEndGame);
+  }, []);
+
+  useEffect(() => {
+    if (pongSocket !== null) pongSocket.on('time_packet', handleSocketData);
     if (pongSocket !== null) window.addEventListener('popstate', handlePopstate);
     const canvas = canvasRef.current;
     if (canvas == null) return;
@@ -251,7 +259,6 @@ const PongGame: React.FC = (): any => {
       window.removeEventListener('popstate', handlePopstate);
       canvas.removeEventListener('mousemove', handleMouseMove);
       if (pongSocket !== null) pongSocket.off('time_packet', handleSocketData);
-      if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     };
   }, [time]);
 

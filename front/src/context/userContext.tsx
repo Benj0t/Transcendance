@@ -11,6 +11,7 @@ export const UserContext = createContext<context>({
     id: 0,
     nickname: '',
     yPcent: 0,
+    opponent: 0,
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUser: () => {},
