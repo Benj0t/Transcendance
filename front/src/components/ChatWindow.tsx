@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Paper } from '@mui/material';
-// import GetUserById from '../requests/getUserById';
+import GetUserById from '../requests/getUserById';
 interface channelMessagesResponse {
   channel_id: number;
   user_id: number;
@@ -12,23 +12,22 @@ interface ChatWindowProps {
   messages: channelMessagesResponse[];
   onSendMessage: (message: { text: string; sender: string }) => void;
 }
-// const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) => {
-// const [members, setMembers] = useState<any>();
-// useEffect(() => {
-//   const size = messages.length;
-//   const datas: any[][] = [];
-//   for (let i = 0; i < size; i++) {
-//     GetUserById(messages[i].user_id)
-//       .then((req) => {
-//         datas.push([req.id, req.nickname]);
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//       });
-//   }
-//   setMembers(datas);
-// }, [messages]);
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) => {
+  const [members, setMembers] = useState<any>();
+  useEffect(() => {
+    const size = messages.length;
+    const datas: any[] = [];
+    for (let i = 0; i < size; i++) {
+      GetUserById(messages[i].user_id)
+        .then((req) => {
+          datas.push([req.nickname]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setMembers(datas);
+  }, [messages]);
   return (
     <Paper
       style={{
@@ -48,10 +47,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) 
               marginBottom: '8px',
             }}
           >
-            <strong style={{ color: msg.user_id === me ? 'blue' : 'red' }}>
-              {/* {members[members.findIndex((element: number[]) => msg.user_id === element[0])} */}
-              {msg.user_id}
-            </strong>{' '}
+            <strong style={{ color: msg.user_id === me ? 'blue' : 'red' }}>{members[index]}</strong>
             {msg.message}
           </div>
         ))}
