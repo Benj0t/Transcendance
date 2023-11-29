@@ -7,6 +7,7 @@ import getUserMe from '../requests/getUserMe';
 import LoadingPage from './LoadingPage';
 import postAddFriend from '../requests/postAddFriend';
 import {
+  notifyToasterError,
   // notifyToasterError,
   notifyToasterInfo,
   notifyToasterInivtation,
@@ -31,6 +32,7 @@ const columns = [
 
 const FriendList: React.FC = () => {
   const [error, setError] = useState('');
+  const [newFriend, setNewFriend] = useState(0);
   const [userId, setUserId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [addName, setAddName] = useState('');
@@ -66,21 +68,23 @@ const FriendList: React.FC = () => {
       postAddFriend(parseInt(addName))
         .then((req) => {
           console.log(req);
-          if (req.message === 'ok') notifyToasterSuccess('Votre ami à été ajouté avec succès !');
-          else {
+          if (req.message.add_user_friend === 'ok') {
+            notifyToasterSuccess('Votre ami à été ajouté avec succès !');
+            setNewFriend((prevstate) => prevstate + 1);
+          } else {
             notifyToasterInfo('Vous êtes déjà ami avec cet utilisateur!');
           }
         })
         .catch((err) => {
           console.log(err);
-          // notifyToasterError(`Impossible d'ajouter l'identifiant: ${addName}`);
-          alert('AAA');
+          notifyToasterError(`Impossible d'ajouter l'identifiant: ${addName}`);
         });
       setAddName('');
     }
   };
 
   useEffect(() => {
+    setRows([]);
     getUserMe()
       .then((req) => {
         setUserId(req.id);
@@ -115,7 +119,7 @@ const FriendList: React.FC = () => {
     setLoading(false);
     const test = fetchData();
     void test;
-  }, []);
+  }, [newFriend]);
   // if (error !== '') return <h1>Something bad happened: {error}</h1>;
   if (loading) return <LoadingPage />;
   console.log(error);

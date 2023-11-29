@@ -61,8 +61,9 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     const data = [];
     const size = member.length;
     for (let i = 0; i < size; i++) {
-      data.push(friendsId[member[i]].friend_id);
+      if (friendsId[member[i]].friend_id !== me) data.push(friendsId[member[i]].friend_id);
     }
+    data.unshift(me);
     return data;
   };
 

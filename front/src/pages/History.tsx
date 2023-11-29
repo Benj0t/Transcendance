@@ -97,7 +97,7 @@ const History: React.FC = () => {
             addscore = `${uscore2}-${uscore1}`;
           }
           if (matches[i].user_id !== me.id) opponent = await GetUserById(matches[i].user_id);
-          else opponent = await GetUserById(matches[i].opponent_id);
+          else opponent = await GetUserById(matches[i].opponentId);
           const opponentName = opponent.nickname;
           const addGameLength = `${uduration}s`;
           const addrow = {

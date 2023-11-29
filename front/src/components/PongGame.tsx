@@ -110,8 +110,8 @@ const PongGame: React.FC = (): any => {
     // setPlaying(data.playing);
     setTime(data.time);
     setStart(data.start);
-    if (data.opponent_id !== 0 && data.opponent_id !== null && data.opponent_id !== undefined)
-      me.opponent = data.opponent_id;
+    if (data.opponentId !== 0 && data.opponentId !== null && data.opponentId !== undefined)
+      me.opponent = data.opponentId;
   };
 
   const handleHistory = (): void => {

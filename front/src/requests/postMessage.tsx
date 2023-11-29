@@ -12,10 +12,10 @@ const postMessage = async (
   message: string,
 ): Promise<channelMessagesResponse[]> => {
   const requestData = {
-    mesaage: message,
+    message,
   };
 
-  const response = await axios.post(`channels/${channelId}/messages'`, requestData);
+  const response = await axios.post(`api/channels/${channelId}/messages`, requestData);
 
   return response.data;
 };

@@ -51,7 +51,6 @@ const Chat: React.FC = () => {
   const [history, setHistory] = useState<channelMessagesResponse[]>([]);
 
   const [message, setMessage] = useState('');
-
   const onSendMessage = (message: string): void => {
     postMessage(selectChannel, message)
       .then(() => {
@@ -102,9 +101,6 @@ const Chat: React.FC = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
-
-  useEffect(() => {
     getChannelUsers(selectChannel)
       .then((req) => {
         setChannelMembers(req);
@@ -112,9 +108,6 @@ const Chat: React.FC = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectChannel]);
-
-  useEffect(() => {
     getChannelMessages(selectChannel)
       .then((req) => {
         setHistory(req);
@@ -122,9 +115,6 @@ const Chat: React.FC = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectChannel]);
-
-  useEffect(() => {
     getUserMe()
       .then((req) => {
         if (req === undefined) setError(true);
@@ -135,7 +125,7 @@ const Chat: React.FC = () => {
         setError(true);
       });
     setLoading(false);
-  }, []);
+  }, [selectChannel]);
 
   if (loading) return <LoadingPage />;
   if (error) return <h1>Something bad Happened</h1>;

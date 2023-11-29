@@ -27,7 +27,7 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
     const size = channelMembers.length;
     const datas: any[][] = [];
     for (let i = 0; i < size; i++) {
-      GetUserById(channelMembers[i].channel_id)
+      GetUserById(channelMembers[i].user_id)
         .then((req) => {
           datas.push([req.id, req.nickname]);
         })
@@ -38,7 +38,6 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
     setMembers(datas);
     setLoading(false);
   }, [channelMembers]);
-
   const handleItemClick = (value: number): void => {
     console.log(channelMembers.find((item) => item.user_id === value));
   };
@@ -47,7 +46,6 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
   return (
     <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
       {members.map((_value: any, index: number) => {
-        // Set Friends ID instead of random numbers
         const labelId = `list-${index}`;
         return (
           <ListItem key={index} disablePadding>

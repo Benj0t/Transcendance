@@ -552,6 +552,40 @@ export class ApiController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('channels/:channel_id/members')
+  getMembers(@Param('channel_id') channelId: number): Promise<ChannelHasMemberEntity[]> {
+    console.log('Je suis bien la ');
+    try {
+      console.log(channelId);
+      return this.channel_service.getMembers(channelId);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
+
+  /**
+   * Get the messages of a channel
+   * 
+   * @param channel_id The id of the channel. 
+   * 
+   * @returns The messages of this channel.
+   * 
+   * @author Komqdo
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('channels/:channel_id/messages')
+  getMessages(@Param('channel_id') channelId: number): Promise<ChannelHasMessageEntity[]> {
+    console.log('hehe');
+    try {
+      console.log(channelId);
+      return this.channel_service.getMessages(channelId);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
   /**
    * Create a channel between many users.
    * 
@@ -620,25 +654,6 @@ export class ApiController {
   }
 
   /**
-   * Get the messages of a channel
-   * 
-   * @param channel_id The id of the channel. 
-   * 
-   * @returns The messages of this channel.
-   * 
-   * @author Komqdo
-   */
-  @UseGuards(JwtAuthGuard)
-  @Get('channels/:channel_id/messages')
-  getMessages(@Param('channel_id') channelId: number): Promise<ChannelHasMessageEntity[]> {
-    try {
-      return this.channel_service.getMessages(channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
-
-  /**
    * Get the members of a channel
    * 
    * @param channel_id The id of the channel. 
@@ -647,15 +662,6 @@ export class ApiController {
    * 
    * @author Komqdo
    */
-  @UseGuards(JwtAuthGuard)
-  @Get('channels/:channel_id/members')
-  getMembers(@Param('channel_id') channelId: number): Promise<ChannelHasMemberEntity[]> {
-    try {
-      return this.channel_service.getMembers(channelId);
-    } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
-    }
-  }
 
   /**
    * Get the banned users of a channel
