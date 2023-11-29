@@ -10,6 +10,7 @@ import { useWebSocket } from '../context/pongSocket';
 import { notifyToasterSuccess } from './utils/toaster';
 import { useNavigate } from 'react-router';
 // import { notifyToasterSuccess } from './utils/toaster';
+import { CircularProgress } from '@mui/material';
 
 const PongGame: React.FC = (): any => {
   // const pongSocket = getPongSocket();
@@ -297,6 +298,7 @@ const PongGame: React.FC = (): any => {
             >
               <center>
                 <h3> Waiting for opponent... </h3>
+                <CircularProgress />
               </center>
             </div>
           )

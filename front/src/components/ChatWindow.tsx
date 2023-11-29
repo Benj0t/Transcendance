@@ -1,11 +1,18 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
+interface channelMessagesResponse {
+  channel_id: number;
+  user_id: number;
+  message: string;
+  created_at: Date;
+}
 interface ChatWindowProps {
-  messages: Array<{ text: string; sender: string }>;
+  me: number;
+  messages: channelMessagesResponse[];
   onSendMessage: (message: { text: string; sender: string }) => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) => {
   return (
     <Paper
       style={{
@@ -21,12 +28,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage }) => {
           <div
             key={index}
             style={{
-              textAlign: msg.sender === 'You' ? 'right' : 'left',
+              textAlign: msg.user_id === me ? 'right' : 'left',
               marginBottom: '8px',
             }}
           >
-            <strong style={{ color: msg.sender === 'You' ? 'blue' : 'red' }}>{msg.sender}: </strong>{' '}
-            {msg.text}
+            <strong style={{ color: msg.user_id === me ? 'blue' : 'red' }}>{msg.user_id}: </strong>{' '}
+            {msg.message}
           </div>
         ))}
       </Box>

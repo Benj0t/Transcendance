@@ -16,22 +16,26 @@ import CreateChannel from '../requests/postCreateChannel';
 import LoadingPage from '../pages/LoadingPage';
 import getUserFriends, { type getUserFriendsRequest } from '../requests/getUserFriends';
 import GetUserById from '../requests/getUserById';
+import { notifyToasterError, notifyToasterInfo, notifyToasterSuccess } from './utils/toaster';
 
-const ButtonCreateChannel: React.FC = () => {
+const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
   const [open, setOpen] = useState(false);
-  const [passEnable, setPassEnable] = useState<boolean>(true);
+  const [passEnable, setPassEnable] = useState<boolean>(false);
   const [name, setName] = useState('');
   const [pass, setPass] = useState('');
-  const [error, setError] = useState(false);
+  const [member, setMember] = useState<number[]>([]);
+
   const [friendsId, setFriendsId] = useState<getUserFriendsRequest[]>([]);
   const [friendsName, setFriendsName] = useState<string[]>([]);
-  const [member, setMember] = useState<number[]>([]);
+
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const handleChange = (event: SelectChangeEvent<typeof member>): void => {
     const options = event.target.value as number[];
     const value: number[] = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
+      console.log('New member: ', options[i]);
       value.push(options[i]);
     }
     setMember(value);
@@ -51,13 +55,34 @@ const ButtonCreateChannel: React.FC = () => {
     if (reason !== 'backdropClick') {
       setOpen(false);
     }
+    setMember([]);
   };
-  const handleSubmit = (): void => {
-    CreateChannel(name, pass, member).finally(() => {
-      console.log('channel created');
-    });
+  const getMembersId = (): number[] => {
+    const data = [];
+    const size = member.length;
+    for (let i = 0; i < size; i++) {
+      data.push(friendsId[member[i]].friend_id);
+    }
+    return data;
   };
 
+  const handleSubmit = (): void => {
+    if (member.find((element) => element === me) === null) member.unshift(me);
+    CreateChannel(name, passEnable ? pass : '', getMembersId())
+      .then((req) => {
+        console.log(req);
+        if (req === 'ok') {
+          notifyToasterSuccess('Channel created');
+          setOpen(false);
+          setMember([]);
+        } else {
+          notifyToasterInfo(req);
+        }
+      })
+      .catch((err) => {
+        notifyToasterError(err);
+      });
+  };
   useEffect(() => {
     getUserFriends()
       .then((req) => {
@@ -84,6 +109,7 @@ const ButtonCreateChannel: React.FC = () => {
     }
     setLoading(false);
   }, [friendsId]);
+  if (me === 0) return <></>;
   if (error) return <p>Error: could not resolve data</p>;
   if (loading) return <LoadingPage />;
   return (
@@ -123,11 +149,11 @@ const ButtonCreateChannel: React.FC = () => {
             </FormControl>
             <FormControl sx={{ m: 1 }}>
               <FormControlLabel
-                control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
+                control={<Checkbox checked={passEnable} onChange={handleEnablePass} />}
                 label="Channel privé"
               />
               <TextField
-                disabled={passEnable}
+                disabled={!passEnable}
                 label="Mot de Passe"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setPass(event.target.value);

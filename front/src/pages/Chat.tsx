@@ -13,56 +13,53 @@ import { useWebSocket } from '../context/pongSocket';
 import { useNavigate } from 'react-router';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import { notifyToasterInivtation } from '../components/utils/toaster';
+import getUserMe from '../requests/getUserMe';
+import postMessage from '../requests/postMessage';
+import LoadingPage from './LoadingPage';
+import getChannelUsers from '../requests/getChannelUsers';
+import getChannelMessages from '../requests/getChannelMessages';
+
+interface channelUsersResponse {
+  channel_id: number;
+  user_id: number;
+  role: number;
+  mute_expiry_at?: Date;
+}
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
+
+interface channelMessagesResponse {
+  channel_id: number;
+  user_id: number;
+  message: string;
+  created_at: Date;
+}
 
 const Chat: React.FC = () => {
-  const fakeDatas: Record<number, Array<{ text: string; sender: string }>> = {
-    1: [
-      { text: 'Salut !', sender: 'Michel' },
-      { text: 'Salut !', sender: 'You' },
-      { text: 'Salut !', sender: 'Michel' },
-      { text: 'Salut !', sender: 'You' },
-    ],
-    10: [
-      { text: 'Coucou !', sender: 'Sophie' },
-      { text: 'Coucou !', sender: 'You' },
-      { text: 'Coucou !', sender: 'Sophie' },
-      { text: 'Coucou !', sender: 'You' },
-    ],
-    100: [
-      { text: 'Hello !', sender: 'Jack' },
-      { text: 'Hello !', sender: 'You' },
-    ],
-    1000: [
-      { text: 'Bonjour !', sender: 'You' },
-      { text: 'Bonjour !', sender: 'Steve' },
-      { text: 'Bonjour !', sender: 'You' },
-    ],
-  };
-
-  const channelsMembers = [
-    { id: 1, names: ['Michel'] },
-    { id: 10, names: ['Sophie'] },
-    { id: 100, names: ['Jack'] },
-    { id: 1000, names: ['Michel', 'Jacky', 'Medhi', 'Elias', 'Daniel'] },
-  ];
-
-  const channelTest = getUserChannels();
-  console.log('Channels: ', channelTest);
-
-  const channels = [
-    { id: 1, name: 'Michel' },
-    { id: 10, name: 'Sophie' },
-    { id: 100, name: 'Jack' },
-    { id: 1000, name: 'Les copains' },
-  ];
-
-  const [selectChannel, setSelectChannel] = useState(1);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [history, setHistory] = useState(fakeDatas[selectChannel]);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState<getUserMeResponse>();
+  const [channel, setChannel] = useState<any[]>([]);
+  const [channelMembers, setChannelMembers] = useState<channelUsersResponse[]>([]);
+  const [selectChannel, setSelectChannel] = useState(0);
+  const [history, setHistory] = useState<channelMessagesResponse[]>([]);
 
   const [message, setMessage] = useState('');
-  const onSendMessage = (message: { text: string; sender: string }): void => {
-    setHistory([...history, message]);
+
+  const onSendMessage = (message: string): void => {
+    postMessage(selectChannel, message)
+      .then(() => {
+        // LALALALA VOXY
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     console.log(message);
   };
   const { pongSocket, createSocket } = useWebSocket();
@@ -92,16 +89,57 @@ const Chat: React.FC = () => {
 
   const handleSendMessage = (): void => {
     if (message.trim() !== '') {
-      onSendMessage({ text: message, sender: 'You' });
+      onSendMessage(message);
       setMessage('');
     }
   };
+
   useEffect(() => {
-    const selectedData = fakeDatas[selectChannel];
-    if (selectedData !== undefined) {
-      setHistory(selectedData);
-    }
+    getUserChannels()
+      .then((req) => {
+        setChannel(req);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    getChannelUsers(selectChannel)
+      .then((req) => {
+        setChannelMembers(req);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [selectChannel]);
+
+  useEffect(() => {
+    getChannelMessages(selectChannel)
+      .then((req) => {
+        setHistory(req);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [selectChannel]);
+
+  useEffect(() => {
+    getUserMe()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setMe(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    setLoading(false);
+  }, []);
+
+  if (loading) return <LoadingPage />;
+  if (error) return <h1>Something bad Happened</h1>;
+  if (me === undefined) return <></>;
   return (
     <Box
       textAlign="right"
@@ -129,10 +167,10 @@ const Chat: React.FC = () => {
         margin="0"
       >
         <Box id="channelMembersList">
-          <MemberList channelsMembers={channelsMembers} channel={selectChannel} />
+          <MemberList channelMembers={channelMembers} />
         </Box>
         <Box id="Chat" width="100%" maxHeight="70%">
-          <ChatWindow messages={history} onSendMessage={handleSendMessage} />
+          <ChatWindow messages={history} onSendMessage={handleSendMessage} me={me.id} />
           <Box
             style={{
               display: 'grid',
@@ -142,10 +180,9 @@ const Chat: React.FC = () => {
             }}
           >
             <ChatSelect
-              setIsAdmin={setIsAdmin}
-              channelsList={channels}
               changeChannel={setSelectChannel}
               channel={selectChannel}
+              channelsList={channel}
             />
             <ChatInput
               message={message}
@@ -155,9 +192,9 @@ const Chat: React.FC = () => {
           </Box>
         </Box>
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
-          <ButtonCreateChannel />
+          <ButtonCreateChannel me={me.id} />
           <ButtonJoinChannel />
-          <AdminPanel isAdmin={isAdmin} />
+          <AdminPanel isAdmin />
         </Box>
       </Box>
     </Box>
