@@ -38,10 +38,9 @@ const PongGame: React.FC = (): any => {
   const param1 = params.get('param');
   const tmp = typeof param1 === 'string' ? param1 : '';
   const invited = tmp;
+
   useEffect(() => {
-    console.log(invited);
     if (invited !== null && tmp !== '' && tmp !== undefined) {
-      console.log(parseInt(invited));
       sendDualPacket(parseInt(invited));
     }
     if (pongSocket === null) {

@@ -40,7 +40,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   update() {
 
-    for (const connected of this.connecteds) { // for each connected
+    for (const connected of this.connecteds) {
       this.sendTimePacket(connected);
       this.checkMatchStart(connected);
     }
@@ -62,9 +62,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 			to_left = connected.match.user1.userId != connected.getUserId();
 
 			const opponent: Racket = to_left ? connected.match.getArea().getPlayer() : connected.match.getArea().getOpponent();
-
 			opponent_y_pcent = opponent.getLocation().getYPercent();
-
 			match_time = connected.match.time.getTickValue();
 		}
 
@@ -74,7 +72,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
         connected.hasMatch() ? connected.match.scoreUser2 : null,
         connected.hasMatch() ? connected.match.start : null,
         connected.hasMatch() ? connected.opponentId : null);
-        // connected.hasMatch() ? console.log(connected.match.user1.getUserId()) : console.log('');
     connected.client.emit('time_packet', packet);
   }
 
@@ -87,10 +84,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     const found = this.connecteds.find(connected => connected.userId === userId);
     return found || null;
   }
-
-  // isConnected(userId: number): boolean {
-  //     return (this.connecteds => )
-  // }
 
   async handleConnection(client: Socket) {
     const tmp = new Connected(this, client);
@@ -111,12 +104,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('keep_alive_packet')
   handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
-    // console.log("received keep_alive_packet from", client.id);
     const connected: Connected = this.getConnected(client);
-
-    connected.lastSocketTimestamp = Date.now(); // temps actuel en ms
-    // console.log(packet.yPcent);
-
+    connected.lastSocketTimestamp = Date.now();
     if (connected.hasMatch() && packet.yPcent != null) {
       connected.match.getRacket(connected).getLocation().setY(packet.yPcent);
     }
@@ -137,7 +126,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       return ;
     }
 
-    if (connected.userId === packet.opponentId) { // ==
+    if (connected.userId === packet.opponentId) {
      console.log(`[ERR] user dual himself.`);
       return ;
     }
@@ -162,7 +151,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
     if (connected.hasMatch()) {
       connected.match.forfeit(connected.opponentId);
-      // connected.match.close();
       return ;
     }
 

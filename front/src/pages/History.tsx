@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router';
 
 interface Row {
   id: number;
-  avatar: any;
   name: any;
   result: string;
   score: string;
@@ -21,7 +20,6 @@ interface Row {
 }
 
 const columns = [
-  { field: 'avatar', headerName: 'Opponent', width: 200 },
   { field: 'name', headerName: 'Name', width: 200 },
   { field: 'result', headerName: 'Result', width: 200 },
   { field: 'score', headerName: 'Score', width: 200 },
@@ -100,12 +98,10 @@ const History: React.FC = () => {
           }
           if (matches[i].user_id !== me.id) opponent = await GetUserById(matches[i].user_id);
           else opponent = await GetUserById(matches[i].opponent_id);
-          const opponentAvatar = opponent.avatar_base64;
           const opponentName = opponent.nickname;
           const addGameLength = `${uduration}s`;
           const addrow = {
             id: gameid,
-            avatar: opponentAvatar,
             name: opponentName,
             result: addresult,
             score: addscore,

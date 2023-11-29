@@ -25,7 +25,6 @@ import { SocketProvider, useWebSocket } from './context/pongSocket';
 // import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
-  console.log(Cookies.get('jwt'));
   if (Cookies.get('jwt') === undefined) {
     return <LoginPage />;
   }
@@ -34,7 +33,6 @@ function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
 
 function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
   const cookie = Cookies.get('jwt');
-  // console.log(cookie);
   void cookie;
   if (Cookies.get('jwt') === undefined) {
     return <AuthCallback />;
