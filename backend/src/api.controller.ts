@@ -157,6 +157,31 @@ export class ApiController {
     }
   }
 
+    /**
+   * Get the match history for an user.
+   * 
+   * @param id  The user id.
+   * 
+   * @returns   The match history for the specified user.
+   * 
+   * @author Komqdo
+   */
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('user/matches')
+  async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
+
+    try {
+
+      const matches = await this.user_service.getMatches(id);
+
+      return matches;
+
+    } catch (error) {
+      throw new NotFoundException('Error: ' + error);
+    }
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('user/:id')
   async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
@@ -257,31 +282,6 @@ export class ApiController {
   }
 
   /**
-   * Get the match history for an user.
-   * 
-   * @param id  The user id.
-   * 
-   * @returns   The match history for the specified user.
-   * 
-   * @author Komqdo
-   */
-
-  @UseGuards(JwtAuthGuard)
-  @Get('user/matches')
-  async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
-
-    try {
-
-      const matches = await this.user_service.getMatches(id);
-
-      return matches;
-
-    } catch (error) {
-      throw new NotFoundException('Error: ' + error);
-    }
-  }
-
-  /**
    * Add a match.
    * 
    * @param user_id     The user id. 
@@ -297,17 +297,16 @@ export class ApiController {
   @Post('user/matches')
   async addMatch(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
-    @Query('opponent_id') opponent_id: number,
-    @Query('winner_id') winner_id: number,
+    @Body() requestBody: { opponent_id: number; winner_id: number; score_user_1: number; score_user_2: number; match_duration: number }
   ): Promise<{ message: string }> {
-
     try {
+      const { opponent_id, winner_id, score_user_1, score_user_2, match_duration } = requestBody;
 
-      const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id);
+      const message = await this.user_service.addMatch(jwtPayload.sub, opponent_id, winner_id, score_user_1, score_user_2, match_duration);
       return { message };
 
     } catch (error) {
-      throw new NotFoundException(`Not found: ` + error);
+      throw error;
     }
   }
   

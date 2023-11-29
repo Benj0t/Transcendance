@@ -16,6 +16,8 @@ import Racket from "src/utils/Racket";
 import { PacketInDual } from "./packet/PacketInDual";
 import { PacketInDualCancel } from "./packet/PacketInDualCancel";
 import { PacketInHandshake } from "./packet/PacketInHandshake";
+import { PacketInInvite } from "./packet/PacketInvite";
+import { PacketReceived } from "./packet/PacketReceived";
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
@@ -38,13 +40,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   update() {
 
-    for (const connected of this.connecteds) { // for each connected
+    for (const connected of this.connecteds) {
       this.sendTimePacket(connected);
-      // if (connected.isTimeout()) {
-      //   connected.close();
-      //   console.log(`[LOG] ${connected.socket} : timed out.`);
-      //   continue;
-      // }
       this.checkMatchStart(connected);
     }
     this.updateMatches();
@@ -56,17 +53,16 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 		let to_left: boolean = null;
 		let opponent_y_pcent: number = null;
 		let match_time: number = null;
+    let opponent_id: number = null;
 
 		if (connected.hasMatch()) {
-
+      opponent_id = connected.match.user1.opponentId;
 			ball_x_pcent = connected.match.getArea().getBall().getLocation().getXPercent();
 			ball_y_pcent = connected.match.getArea().getBall().getLocation().getYPercent();
 			to_left = connected.match.user1.userId != connected.getUserId();
 
 			const opponent: Racket = to_left ? connected.match.getArea().getPlayer() : connected.match.getArea().getOpponent();
-
 			opponent_y_pcent = opponent.getLocation().getYPercent();
-
 			match_time = connected.match.time.getTickValue();
 		}
 
@@ -74,8 +70,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 				ball_x_pcent, ball_y_pcent, to_left, opponent_y_pcent, connected.opponentId,
 				connected.hasMatch(), match_time, connected.hasMatch() ? connected.match.scoreUser1 : null,
         connected.hasMatch() ? connected.match.scoreUser2 : null,
-        connected.hasMatch() ? connected.match.start : null );
-
+        connected.hasMatch() ? connected.match.start : null,
+        connected.hasMatch() ? connected.opponentId : null);
     connected.client.emit('time_packet', packet);
   }
 
@@ -89,10 +85,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     return found || null;
   }
 
-  // isConnected(userId: number): boolean {
-  //     return (this.connecteds => )
-  // }
-
   async handleConnection(client: Socket) {
     const tmp = new Connected(this, client);
 
@@ -104,7 +96,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       this.getConnected(client).opponentId = null;
     if (this.getConnected(client))
       this.getConnected(client).close();
-;
   }
 
   onModuleDestroy(): void {
@@ -113,12 +104,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('keep_alive_packet')
   handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
-    // console.log("received keep_alive_packet from", client.id);
     const connected: Connected = this.getConnected(client);
-
-    connected.lastSocketTimestamp = Date.now(); // temps actuel en ms
-    // console.log(packet.yPcent);
-
+    connected.lastSocketTimestamp = Date.now();
     if (connected.hasMatch() && packet.yPcent != null) {
       connected.match.getRacket(connected).getLocation().setY(packet.yPcent);
     }
@@ -139,9 +126,8 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       return ;
     }
 
-    if (connected.userId == packet.opponentId) {
+    if (connected.userId === packet.opponentId) {
      console.log(`[ERR] user dual himself.`);
-      // System.exit(1); ??
       return ;
     }
 
@@ -149,9 +135,14 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     return ;
   }
 
+  @SubscribeMessage('invite_packet')
+  handleInvitePacket(client: Socket, packet: PacketInInvite): void {
+    const invited = this.getConnectedByUserId(packet.opponentId);
+    if (invited !== null) invited.client.emit('invite_received', new PacketReceived(packet.senderId));
+  }
+
   @SubscribeMessage('dual_cancel_packet')
   handleDualCancelPacket(client: Socket, packet: PacketInDualCancel): void {
-    console.log("received dual_cancel_packet from", client.id);
     const connected: Connected = this.getConnected(client);
 
     if (connected.opponentId === null) {
@@ -159,40 +150,40 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
 
     if (connected.hasMatch()) {
-      connected.match.close();
+      connected.match.forfeit(connected.opponentId);
       return ;
     }
 
     connected.opponentId = null;
   }
 
-  createMatch(user1: Connected, user2: Connected) {
+  createMatch(user1: Connected, user2: Connected, mode: number) {
     if (user1.hasMatch() || user2.hasMatch()) return;
 
-    const match = new Match(user1, user2);
+    const match = new Match(user1, user2, mode);
     match.init();
     this.matches.add(match);
   }
 
   checkMatchStart(connected: Connected) {
     if (!connected.hasMatch() && connected.opponentId !== null) {
-      if (connected.opponentId === 0) {
-        const opponent = this.getWaitingOpponent(connected.userId);
+      if (connected.opponentId === 0 || connected.opponentId === -1 || connected.opponentId === -2) {
+        const opponent = this.getWaitingOpponent(connected.userId, connected.opponentId);
         console.log(
-          `[LOG] ${connected.client.id}: searching opponent...: ${opponent?.client.id}`
+          `[LOG] ${connected.client.id}: searching opponent...`
         );
 
         if (opponent) {
           console.log(
-            `[LOG] ${connected.client.id}: found opponent: ${opponent.client.id}`
+            `[LOG] ${connected.client.id}: found opponent: ${opponent.op.client.id}`
           );
-          this.createMatch(connected, opponent);
+          this.createMatch(connected, opponent.op, opponent.mode);
         }
       } else {
         const opponent = this.getConnectedByUserId(connected.opponentId);
 
         if (opponent && opponent.opponentId !== null && opponent.opponentId === connected.userId) {
-          this.createMatch(connected, opponent);
+          this.createMatch(connected, opponent, 0);
         }
       }
     }
@@ -204,14 +195,14 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
   }
 
-  getWaitingOpponent(searcherId: number) {
+  getWaitingOpponent(searcherId: number, mode: number) {
     for (const connected of Array.from(this.connecteds)) {
       if (connected.userId === searcherId) {
         continue;
       }
 
-      if (connected.opponentId !== null && connected.opponentId === 0 && !connected.hasMatch()) {
-        return connected;
+      if (connected.opponentId !== null && connected.opponentId === mode && !connected.hasMatch()) {
+        return {op: connected, mode: mode};
       }
     }
     return null;

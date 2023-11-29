@@ -1,5 +1,4 @@
 import { Logout, Settings } from '@mui/icons-material';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import PeopleIcon from '@mui/icons-material/People';
 import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from '@mui/material';
 import React from 'react';
@@ -22,9 +21,6 @@ const ProfileButton: React.FC = () => {
   };
   const onClickHistory = (): void => {
     navigate('/history');
-  };
-  const onClickStats = (): void => {
-    navigate('/statistics');
   };
   const onClickSettings = (): void => {
     navigate('/settings');
@@ -93,12 +89,6 @@ const ProfileButton: React.FC = () => {
             <CalendarMonthIcon fontSize="small" />
           </ListItemIcon>
           Historique
-        </MenuItem>
-        <MenuItem onClick={onClickStats}>
-          <ListItemIcon>
-            <BarChartIcon fontSize="small" />
-          </ListItemIcon>
-          Statistiques
         </MenuItem>
         <Divider />
         <MenuItem onClick={onClickSettings}>
