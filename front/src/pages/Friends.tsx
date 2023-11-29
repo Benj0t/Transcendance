@@ -20,6 +20,7 @@ import {
   notifyToasterSuccess,
 } from '../components/utils/toaster';
 import { useNavigate } from 'react-router';
+import ProfileButton from '../components/profileButton';
 
 interface Row {
   id: number;
@@ -38,27 +39,49 @@ const FriendList: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
   const columns = [
-    { field: 'avatar', headerName: 'Avatar', width: 300 },
-    { field: 'name', headerName: 'Username', width: 300 },
-    { field: 'status', headerName: 'Status', width: 300 },
+    { field: 'avatar', headerName: 'Avatar', width: 1200 / 5 },
+    { field: 'name', headerName: 'Username', width: 1200 / 5 },
+    { field: 'status', headerName: 'Status', width: 100 },
     {
       field: 'invite', // Colonne pour le bouton Invite To Play
       headerName: 'Invite To Play',
-      width: 300,
-      renderCell: (params: { row: { id: number } }) => (
-        <Button variant="outlined" onClick={() => handleInviteClick(params.row.id)}>
+      width: 1200 / 5,
+      renderCell: (params: { row: { id: number } }): any => (
+        <Button
+          variant="outlined"
+          style={{ width: '200px' }}
+          onClick={() => handleInviteClick(params.row.id)}
+        >
           Invite Friend
         </Button>
       ),
     },
+    {
+      field: 'block', // Colonne pour le bouton bloquer joueur
+      headerName: 'Block Player',
+      width: 1200 / 5,
+      renderCell: (params: { row: { id: number } }): any => (
+        <Button
+          variant="outlined"
+          style={{ color: 'white', backgroundColor: 'red', width: '200px' }}
+          onClick={() => handleBlockButton(params.row.id)}
+        >
+          Block User
+        </Button>
+      ),
+    },
   ];
-  
-  const handleInviteClick = (friendId: number): void => {
+
+  const handleBlockButton = (BlockId: number): any => {
+    alert('User blocked');
+  };
+
+  const handleInviteClick = (friendId: number): any => {
     setSelectedFriendId(friendId);
     setOpenDialog(true);
   };
-  
-  const handleDialogClose = (confirmed: boolean): void => {
+
+  const handleDialogClose = (confirmed: boolean): any => {
     setOpenDialog(false);
     if (confirmed && selectedFriendId != null) {
       navigate('/loadingPage');
@@ -152,10 +175,20 @@ const FriendList: React.FC = () => {
         <h1 style={{ color: 'grey', textAlign: 'center' }}>AMIS</h1>
         <DataGrid density="comfortable" rows={rows} columns={columns} autoPageSize />
       </Box>
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
+      </Box>
       <Dialog open={openDialog} onClose={() => handleDialogClose(false)}>
         <DialogTitle>Confirmation</DialogTitle>
         <DialogContent>
-          <p>Êtes-vous sûr de vouloir inviter cet ami ?</p>
+          <p>Êtes-vous sûr ?</p>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => handleDialogClose(false)} color="primary">

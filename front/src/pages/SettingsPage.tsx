@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
 import LoadingPage from './LoadingPage';
+import ProfileButton from '../components/profileButton';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
@@ -66,6 +67,16 @@ const SettingsPage: React.FC = () => {
       alignItems="center"
       justifyContent="center"
     >
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
+      </Box>
       <Box
         width="80%"
         height="80%"

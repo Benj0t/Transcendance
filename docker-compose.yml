@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   postgres:
+    container_name: database
     build:
      context: ./database
     ports:
@@ -14,23 +15,28 @@ services:
     networks:
       - internal_network
 
-  backend:
-    build:
-      context: ./backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - internal_network
+  # backend:
+  #   container_name: back
+  #   build:
+  #     context: ./backend
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - internal_network
 
-  front:
-    build:
-      context: ./front
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+  # front:
+  #   container_name: front
+  #   build:
+  #     context: ./front
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./front/src:/app/src
+  #     - ./front/public:/app/public
+  #   depends_on:
+  #     - backend
 
 volumes:
   psql-data:

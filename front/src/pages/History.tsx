@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import React from 'react';
+import ProfileButton from '../components/profileButton';
 
 interface Row {
   id: number;
@@ -118,6 +119,16 @@ const History: React.FC = () => {
       alignItems="center"
       sx={{ height: '100%', width: '100%' }}
     >
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
+      </Box>
       <Box width="70%" height="70%">
         <h1 style={{ color: 'grey', textAlign: 'center' }}>HISTORIQUE</h1>
         <DataGrid density="standard" rows={rows} columns={columns} autoPageSize />

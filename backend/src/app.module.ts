@@ -30,7 +30,7 @@ import { ChannelModule } from './entities/channel.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       // if using docker containter, set host to postgres, else set host: 'localhost'
-      host: 'postgres',
+      host: 'localhost',
       port: 5432,
       username: 'app',
       password: 'apppassword',
