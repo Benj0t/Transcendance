@@ -15,7 +15,7 @@ const postMessage = async (
     message,
   };
 
-  const response = await axios.post(`api/channels/${channelId}/messages`, requestData);
+  const response = await axios.post(`channels/${channelId}/messages`, requestData);
 
   return response.data;
 };

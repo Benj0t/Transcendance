@@ -1,12 +1,12 @@
 import axios from '../components/utils/axios';
 
-const AddFriend = async (friendid: number): Promise<any> => {
+const deleteFriend = async (friendid: number): Promise<any> => {
   const requestData = {
     params: {
       friend_id: friendid,
     },
   };
-  const response = await axios.delete(`http://localhost:8080/api/user/friends/`, requestData);
+  const response = await axios.delete(`user/friends/`, requestData);
   return response.data;
 };
-export default AddFriend;
+export default deleteFriend;

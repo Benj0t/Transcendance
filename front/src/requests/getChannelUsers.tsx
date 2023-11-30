@@ -7,7 +7,7 @@ interface channelUsersResponse {
   mute_expiry_at?: Date;
 }
 const getChannelUsers = async (channelId: number): Promise<channelUsersResponse[]> => {
-  const response = await axios.get(`api/channels/${channelId}/members`);
+  const response = await axios.get(`channels/${channelId}/members`);
 
   return response.data;
 };

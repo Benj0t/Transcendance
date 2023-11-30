@@ -7,9 +7,7 @@ export interface getUserFriendsRequest {
 }
 
 const getUserFriends = async (): Promise<getUserFriendsRequest[]> => {
-  const response = await axios.get<getUserFriendsRequest[]>(
-    `http://localhost:8080/api/user/friends/`,
-  );
+  const response = await axios.get<getUserFriendsRequest[]>(`user/friends/`);
   return response.data;
 };
 

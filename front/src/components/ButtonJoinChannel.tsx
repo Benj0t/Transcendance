@@ -53,18 +53,18 @@ const ButtonJoinChannel: React.FC = () => {
   };
 
   const handleSubmit = (): void => {
-      joinChannel(name, passEnable ? hashedPass(pass) : '')
-        .then((req) => {
-          if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
-          else {
-            console.log('ici');
-            notifyToasterInfo(req);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          notifyToasterError('Could not join desired channel');
-        });
+    joinChannel(name, passEnable ? hashedPass(pass) : '')
+      .then((req) => {
+        if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
+        else {
+          console.log('ici');
+          notifyToasterInfo(req);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not join desired channel');
+      });
   };
   return (
     <div>

@@ -33,7 +33,6 @@ interface Row {
   status: string;
 }
 
-
 const FriendList: React.FC = () => {
   const [error, setError] = useState('');
   const [newFriend, setNewFriend] = useState(0);
@@ -58,7 +57,7 @@ const FriendList: React.FC = () => {
           variant="outlined"
           style={{ width: '200px' }}
           onClick={() => handleInviteClick(params.row.id)}
-        >         
+        >
           Invite Friend
         </Button>
       ),
@@ -78,23 +77,23 @@ const FriendList: React.FC = () => {
       ),
     },
   ];
-  
+
   const handleBlockButton = (BlockId: number): any => {
     alert('User blocked');
   };
-  
+
   const handleInviteClick = (friendId: number): any => {
     setSelectedFriendId(friendId);
     setOpenDialog(true);
   };
-  
+
   const handleDialogClose = (confirmed: boolean): any => {
     setOpenDialog(false);
     if (confirmed && selectedFriendId != null) {
       navigate('/loadingPage');
     }
   };
-  
+
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
