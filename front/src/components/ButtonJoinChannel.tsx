@@ -17,6 +17,25 @@ const ButtonJoinChannel: React.FC = () => {
   const [name, setName] = React.useState('');
   const [pass, setPass] = React.useState('');
 
+  const hashedPass = (pass: string): string => {
+    if ('crypto' in window) {
+      window.crypto.subtle
+        .digest('SHA-256', new TextEncoder().encode(pass))
+        .then((hashed) => {
+          const hashArray = Array.from(new Uint8Array(hashed));
+          const hashedPass = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+          console.log('Hashed password:', hashedPass);
+          return hashedPass;
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      console.error('Web Crypto API not supported in this browser');
+    }
+    return '';
+  };
+
   const handleEnablePass = (): void => {
     setPassEnable((prevState) => {
       return !prevState;
@@ -37,7 +56,7 @@ const ButtonJoinChannel: React.FC = () => {
     console.log(passEnable);
     if (!passEnable) return true;
     const regex = /^\S+$/;
-    return pass === '' || !regex.test(name);
+    return hashedPass(pass) === '' || !regex.test(name);
   };
 
   const handleSubmit = (): void => {
@@ -45,7 +64,7 @@ const ButtonJoinChannel: React.FC = () => {
     else if (!validatePass()) {
       notifyToasterError('Pass is invalid');
     } else {
-      joinChannel(name, passEnable ? pass : '')
+      joinChannel(name, passEnable ? hashedPass(pass) : '')
         .then((req) => {
           if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
           else {
