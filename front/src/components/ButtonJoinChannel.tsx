@@ -52,18 +52,7 @@ const ButtonJoinChannel: React.FC = () => {
     }
   };
 
-  const validatePass = (): boolean => {
-    console.log(passEnable);
-    if (!passEnable) return true;
-    const regex = /^\S+$/;
-    return hashedPass(pass) === '' || !regex.test(name);
-  };
-
   const handleSubmit = (): void => {
-    if (!/^[0-9]+$/.test(name)) notifyToasterError('ID must only contains digits');
-    else if (!validatePass()) {
-      notifyToasterError('Pass is invalid');
-    } else {
       joinChannel(name, passEnable ? hashedPass(pass) : '')
         .then((req) => {
           if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
@@ -76,7 +65,6 @@ const ButtonJoinChannel: React.FC = () => {
           console.log(err);
           notifyToasterError('Could not join desired channel');
         });
-    }
   };
   return (
     <div>

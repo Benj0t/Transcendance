@@ -25,11 +25,11 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
 
   useEffect(() => {
     const size = channelMembers.length;
-    const datas: any[][] = [];
+    const datas: any[] = [];
     for (let i = 0; i < size; i++) {
       GetUserById(channelMembers[i].user_id)
         .then((req) => {
-          datas.push([req.id, req.nickname]);
+          datas.push([req.nickname]);
         })
         .catch((err) => {
           console.log(err);
@@ -37,7 +37,8 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers }) => {
     }
     setMembers(datas);
     setLoading(false);
-  }, [channelMembers]);
+  }, []);
+
   const handleItemClick = (value: number): void => {
     console.log(channelMembers.find((item) => item.user_id === value));
   };
