@@ -10,6 +10,7 @@ import { PacketInInvite } from '../components/packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import { notifyToasterInivtation } from '../components/utils/toaster';
+import ProfileButton from '../components/profileButton';
 
 const SettingsPage: React.FC = () => {
   const [avatar, setAvatar] = useState('');
@@ -98,6 +99,16 @@ const SettingsPage: React.FC = () => {
       alignItems="center"
       justifyContent="center"
     >
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
+      </Box>
       <Box
         width="80%"
         height="80%"

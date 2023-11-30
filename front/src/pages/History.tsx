@@ -10,6 +10,7 @@ import { useWebSocket } from '../context/pongSocket';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import { notifyToasterInivtation } from '../components/utils/toaster';
 import { useNavigate } from 'react-router';
+import ProfileButton from '../components/profileButton';
 
 interface Row {
   id: number;
@@ -135,6 +136,16 @@ const History: React.FC = () => {
           <span style={{ textAlign: 'center' }}>Winrate: {winrate}%</span>
           <span style={{ textAlign: 'right' }}>{grade}</span>
         </h1>
+      </Box>
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
       </Box>
       <Box
         display="flex"

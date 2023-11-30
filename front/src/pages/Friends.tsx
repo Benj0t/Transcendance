@@ -16,6 +16,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useWebSocket } from '../context/pongSocket';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
+import ProfileButton from '../components/profileButton';
 
 interface Row {
   id: number;
@@ -24,11 +25,6 @@ interface Row {
   status: string;
 }
 
-const columns = [
-  { field: 'avatar', headerName: 'Avatar', width: 400 },
-  { field: 'name', headerName: 'Username', width: 400 },
-  { field: 'status', headerName: 'Status', width: 400 },
-];
 
 const FriendList: React.FC = () => {
   const [error, setError] = useState('');
@@ -39,7 +35,58 @@ const FriendList: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const { pongSocket, createSocket } = useWebSocket();
   const navigate = useNavigate();
-
+  const [selectedFriendId, setSelectedFriendId] = useState<number | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const columns = [
+    { field: 'avatar', headerName: 'Avatar', width: 1200 / 5 },
+    { field: 'name', headerName: 'Username', width: 1200 / 5 },
+    { field: 'status', headerName: 'Status', width: 100 },
+    {
+      field: 'invite', // Colonne pour le bouton Invite To Play
+      headerName: 'Invite To Play',
+      width: 1200 / 5,
+      renderCell: (params: { row: { id: number } }): any => (
+        <Button
+          variant="outlined"
+          style={{ width: '200px' }}
+          onClick={() => handleInviteClick(params.row.id)}
+        >         
+          Invite Friend
+        </Button>
+      ),
+    },
+    {
+      field: 'block', // Colonne pour le bouton bloquer joueur
+      headerName: 'Block Player',
+      width: 1200 / 5,
+      renderCell: (params: { row: { id: number } }): any => (
+        <Button
+          variant="outlined"
+          style={{ color: 'white', backgroundColor: 'red', width: '200px' }}
+          onClick={() => handleBlockButton(params.row.id)}
+        >
+          Block User
+        </Button>
+      ),
+    },
+  ];
+  
+  const handleBlockButton = (BlockId: number): any => {
+    alert('User blocked');
+  };
+  
+  const handleInviteClick = (friendId: number): any => {
+    setSelectedFriendId(friendId);
+    setOpenDialog(true);
+  };
+  
+  const handleDialogClose = (confirmed: boolean): any => {
+    setOpenDialog(false);
+    if (confirmed && selectedFriendId != null) {
+      navigate('/loadingPage');
+    }
+  };
+  
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
@@ -151,6 +198,30 @@ const FriendList: React.FC = () => {
         <h1 style={{ color: 'grey', textAlign: 'center' }}>AMIS</h1>
         <DataGrid density="comfortable" rows={rows} columns={columns} autoPageSize />
       </Box>
+      <Box
+        id="avatar"
+        style={{
+          position: 'absolute',
+          top: '2%',
+          left: '95%',
+        }}
+      >
+        <ProfileButton />
+      </Box>
+      <Dialog open={openDialog} onClose={() => handleDialogClose(false)}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>
+          <p>Êtes-vous sûr ?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleDialogClose(false)} color="primary">
+            Non
+          </Button>
+          <Button onClick={() => handleDialogClose(true)} color="primary">
+            Oui
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
