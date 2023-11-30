@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Box, TextField } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import getUserFriends from '../requests/getUserFriends';
 import GetUserById from '../requests/getUserById';
