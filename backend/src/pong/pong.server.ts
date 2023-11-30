@@ -18,6 +18,8 @@ import { PacketInDualCancel } from "./packet/PacketInDualCancel";
 import { PacketInHandshake } from "./packet/PacketInHandshake";
 import { PacketInInvite } from "./packet/PacketInvite";
 import { PacketReceived } from "./packet/PacketReceived";
+import { PacketMessage } from "./packet/PacketMessage";
+import { PacketArrived } from "./packet/PacketArrived";
 
 @WebSocketGateway(8001, { cors: '*' })
 export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
@@ -139,6 +141,15 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   handleInvitePacket(client: Socket, packet: PacketInInvite): void {
     const invited = this.getConnectedByUserId(packet.opponentId);
     if (invited !== null) invited.client.emit('invite_received', new PacketReceived(packet.senderId));
+  }
+
+  @SubscribeMessage('send_message')
+  handleSendMessage(client: Socket, packet: PacketMessage): void {
+    for (const user of packet.channelMembers)
+    {
+      if (user.user_id !== packet.senderId)
+        this.getConnectedByUserId(user.user_id).client.emit('message_arrived', new PacketArrived(packet.senderId, packet.message, packet.chanId));
+    }
   }
 
   @SubscribeMessage('dual_cancel_packet')
