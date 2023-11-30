@@ -33,31 +33,18 @@ const ButtonJoinChannel: React.FC = () => {
     }
   };
 
-  const validatePass = (): boolean => {
-    console.log(passEnable);
-    if (!passEnable) return true;
-    const regex = /^\S+$/;
-    return pass === '' || !regex.test(name);
-  };
-
   const handleSubmit = (): void => {
-    if (!/^[0-9]+$/.test(name)) notifyToasterError('ID must only contains digits');
-    else if (!validatePass()) {
-      notifyToasterError('Pass is invalid');
-    } else {
-      joinChannel(name, passEnable ? pass : '')
-        .then((req) => {
-          if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
-          else {
-            console.log('ici');
-            notifyToasterInfo(req);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          notifyToasterError('Could not join desired channel');
-        });
-    }
+    joinChannel(name, passEnable ? pass : '')
+      .then((req) => {
+        if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
+        else {
+          notifyToasterInfo(req);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not join desired channel');
+      });
   };
   return (
     <div>
