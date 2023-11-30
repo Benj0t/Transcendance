@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ChatWindow from '../components/ChatWindow';
 import { Box } from '@mui/material';
 import ProfileButton from '../components/profileButton';
@@ -12,12 +12,15 @@ import getUserChannels from '../requests/getUserChannels';
 import { useWebSocket } from '../context/pongSocket';
 import { useNavigate } from 'react-router';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInivtation } from '../components/utils/toaster';
+import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
 import getUserMe from '../requests/getUserMe';
 import postMessage from '../requests/postMessage';
 import LoadingPage from './LoadingPage';
 import getChannelUsers from '../requests/getChannelUsers';
 import getChannelMessages from '../requests/getChannelMessages';
+import { UserContext } from '../context/userContext';
+import { PacketMessage } from '../components/packet/in/PacketMessage';
+import { type PacketArrived } from '../components/packet/in/PacketArrived';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -49,30 +52,53 @@ const Chat: React.FC = () => {
   const [channelMembers, setChannelMembers] = useState<channelUsersResponse[]>([]);
   const [selectChannel, setSelectChannel] = useState(0);
   const [history, setHistory] = useState<channelMessagesResponse[]>([]);
+  const cont = useContext(UserContext).user;
+  const { pongSocket, createSocket } = useWebSocket();
 
   const [message, setMessage] = useState('');
-  const onSendMessage = (message: string): void => {
-    postMessage(selectChannel, message)
-      .then(() => {
-        // LALALALA VOXY
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    console.log(message);
-  };
-  const { pongSocket, createSocket } = useWebSocket();
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
     }
   }, []);
 
+  const onSendMessage = (message: string): void => {
+    postMessage(selectChannel, message)
+      .then(() => {
+        pongSocket?.emit(
+          'send_message',
+          new PacketMessage(cont.id, message, selectChannel, channelMembers),
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    console.log(message);
+  };
+  const navigate = useNavigate();
+
   const acceptGame = (arg: number): void => {
     navigate(`/game?param=${arg}`);
   };
+
+  useEffect(() => {
+    const handleArrived = (param1: PacketArrived): void => {
+      const newMsg: any = {
+        channel_id: selectChannel,
+        user_id: param1.senderId,
+        message: param1.message,
+        created_at: Date.now(),
+      };
+      if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
+      else notifyToasterInfo(`New message !`);
+    };
+
+    pongSocket?.on('message_arrived', handleArrived);
+
+    return () => {
+      pongSocket?.off('message_arrived', handleArrived);
+    };
+  }, []);
 
   useEffect(() => {
     const handleReceived = (param1: PacketReceived): void => {

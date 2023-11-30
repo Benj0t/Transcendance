@@ -8,7 +8,7 @@ const postAddMatch = async (
   matchduration: number,
 ): Promise<any> => {
   const requestData = {
-    opponentId: opponentid,
+    theopponent: opponentid,
     winner_id: winnerid,
     score_user_1: scoreuser1,
     score_user_2: scoreuser2,
