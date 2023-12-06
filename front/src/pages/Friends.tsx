@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -25,6 +25,8 @@ import { useNavigate } from 'react-router';
 import { useWebSocket } from '../context/pongSocket';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import ProfileButton from '../components/profileButton';
+import { PacketInInvite } from '../components/packet/in/PacketInvite';
+import { UserContext } from '../context/userContext';
 
 interface Row {
   id: number;
@@ -44,6 +46,7 @@ const FriendList: React.FC = () => {
   const navigate = useNavigate();
   const [selectedFriendId, setSelectedFriendId] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const me = useContext(UserContext).user;
   const columns = [
     { field: 'avatar', headerName: 'Avatar', width: 1200 / 5 },
     { field: 'name', headerName: 'Username', width: 1200 / 5 },
@@ -84,7 +87,10 @@ const FriendList: React.FC = () => {
 
   const handleInviteClick = (friendId: number): any => {
     setSelectedFriendId(friendId);
-    setOpenDialog(true);
+    if (friendId !== null) {
+      navigate(`/game?param=${friendId}`);
+      pongSocket?.emit('invite_packet', new PacketInInvite(friendId, me.id));
+    }
   };
 
   const handleDialogClose = (confirmed: boolean): any => {
@@ -156,10 +162,10 @@ const FriendList: React.FC = () => {
         for (let i = 0; i < size; i++) {
           const friendid = friends[i].friend_id;
           const addfriend = await GetUserById(friendid);
-          const addid = 14 + i;
+          // const addid = i;
           const addavatar = addfriend.avatar_base64;
           const addname = addfriend.nickname;
-          const addrow = { id: addid, avatar: addavatar, name: addname, status: '🟩' };
+          const addrow = { id: friendid, avatar: addavatar, name: addname, status: '🟩' };
           // Change status with socket idk how
           setRows((prevRows) => [...prevRows, addrow]);
         }

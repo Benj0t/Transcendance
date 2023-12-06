@@ -468,8 +468,8 @@ export class ApiController {
      * Client id and secret
      */
 
-    const client_id = 'u-s4t2ud-27c5fb840f81c2a38a58bfd6fa422c4074dc4cb4c95b8a50e91485257e7c419a';
-    const client_secret = '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';
+    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
+    const client_secret = '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';
 
 
     const client_username = 'bonjour';

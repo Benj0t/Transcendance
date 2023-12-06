@@ -76,7 +76,6 @@ const History: React.FC = () => {
       try {
         const req = await getUserMatches(me.id);
         const matches = req;
-        console.log(req);
         const keys = Object.keys(matches);
         const size = keys.length;
         setPlayed(size);
@@ -97,7 +96,6 @@ const History: React.FC = () => {
             addresult = '🔴';
             addscore = `${uscore2}-${uscore1}`;
           }
-          console.log(matches);
           if (matches[i].user_id !== me.id) opponent = await GetUserById(matches[i].user_id);
           else opponent = await GetUserById(matches[i].opponent_id);
           const opponentName = opponent.nickname;
