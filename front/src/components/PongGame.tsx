@@ -19,7 +19,7 @@ const PongGame: React.FC = (): any => {
   const [isChoosingMatchmaking, setIsChoosingMatchmaking] = useState(false);
   const [isChoosingDuel, setIsChoosingDuel] = useState(false);
   const [isGameStarted, setGameStarted] = useState(false);
-  const [opponentId, setOpponentId] = useState(0);
+  const [opponentId, setOpponentId] = useState<number | null>(0);
   const [area] = useState<Area | null>(new Area(800, 400, 0, 0));
   const [ballXPCent, setBallX] = useState(0);
   const [ballYPCent, setBallY] = useState(0);
@@ -65,9 +65,11 @@ const PongGame: React.FC = (): any => {
   };
 
   const sendDualPacket = (opponentId: number): any => {
-    if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(opponentId));
-    setIsChoosingDuel(true);
-    setGameStarted(true);
+    if (me.id !== opponentId) {
+      if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(opponentId));
+      setIsChoosingDuel(true);
+      setGameStarted(true);
+    } else alert("You can't duel yourself");
   };
 
   const sendKeepAlivePacket = (racketY: number): any => {
@@ -317,7 +319,8 @@ const PongGame: React.FC = (): any => {
                   placeholder="Enter Opponent ID"
                   value={opponentId !== null ? opponentId.toString() : ''}
                   onChange={(e): any => {
-                    setOpponentId(parseInt(e.target.value));
+                    const value = e.target.value.trim();
+                    setOpponentId(value !== '' ? parseInt(value, 10) : null);
                   }}
                 />
                 <button
