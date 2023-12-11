@@ -22,6 +22,8 @@ services:
   #   ports:
   #     - "8001:8001"
   #     - "8080:8080"
+  #   env_file:
+  #     - .env
   #   depends_on:
   #     - postgres
   #   networks:
@@ -33,6 +35,8 @@ services:
   #     context: ./front
   #   ports:
   #     - "3000:3000"
+  #   env_file:
+  #     - .env
   #   volumes:
   #     - ./front/src:/app/src
   #     - ./front/public:/app/public

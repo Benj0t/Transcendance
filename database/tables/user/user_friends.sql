@@ -16,7 +16,7 @@ drop function "get_user_friendships";
 create or replace function "get_user_friendships"(param_id integer)
 returns setof "v_user_has_friend" as $$
 begin
-    return query select * from "v_user_has_friend" where user_id = param_id;
+    return query select * from "v_user_has_friend" where "user_id" = param_id or "friend_id" = param_id;
 end;
 $$ language plpgsql;
 

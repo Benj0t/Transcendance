@@ -156,11 +156,12 @@ const FriendList: React.FC = () => {
       try {
         const req = await getUserFriends();
         const friends = req;
-        console.log(req);
         const keys = Object.keys(friends);
         const size = keys.length;
         for (let i = 0; i < size; i++) {
-          const friendid = friends[i].friend_id;
+          let friendid = 0;
+          if (me.id === friends[i].user_id) friendid = friends[i].friend_id;
+          else friendid = friends[i].user_id;
           const addfriend = await GetUserById(friendid);
           // const addid = i;
           const addavatar = addfriend.avatar_base64;

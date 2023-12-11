@@ -2,7 +2,7 @@ import axios from '../components/utils/axios';
 
 export interface getUserFriendsRequest {
   id: number;
-  userId: number;
+  user_id: number;
   friend_id: number;
 }
 

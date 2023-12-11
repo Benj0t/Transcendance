@@ -89,6 +89,8 @@ const Chat: React.FC = () => {
         message: param1.message,
         created_at: Date.now(),
       };
+      console.log(param1.chanId);
+      console.log(selectChannel);
       if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
       else notifyToasterInfo(`New message !`);
     };
