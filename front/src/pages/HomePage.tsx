@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
@@ -6,10 +6,20 @@ import ProfileButton from '../components/profileButton';
 import { useWebSocket } from './../context/pongSocket';
 import { notifyToasterInivtation } from '../components/utils/toaster';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
+import getUserMe from '../requests/getUserMe';
 // import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
 // import { UserContext } from '../context/userContext';
 // import { PacketInHandshake } from '../components/packet/in/PacketInHandshake';
 // import GetUserMe from '../requests/getUserMe';
+
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
 
 const HomePage: React.FC = () => {
   // const me = useContext(UserContext).user;
@@ -17,6 +27,8 @@ const HomePage: React.FC = () => {
    * States
    */
   const navigate = useNavigate();
+  const [user, setUser] = useState<getUserMeResponse>();
+  const [error, setError] = useState(false);
   const { pongSocket, createSocket } = useWebSocket();
 
   const acceptGame = (arg: number): void => {
@@ -24,21 +36,26 @@ const HomePage: React.FC = () => {
   };
 
   useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
     const handleReceived = (param1: PacketReceived): void => {
       notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);
 
+    getUserMe()
+      .then((req) => {
+        setUser(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
     return () => {
       pongSocket?.off('invite_received', handleReceived);
     };
-  }, []);
-
-  useEffect(() => {
-    if (pongSocket === null) {
-      createSocket();
-    }
   }, []);
 
   /**
@@ -66,9 +83,11 @@ const HomePage: React.FC = () => {
   // useEffect(() => {
   //   pongSocket?.on('time_packet', (packetOutTime) => {});
   // }, []);
+  if (error) return <p>Something bad happened</p>;
+  if (user === undefined) return <></>;
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
-      <ProfileButton />
+      <ProfileButton user={user} />
       <Box
         display="flex"
         justifyContent="center"

@@ -1,18 +1,18 @@
 import { Box, IconButton, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ChatInputProps {
-  message: string;
-  setMessage: React.Dispatch<React.SetStateAction<string>>;
-  handleSendMessage: () => void;
+  handleSendMessage: (message: string) => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleSendMessage }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ handleSendMessage }) => {
+  const [message, setMessage] = useState<string>('');
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      handleSendMessage();
+      handleSendMessage(message);
+      setMessage('');
     }
   };
   return (
@@ -33,7 +33,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleSendMe
         }}
         onKeyDown={handleKeyDown}
       />
-      <IconButton style={{ marginTop: '1%', height: '50px' }} onClick={handleSendMessage}>
+      <IconButton
+        style={{ marginTop: '1%', height: '50px' }}
+        onClick={() => {
+          handleSendMessage(message);
+        }}
+      >
         <SendIcon />
       </IconButton>
     </Box>

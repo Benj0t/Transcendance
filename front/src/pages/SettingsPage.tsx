@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
-import { MuiColorInput } from 'mui-color-input';
 import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
@@ -9,24 +8,43 @@ import { useWebSocket } from '../context/pongSocket';
 import { PacketInInvite } from '../components/packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInivtation } from '../components/utils/toaster';
+import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
 import ProfileButton from '../components/profileButton';
+import getUserMe from '../requests/getUserMe';
+
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
 
 const SettingsPage: React.FC = () => {
-  const [avatar, setAvatar] = useState('');
-  const [color, setColor] = useState('#aabbcc');
-  const [name, setName] = useState('Benjot');
+  const [name, setName] = useState<string>();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { pongSocket, createSocket } = useWebSocket();
   const me = useContext(UserContext).user;
-
+  const [user, setUser] = useState<getUserMeResponse>();
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
     }
+    getUserMe()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setUser(req);
+        setName(req.nickname);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    setLoading(false);
   }, []);
 
   const acceptGame = (arg: number): void => {
@@ -54,16 +72,12 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleChange = (color: string): void => {
-    setColor(color);
+  const handleClickAvatar = (): void => {
+    notifyToasterInfo('This is your profile picture, later you will be able to change it :D !');
   };
 
-  const handleClickAvatar = (): void => {
-    if (avatar !== 'https://cdn.intra.42.fr/users/cae6da7f6e8f7dcb7518c56b3c584ee2/bemoreau.jpg')
-      setAvatar('https://cdn.intra.42.fr/users/cae6da7f6e8f7dcb7518c56b3c584ee2/bemoreau.jpg');
-    else {
-      setAvatar('');
-    }
+  const handleClickSave = (): void => {
+    console.log('save');
   };
 
   const handleLogTest = (): void => {
@@ -88,7 +102,7 @@ const SettingsPage: React.FC = () => {
         setLoading(false);
       });
   }, []);
-  if (error) return <p>Something bad happened</p>;
+  if (error || user === undefined) return <p>Something bad happened</p>;
   if (loading) return <LoadingPage />;
   return (
     <Box
@@ -107,7 +121,7 @@ const SettingsPage: React.FC = () => {
           left: '95%',
         }}
       >
-        <ProfileButton />
+        <ProfileButton user={user} />
       </Box>
       <Box
         width="80%"
@@ -118,25 +132,22 @@ const SettingsPage: React.FC = () => {
         justifyContent="center"
       >
         <IconButton onClick={handleClickAvatar} size="large">
-          <Avatar sx={{ width: 160, height: 160 }} src={avatar}>
-            M
-          </Avatar>
+          <Avatar
+            alt="Profile Picture"
+            sx={{ width: '50vh', height: '50vh' }}
+            src={`data:image/png;base64, ${user?.avatar_base64}`}
+          />
         </IconButton>
-        <p>Cliquez pour modifier</p>
         <TextField
           id="outlined-controlled"
           label="Nom d'utilisateur"
           value={name}
-          sx={{ input: { color: { color } } }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setName(event.target.value);
           }}
         />
         <Box marginTop="1%">
-          <MuiColorInput value={color} onChange={handleChange} />
-        </Box>
-        <Box marginTop="1%">
-          <Button size="large" variant="outlined">
+          <Button size="large" variant="outlined" onClick={handleClickSave}>
             Save
           </Button>
           <Button

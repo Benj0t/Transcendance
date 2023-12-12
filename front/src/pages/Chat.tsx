@@ -21,6 +21,7 @@ import getChannelMessages from '../requests/getChannelMessages';
 import { UserContext } from '../context/userContext';
 import { PacketMessage } from '../components/packet/in/PacketMessage';
 import { type PacketArrived } from '../components/packet/in/PacketArrived';
+import getUsers from '../requests/getUser';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -47,15 +48,15 @@ interface channelMessagesResponse {
 const Chat: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any>();
   const [me, setMe] = useState<getUserMeResponse>();
   const [channel, setChannel] = useState<any[]>([]);
   const [channelMembers, setChannelMembers] = useState<channelUsersResponse[]>([]);
   const [selectChannel, setSelectChannel] = useState(0);
   const [history, setHistory] = useState<channelMessagesResponse[]>([]);
+
   const cont = useContext(UserContext).user;
   const { pongSocket, createSocket } = useWebSocket();
-
-  const [message, setMessage] = useState('');
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
@@ -112,35 +113,13 @@ const Chat: React.FC = () => {
     };
   }, []);
 
-  const handleSendMessage = (): void => {
+  const handleSendMessage = (message: string): void => {
     if (message.trim() !== '') {
       onSendMessage(message);
-      setMessage('');
     }
   };
 
   useEffect(() => {
-    getUserChannels()
-      .then((req) => {
-        setChannel(req);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    getChannelUsers(selectChannel)
-      .then((req) => {
-        setChannelMembers(req);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    getChannelMessages(selectChannel)
-      .then((req) => {
-        setHistory(req);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
     getUserMe()
       .then((req) => {
         if (req === undefined) setError(true);
@@ -150,12 +129,52 @@ const Chat: React.FC = () => {
         console.log(err);
         setError(true);
       });
+    getUsers()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setUsers(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    getUserChannels()
+      .then((req) => {
+        if (typeof req?.[0]?.channel_id === 'number' && selectChannel === 0)
+          setSelectChannel(req[0].channel_id);
+        setChannel(req);
+      })
+      .catch((err) => {
+        setError(true);
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectChannel !== 0) {
+      getChannelUsers(selectChannel)
+        .then((req) => {
+          setChannelMembers(req);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      getChannelMessages(selectChannel)
+        .then((req) => {
+          setHistory(req);
+        })
+        .catch((err) => {
+          setError(true);
+          console.log(err);
+        });
+    }
     setLoading(false);
   }, [selectChannel]);
 
-  if (loading) return <LoadingPage />;
+  if (loading || selectChannel === 0) return <LoadingPage />;
   if (error) return <h1>Something bad Happened</h1>;
   if (me === undefined) return <></>;
+  console.log('USERS: ', users);
   return (
     <Box
       textAlign="right"
@@ -168,7 +187,7 @@ const Chat: React.FC = () => {
       }}
     >
       <Box id="avatar" alignSelf="flex-end">
-        <ProfileButton />
+        <ProfileButton user={me} />
       </Box>
       <Box
         id="ChatGroup"
@@ -183,10 +202,10 @@ const Chat: React.FC = () => {
         margin="0"
       >
         <Box id="channelMembersList">
-          <MemberList channelMembers={channelMembers} />
+          <MemberList channelMembers={channelMembers} users={users} />
         </Box>
         <Box id="Chat" width="100%" maxHeight="70%">
-          <ChatWindow messages={history} onSendMessage={handleSendMessage} me={me.id} />
+          <ChatWindow messages={history} me={me.id} members={users} />
           <Box
             style={{
               display: 'grid',
@@ -200,11 +219,7 @@ const Chat: React.FC = () => {
               channel={selectChannel}
               channelsList={channel}
             />
-            <ChatInput
-              message={message}
-              setMessage={setMessage}
-              handleSendMessage={handleSendMessage}
-            />
+            <ChatInput handleSendMessage={handleSendMessage} />
           </Box>
         </Box>
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">

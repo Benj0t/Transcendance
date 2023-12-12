@@ -21,6 +21,7 @@ import { UserContext } from './context/userContext';
 import GetUserMe from './requests/getUserMe';
 // import { getPongSocket } from './context/pongSocket';
 import { SocketProvider, useWebSocket } from './context/pongSocket';
+import ProfilePage from './pages/ProfilePage';
 // import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
 // import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
@@ -171,6 +172,16 @@ const App: React.FC = () => {
                     <ThemeProvider theme={darkTheme}>
                       <PrivateRoute>
                         <Chat />
+                      </PrivateRoute>
+                    </ThemeProvider>
+                  }
+                />
+                <Route
+                  path="/profile/:userID"
+                  element={
+                    <ThemeProvider theme={darkTheme}>
+                      <PrivateRoute>
+                        <ProfilePage />
                       </PrivateRoute>
                     </ThemeProvider>
                   }

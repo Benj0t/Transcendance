@@ -15,7 +15,7 @@ const postAddMatch = async (
     match_duration: matchduration,
   };
 
-  const response = await axios.post(`http://localhost:8080/api/user/matches/`, requestData);
+  const response = await axios.post(`/api/user/matches/`, requestData);
 
   return response.data;
 };
