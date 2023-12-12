@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Box, Paper } from '@mui/material';
-import GetUserById from '../requests/getUserById';
 interface channelMessagesResponse {
   channel_id: number;
   user_id: number;
@@ -10,24 +9,16 @@ interface channelMessagesResponse {
 interface ChatWindowProps {
   me: number;
   messages: channelMessagesResponse[];
-  onSendMessage: (message: { text: string; sender: string }) => void;
+  members: any[];
 }
-const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) => {
-  const [members, setMembers] = useState<any>();
-  useEffect(() => {
-    const size = messages.length;
-    const datas: any[] = [];
-    for (let i = 0; i < size; i++) {
-      GetUserById(messages[i].user_id)
-        .then((req) => {
-          datas.push([req.nickname]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-    setMembers(datas);
-  }, [messages]);
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ messages, me, members }) => {
+  console.log('MEMBERS: ', members);
+  console.log('\nMESSAGES: ', JSON.stringify(messages, null, 4));
+  const getUserName = (value: any): any => {
+    const user = members.find((el: { id: number }) => el.id === value.user_id);
+    return user.nickname;
+  };
   return (
     <Paper
       style={{
@@ -39,16 +30,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage, me }) 
       }}
     >
       <Box>
-        {messages.map((msg, index) => (
+        {messages.map((value, index) => (
           <div
             key={index}
             style={{
-              textAlign: msg.user_id === me ? 'right' : 'left',
+              textAlign: value.user_id === me ? 'right' : 'left',
               marginBottom: '8px',
             }}
           >
-            <strong style={{ color: msg.user_id === me ? 'blue' : 'red' }}>{members[index]}</strong>
-            {msg.message}
+            <strong style={{ color: value.user_id === me ? 'blue' : 'red' }}>
+              {getUserName(value)}
+            </strong>
+            {value.message}
           </div>
         ))}
       </Box>

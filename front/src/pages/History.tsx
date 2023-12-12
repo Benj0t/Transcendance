@@ -20,6 +20,15 @@ interface Row {
   gameLength: string;
 }
 
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
+
 const columns = [
   { field: 'name', headerName: 'Name', width: 200 },
   { field: 'result', headerName: 'Result', width: 200 },
@@ -28,16 +37,14 @@ const columns = [
 ];
 
 const History: React.FC = () => {
-  const [error, setError] = useState('');
-  const [userId, setUserId] = useState(0);
+  const [error, setError] = useState(false);
+  const [user, setUser] = useState<getUserMeResponse>();
   const [loading, setLoading] = useState(true);
-  // const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
   const [played, setPlayed] = useState(0);
   const [winrate, setWinrate] = useState(0);
   const [grade, setGrade] = useState('😄');
   const me = useContext(UserContext).user;
-  void userId;
   const { pongSocket, createSocket } = useWebSocket();
   const navigate = useNavigate();
 
@@ -66,10 +73,11 @@ const History: React.FC = () => {
   useEffect(() => {
     getUserMe()
       .then((req) => {
-        setUserId(req.id);
+        setUser(req);
       })
       .catch((err) => {
-        setError(err);
+        console.log(err);
+        setError(true);
       });
 
     async function fetchData(): Promise<any> {
@@ -116,7 +124,7 @@ const History: React.FC = () => {
       } catch (err) {
         if (err instanceof Error) {
           console.log(err.message);
-          setError(err.message);
+          setError(true);
         }
       }
     }
@@ -124,7 +132,7 @@ const History: React.FC = () => {
     const test = fetchData();
     void test;
   }, []);
-  // if (error !== '') return <h1>Something bad happened: {error}</h1>;
+  if (error || user === undefined) return <h1>Something bad happened</h1>;
   if (loading) return <LoadingPage />;
   console.log(error);
 
@@ -145,7 +153,7 @@ const History: React.FC = () => {
           left: '95%',
         }}
       >
-        <ProfileButton />
+        <ProfileButton user={user} />
       </Box>
       <Box
         display="flex"

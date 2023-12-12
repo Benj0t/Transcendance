@@ -16,7 +16,6 @@ import LoadingPage from './LoadingPage';
 import postAddFriend from '../requests/postAddFriend';
 import {
   notifyToasterError,
-  // notifyToasterError,
   notifyToasterInfo,
   notifyToasterInivtation,
   notifyToasterSuccess,
@@ -33,11 +32,19 @@ interface Row {
   status: string;
 }
 
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
 
 const FriendList: React.FC = () => {
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
   const [newFriend, setNewFriend] = useState(0);
-  const [userId, setUserId] = useState(0);
+  const [user, setUser] = useState<getUserMeResponse>();
   const [loading, setLoading] = useState(true);
   const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
@@ -58,7 +65,7 @@ const FriendList: React.FC = () => {
           variant="outlined"
           style={{ width: '200px' }}
           onClick={() => handleInviteClick(params.row.id)}
-        >         
+        >
           Invite Friend
         </Button>
       ),
@@ -78,23 +85,23 @@ const FriendList: React.FC = () => {
       ),
     },
   ];
-  
+
   const handleBlockButton = (BlockId: number): any => {
     alert('User blocked');
   };
-  
+
   const handleInviteClick = (friendId: number): any => {
     setSelectedFriendId(friendId);
     setOpenDialog(true);
   };
-  
+
   const handleDialogClose = (confirmed: boolean): any => {
     setOpenDialog(false);
     if (confirmed && selectedFriendId != null) {
       navigate('/loadingPage');
     }
   };
-  
+
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
@@ -142,10 +149,11 @@ const FriendList: React.FC = () => {
     setRows([]);
     getUserMe()
       .then((req) => {
-        setUserId(req.id);
+        setUser(req);
       })
       .catch((err) => {
-        setError(err);
+        console.log(err);
+        setError(true);
       });
     async function fetchData(): Promise<any> {
       try {
@@ -167,7 +175,7 @@ const FriendList: React.FC = () => {
       } catch (err) {
         if (err instanceof Error) {
           console.log(err.message);
-          setError(err.message);
+          setError(true);
         }
       }
     }
@@ -175,7 +183,7 @@ const FriendList: React.FC = () => {
     const test = fetchData();
     void test;
   }, [newFriend]);
-  // if (error !== '') return <h1>Something bad happened: {error}</h1>;
+  if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
   if (loading) return <LoadingPage />;
   console.log(error);
   return (
@@ -191,7 +199,7 @@ const FriendList: React.FC = () => {
       }}
     >
       <Box style={{ margin: 'auto', textAlign: 'center' }}>
-        <h1 style={{ color: 'grey' }}>Your userID: {userId}</h1>
+        <h1 style={{ color: 'grey' }}>Your userID: {user.id}</h1>
         <TextField
           label="Ajouter Ami (ID)"
           variant="outlined"
@@ -214,7 +222,7 @@ const FriendList: React.FC = () => {
           left: '95%',
         }}
       >
-        <ProfileButton />
+        <ProfileButton user={user} />
       </Box>
       <Dialog open={openDialog} onClose={() => handleDialogClose(false)}>
         <DialogTitle>Confirmation</DialogTitle>
