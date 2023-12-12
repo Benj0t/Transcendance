@@ -10,7 +10,7 @@ interface getUserMeResponse {
 }
 
 const getUserMe = async (): Promise<getUserMeResponse> => {
-  const response = await axios.get<getUserMeResponse>(`user/me`);
+  const response = await axios.get<getUserMeResponse>(`/api/user/me`);
   return response.data;
 };
 export default getUserMe;

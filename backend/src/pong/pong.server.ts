@@ -131,11 +131,6 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
       return ;
     }
 
-    if (connected.userId === packet.opponentId) {
-     console.log(`[ERR] user dual himself.`);
-      return ;
-    }
-
     connected.opponentId = packet.opponentId;
     return ;
   }

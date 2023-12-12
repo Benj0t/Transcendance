@@ -6,7 +6,7 @@ const deleteFriend = async (friendid: number): Promise<any> => {
       friend_id: friendid,
     },
   };
-  const response = await axios.delete(`user/friends/`, requestData);
+  const response = await axios.delete(`/api/user/friends/`, requestData);
   return response.data;
 };
 export default deleteFriend;
