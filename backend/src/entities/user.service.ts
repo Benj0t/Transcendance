@@ -85,6 +85,26 @@ export class UserService {
 		}
 	}
 
+	async updateNickName(user_id: number, nickname: string): Promise<UserEntity | null> {
+		
+		try {
+
+			const user = await this.findOne(user_id);
+	  
+			if (!user) {
+			  return null;
+			}
+	  
+			user.nickname = nickname;
+	  
+			await this.usersRepository.save(user);
+	  
+			return user;
+		  } catch (error) {
+			throw error;
+		  }
+	}
+
 	async updateSecret(user_id: number, user_secret: string): Promise<UserEntity | null> {
 		
 		try {

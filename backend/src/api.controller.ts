@@ -253,7 +253,41 @@ export class ApiController {
     }
   }
 
+    /**
+   * Update the avatar for a user.
+   *
+   * @param id The user id.
+   * @param avatar_base64 The new avatar in base64 format.
+   * @param res The HTTP response.
+   * 
+   * @author Komqdo
+   */
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('user/nickname')
+  async updateUserName(
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Body('nickname') nickname: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    
+    try {
+
+      const tmp = await this.user_service.updateNickName(jwtPayload.sub, nickname);
+
+      if (!tmp) {
+        res.status(HttpStatus.NOT_FOUND).send('User not found.');
+        return ;
+      }
+
+      res.status(HttpStatus.OK).json(tmp);
+      
+    } catch (error) {
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Name update failed.');
+      
+    }
+  }
 
   /**
    * Delete a friend for an user.

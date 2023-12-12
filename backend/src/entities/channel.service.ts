@@ -103,7 +103,7 @@ export class ChannelService {
 			throw error;
 		}
 	}
-
+	
 	async leaveChannel(user_id: number, channel_id: number): Promise<string> {
 		try {
 			const result = await this.channelRepository.query(
