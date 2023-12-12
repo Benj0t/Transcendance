@@ -97,7 +97,9 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     if (this.getConnected(client).match !== null)
       this.getConnected(client).opponentId = null;
     if (this.getConnected(client))
+    {
       this.getConnected(client).close();
+    }
   }
 
   onModuleDestroy(): void {
@@ -106,6 +108,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
 
   @SubscribeMessage('keep_alive_packet')
   handleKeepAlivePacket(client: Socket, packet: PacketInKeepAlive): void {
+    console.log(client.id);
     const connected: Connected = this.getConnected(client);
     connected.lastSocketTimestamp = Date.now();
     if (connected.hasMatch() && packet.yPcent != null) {
