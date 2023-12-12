@@ -14,9 +14,7 @@ const postAddMatch = async (
     score_user_2: scoreuser2,
     match_duration: matchduration,
   };
-
   const response = await axios.post(`/api/user/matches/`, requestData);
-
   return response.data;
 };
 export default postAddMatch; // untested

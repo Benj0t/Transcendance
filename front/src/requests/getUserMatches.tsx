@@ -9,4 +9,4 @@ const GetUserMatches = async (userID: number): Promise<any> => {
   const response = await axios.get(`/api/user/matches/`, requestData);
   return response.data;
 };
-export default GetUserMatches; // untested
+export default GetUserMatches;

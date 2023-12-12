@@ -1,4 +1,4 @@
-FROM postgres:13
+FROM postgres:latest
 
 RUN mkdir /etc/tables
 

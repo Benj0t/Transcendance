@@ -7,7 +7,7 @@ const blockUser = async (blockedid: number): Promise<any> => {
     },
   };
 
-  const response = await axios.post(`http://localhost:8080/api/user/blockeds/`, requestData);
+  const response = await axios.post(`user/blockeds/`, requestData);
 
   return response.data;
 };
