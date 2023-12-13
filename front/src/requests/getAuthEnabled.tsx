@@ -11,7 +11,7 @@ const AuthEnabled = async (jwt: string | null): Promise<boolean> => {
       Authorization: authHeader,
     },
   };
-  const response = await axios.get(`auth/enabled/`, requestData);
+  const response = await axios.get(`/api/auth/enabled/`, requestData);
   return response.data;
 };
 export default AuthEnabled;

@@ -7,7 +7,7 @@ const updateUserAvatar = async (avatarbase64: string): Promise<any> => {
     },
   };
 
-  const response = await axios.post(`user/avatar/`, requestData);
+  const response = await axios.post(`/api/user/avatar/`, requestData);
 
   return response.data;
 };

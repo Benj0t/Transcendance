@@ -11,7 +11,7 @@ const AuthVerifyWithoutCookie = async (codeSent: string, jwt: string | null): Pr
     },
   };
 
-  const response = await axios.get(`auth/verify/`, requestData);
+  const response = await axios.get(`/api/auth/verify/`, requestData);
 
   return response.data;
 };

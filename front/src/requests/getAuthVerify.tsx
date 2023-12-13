@@ -7,7 +7,6 @@ const AuthVerify = async (codeSent: string): Promise<any> => {
     },
   };
 
-
   const response = await axios.get(`/api/auth/verify/`, requestData);
   return response.data;
 };

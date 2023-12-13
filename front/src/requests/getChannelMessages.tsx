@@ -8,7 +8,7 @@ interface channelMessagesResponse {
 }
 
 const getChannelMessages = async (channelId: number): Promise<channelMessagesResponse[]> => {
-  const response = await axios.get(`channels/${channelId}/messages`);
+  const response = await axios.get(`/api/channels/${channelId}/messages`);
 
   return response.data;
 };
