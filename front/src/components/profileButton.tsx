@@ -1,13 +1,27 @@
 import { Logout, Settings } from '@mui/icons-material';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import PeopleIcon from '@mui/icons-material/People';
 import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { delete_cookie } from 'sfcookies';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import HomeIcon from '@mui/icons-material/Home';
+import SportsTennisIcon from '@mui/icons-material/SportsTennis';
+import ChatIcon from '@mui/icons-material/Chat';
 
-const ProfileButton: React.FC = () => {
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
+interface ProfileButtonProps {
+  user: getUserMeResponse;
+}
+
+const ProfileButton: React.FC<ProfileButtonProps> = ({ user }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -17,14 +31,20 @@ const ProfileButton: React.FC = () => {
   const handleClose = (): void => {
     setAnchorEl(null);
   };
+  const onClickHome = (): void => {
+    navigate('/');
+  };
+  const onClickGame = (): void => {
+    navigate('/game');
+  };
+  const onClickChat = (): void => {
+    navigate('/chat');
+  };
   const onClickFriends = (): void => {
     navigate('/friends');
   };
   const onClickHistory = (): void => {
     navigate('/history');
-  };
-  const onClickStats = (): void => {
-    navigate('/statistics');
   };
   const onClickSettings = (): void => {
     navigate('/settings');
@@ -44,7 +64,10 @@ const ProfileButton: React.FC = () => {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+          <Avatar
+            sx={{ width: '5vh', height: '5vh' }}
+            src={`data:image/png;base64, ${user?.avatar_base64}`}
+          />
         </IconButton>
       </Tooltip>
       <Menu
@@ -82,6 +105,24 @@ const ProfileButton: React.FC = () => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
+        <MenuItem onClick={onClickHome}>
+          <ListItemIcon>
+            <HomeIcon fontSize="small" />
+          </ListItemIcon>
+          Home
+        </MenuItem>
+        <MenuItem onClick={onClickGame}>
+          <ListItemIcon>
+            <SportsTennisIcon fontSize="small" />
+          </ListItemIcon>
+          Game
+        </MenuItem>
+        <MenuItem onClick={onClickChat}>
+          <ListItemIcon>
+            <ChatIcon fontSize="small" />
+          </ListItemIcon>
+          Chat
+        </MenuItem>
         <MenuItem onClick={onClickFriends}>
           <ListItemIcon>
             <PeopleIcon fontSize="small" />
@@ -93,12 +134,6 @@ const ProfileButton: React.FC = () => {
             <CalendarMonthIcon fontSize="small" />
           </ListItemIcon>
           Historique
-        </MenuItem>
-        <MenuItem onClick={onClickStats}>
-          <ListItemIcon>
-            <BarChartIcon fontSize="small" />
-          </ListItemIcon>
-          Statistiques
         </MenuItem>
         <Divider />
         <MenuItem onClick={onClickSettings}>

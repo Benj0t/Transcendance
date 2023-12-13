@@ -30,12 +30,16 @@ export class Connected {
         const index = this.pong_server.connecteds.indexOf(this);
       if (this.match)
       {
-        this.match.close();
+        this.match.forfeit(this.userId);
         console.log(`[LOG] ${this.client.id}: has left the game.`);
       }
       if (index > -1) {
         this.pong_server.connecteds.splice(index, 1);
       }
+    }
+
+    setOponnentId(op: number): void {
+        this.opponentId = op;
     }
 
     getUserId(): number {

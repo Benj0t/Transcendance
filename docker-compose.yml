@@ -8,39 +8,43 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ./database/.env
+      - .env
     volumes:
       # - ~/transcendance/psql_data:/var/lib/postgresql/data
       - ~/goinfre/$USER/transcendance/:/var/lib/postgresql/data
     networks:
       - internal_network
 
-  # backend:
-  #   container_name: back
-  #   build:
-  #     context: ./backend
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - internal_network
+  backend:
+    container_name: back
+    build:
+      context: ./backend
+    ports:
+      - "8001:8001"
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - internal_network
 
-  # front:
-  #   container_name: front
-  #   build:
-  #     context: ./front
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./front/src:/app/src
-  #     - ./front/public:/app/public
-  #   depends_on:
-  #     - backend
+  front:
+    container_name: front
+    build:
+      context: ./front
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./front/src:/app/src
+      - ./front/public:/app/public
+    depends_on:
+      - backend
 
 volumes:
   psql-data:
-
 
 networks:
   internal_network:

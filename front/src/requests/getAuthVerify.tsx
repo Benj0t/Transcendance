@@ -7,8 +7,7 @@ const AuthVerify = async (codeSent: string): Promise<any> => {
     },
   };
 
-  const response = await axios.get(`http://localhost:8080/api/auth/verify/`, requestData);
-
+  const response = await axios.get(`/api/auth/verify/`, requestData);
   return response.data;
 };
 export default AuthVerify;

@@ -39,7 +39,7 @@ export class UserService {
 			[id]
 		);
 
-		return (matches);
+		return matches;
 	}
 
 	async getBlockeds(id: number): Promise<UserHasBlockedUserEntity[]> {
@@ -83,6 +83,26 @@ export class UserService {
 		} catch (error) {
 		  throw error;
 		}
+	}
+
+	async updateNickName(user_id: number, nickname: string): Promise<UserEntity | null> {
+		
+		try {
+
+			const user = await this.findOne(user_id);
+	  
+			if (!user) {
+			  return null;
+			}
+	  
+			user.nickname = nickname;
+	  
+			await this.usersRepository.save(user);
+	  
+			return user;
+		  } catch (error) {
+			throw error;
+		  }
 	}
 
 	async updateSecret(user_id: number, user_secret: string): Promise<UserEntity | null> {
@@ -164,7 +184,7 @@ export class UserService {
 		}
 	}
 
-	async addMatch(user_id: number, opponent_id: number, winner_id: number): Promise<string> {
+	async addMatch(user_id: number, opponent_id: number, winner_id: number, score_user_1: number, score_user_2: number, match_duration: number): Promise<string> {
 		
 		if (!opponent_id || !winner_id) {
 			throw new BadRequestException("Missing required parameter.");
@@ -173,8 +193,8 @@ export class UserService {
 		try {
 
 		  const result = await this.usersRepository.query(
-			`select add_match($1, $2, $3)`,
-			[user_id, opponent_id, winner_id]
+			`select add_match($1, $2, $3, $4, $5, $6)`,
+			[user_id, opponent_id, winner_id, score_user_1, score_user_2, match_duration]
 		  );
 
 		  return result[0].add_match;

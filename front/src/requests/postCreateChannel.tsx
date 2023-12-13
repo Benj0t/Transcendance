@@ -6,15 +6,12 @@ const CreateChannel = async (
   channelMembers: number[],
 ): Promise<any> => {
   const requestData = {
-    params: {
-      title: channelName,
-      password: channelPass,
-      members: channelMembers,
-    },
+    title: channelName,
+    password: channelPass,
+    members: channelMembers,
   };
-
-  const response = await axios.post(`http://localhost:8080/api/channel/`, requestData);
+  const response = await axios.post(`channels`, requestData);
 
   return response.data;
 };
-export default CreateChannel; // untested
+export default CreateChannel;

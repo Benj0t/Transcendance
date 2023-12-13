@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ChatWindow from '../components/ChatWindow';
 import { Box } from '@mui/material';
 import ProfileButton from '../components/profileButton';
@@ -9,71 +9,174 @@ import ButtonJoinChannel from '../components/ButtonJoinChannel';
 import MemberList from '../components/MemberList';
 import AdminPanel from '../components/AdminPanel';
 import getUserChannels from '../requests/getUserChannels';
+import { useWebSocket } from '../context/pongSocket';
+import { useNavigate } from 'react-router';
+import { type PacketReceived } from '../components/packet/in/PacketReceived';
+import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
+import getUserMe from '../requests/getUserMe';
+import postMessage from '../requests/postMessage';
+import LoadingPage from './LoadingPage';
+import getChannelUsers from '../requests/getChannelUsers';
+import getChannelMessages from '../requests/getChannelMessages';
+import { UserContext } from '../context/userContext';
+import { PacketMessage } from '../components/packet/in/PacketMessage';
+import { type PacketArrived } from '../components/packet/in/PacketArrived';
+import getUsers from '../requests/getUser';
+
+interface channelUsersResponse {
+  channel_id: number;
+  user_id: number;
+  role: number;
+  mute_expiry_at?: Date;
+}
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
+
+interface channelMessagesResponse {
+  channel_id: number;
+  user_id: number;
+  message: string;
+  created_at: Date;
+}
 
 const Chat: React.FC = () => {
-  const fakeDatas: Record<number, Array<{ text: string; sender: string }>> = {
-    1: [
-      { text: 'Salut !', sender: 'Michel' },
-      { text: 'Salut !', sender: 'You' },
-      { text: 'Salut !', sender: 'Michel' },
-      { text: 'Salut !', sender: 'You' },
-    ],
-    10: [
-      { text: 'Coucou !', sender: 'Sophie' },
-      { text: 'Coucou !', sender: 'You' },
-      { text: 'Coucou !', sender: 'Sophie' },
-      { text: 'Coucou !', sender: 'You' },
-    ],
-    100: [
-      { text: 'Hello !', sender: 'Jack' },
-      { text: 'Hello !', sender: 'You' },
-    ],
-    1000: [
-      { text: 'Bonjour !', sender: 'You' },
-      { text: 'Bonjour !', sender: 'Steve' },
-      { text: 'Bonjour !', sender: 'You' },
-    ],
-  };
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any>();
+  const [me, setMe] = useState<getUserMeResponse>();
+  const [channel, setChannel] = useState<any[]>([]);
+  const [channelMembers, setChannelMembers] = useState<channelUsersResponse[]>([]);
+  const [selectChannel, setSelectChannel] = useState(0);
+  const [history, setHistory] = useState<channelMessagesResponse[]>([]);
 
-  const channelsMembers = [
-    { id: 1, names: ['Michel'] },
-    { id: 10, names: ['Sophie'] },
-    { id: 100, names: ['Jack'] },
-    { id: 1000, names: ['Michel', 'Jacky', 'Medhi', 'Elias', 'Daniel'] },
-  ];
+  const cont = useContext(UserContext).user;
+  const { pongSocket, createSocket } = useWebSocket();
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
 
-  const channelTest = getUserChannels();
-  console.log('Channels: ', channelTest);
-
-  const channels = [
-    { id: 1, name: 'Michel' },
-    { id: 10, name: 'Sophie' },
-    { id: 100, name: 'Jack' },
-    { id: 1000, name: 'Les copains' },
-  ];
-
-  const [selectChannel, setSelectChannel] = useState(1);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [history, setHistory] = useState(fakeDatas[selectChannel]);
-
-  const [message, setMessage] = useState('');
-  const onSendMessage = (message: { text: string; sender: string }): void => {
-    setHistory([...history, message]);
+  const onSendMessage = (message: string): void => {
+    postMessage(selectChannel, message)
+      .then(() => {
+        pongSocket?.emit(
+          'send_message',
+          new PacketMessage(cont.id, message, selectChannel, channelMembers),
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     console.log(message);
   };
+  const navigate = useNavigate();
 
-  const handleSendMessage = (): void => {
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  useEffect(() => {
+    const handleArrived = (param1: PacketArrived): void => {
+      const newMsg: any = {
+        channel_id: selectChannel,
+        user_id: param1.senderId,
+        message: param1.message,
+        created_at: Date.now(),
+      };
+      console.log(param1.chanId);
+      console.log(selectChannel);
+      if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
+      else notifyToasterInfo(`New message !`);
+    };
+
+    pongSocket?.on('message_arrived', handleArrived);
+
+    return () => {
+      pongSocket?.off('message_arrived', handleArrived);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+    };
+  }, []);
+
+  const handleSendMessage = (message: string): void => {
     if (message.trim() !== '') {
-      onSendMessage({ text: message, sender: 'You' });
-      setMessage('');
+      onSendMessage(message);
     }
   };
+
   useEffect(() => {
-    const selectedData = fakeDatas[selectChannel];
-    if (selectedData !== undefined) {
-      setHistory(selectedData);
+    getUserMe()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setMe(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    getUsers()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setUsers(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    getUserChannels()
+      .then((req) => {
+        if (typeof req?.[0]?.channel_id === 'number' && selectChannel === 0)
+          setSelectChannel(req[0].channel_id);
+        setChannel(req);
+      })
+      .catch((err) => {
+        setError(true);
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectChannel !== 0) {
+      getChannelUsers(selectChannel)
+        .then((req) => {
+          setChannelMembers(req);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      getChannelMessages(selectChannel)
+        .then((req) => {
+          setHistory(req);
+        })
+        .catch((err) => {
+          setError(true);
+          console.log(err);
+        });
     }
+    setLoading(false);
   }, [selectChannel]);
+
+  if (loading || selectChannel === 0) return <LoadingPage />;
+  if (error) return <h1>Something bad Happened</h1>;
+  if (me === undefined) return <></>;
+  console.log('USERS: ', users);
   return (
     <Box
       textAlign="right"
@@ -86,7 +189,7 @@ const Chat: React.FC = () => {
       }}
     >
       <Box id="avatar" alignSelf="flex-end">
-        <ProfileButton />
+        <ProfileButton user={me} />
       </Box>
       <Box
         id="ChatGroup"
@@ -101,10 +204,10 @@ const Chat: React.FC = () => {
         margin="0"
       >
         <Box id="channelMembersList">
-          <MemberList channelsMembers={channelsMembers} channel={selectChannel} />
+          <MemberList channelMembers={channelMembers} users={users} />
         </Box>
         <Box id="Chat" width="100%" maxHeight="70%">
-          <ChatWindow messages={history} onSendMessage={handleSendMessage} />
+          <ChatWindow messages={history} me={me.id} members={users} />
           <Box
             style={{
               display: 'grid',
@@ -114,22 +217,17 @@ const Chat: React.FC = () => {
             }}
           >
             <ChatSelect
-              setIsAdmin={setIsAdmin}
-              channelsList={channels}
               changeChannel={setSelectChannel}
               channel={selectChannel}
+              channelsList={channel}
             />
-            <ChatInput
-              message={message}
-              setMessage={setMessage}
-              handleSendMessage={handleSendMessage}
-            />
+            <ChatInput handleSendMessage={handleSendMessage} />
           </Box>
         </Box>
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
-          <ButtonCreateChannel />
+          <ButtonCreateChannel me={me.id} />
           <ButtonJoinChannel />
-          <AdminPanel isAdmin={isAdmin} />
+          <AdminPanel isAdmin />
         </Box>
       </Box>
     </Box>

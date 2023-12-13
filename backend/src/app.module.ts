@@ -14,7 +14,6 @@ import { UserHasBlockedUserEntity } from './entities/user_has_blocked_user.entit
 import { AchievementEntity } from './entities/achievement.entity';
 import { MatchEntity } from './entities/match.entity';
 import { RankEntity } from './entities/rank.entity';
-import { ChannelService } from './entities/channel.service';
 import { ChannelHasBannedUserEntity } from './entities/channel_has_banned_user.entity';
 import { ChannelHasMemberEntity } from './entities/channel_has_member.entity';
 import { ChannelHasMessageEntity } from './entities/channel_has_message.entity';
@@ -30,11 +29,14 @@ import { ChannelModule } from './entities/channel.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       // if using docker containter, set host to postgres, else set host: 'localhost'
-      host: 'localhost',
+      host: 'postgres',
       port: 5432,
       username: 'app',
       password: 'apppassword',
       database: 'transcendance',
+      // username: env("POSTGRES_USER"),
+      // password: env("POSTGRES_PASSWORD"),
+      // database: env("POSTGRES_DB"),
       entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity,
           ChannelHasBannedUserEntity, ChannelHasMemberEntity, ChannelHasMessageEntity, ChannelEntity ],
       synchronize: false,

@@ -5,39 +5,107 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
+import { useState } from 'react';
+import { Menu, MenuItem } from '@mui/material';
+import { useNavigate } from 'react-router';
 
+interface channelUsersResponse {
+  channel_id: number;
+  user_id: number;
+  role: number;
+  mute_expiry_at?: Date;
+}
 interface MemberListProps {
-  channel: number;
-  channelsMembers: Array<{
-    id: number;
-    names: string[];
-  }>;
+  users: any;
+  channelMembers: channelUsersResponse[];
 }
 
-const MemberList: React.FC<MemberListProps> = ({ channelsMembers, channel }) => {
-  const handleItemClick = (value: number): void => {
-    console.log(channelsMembers.find((item) => item.id === value));
+const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [pickUser, setPickUser] = useState<number>();
+  const open = Boolean(anchorEl);
+  const navigate = useNavigate();
+
+  const handleItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    value: channelUsersResponse,
+  ): void => {
+    setAnchorEl(event.currentTarget);
+    const user = users.find((item: { id: number }) => item.id === value.user_id);
+    setPickUser(user.id);
   };
 
-  const currMembers = channelsMembers.find((item) => item.id === channel)?.names;
+  const handleClose = (): void => {
+    setAnchorEl(null);
+  };
+
+  const handleProfile = (value: channelUsersResponse): void => {
+    if (pickUser !== undefined) {
+      console.log('navigate to : /profile/', pickUser);
+      navigate(`/profile/${pickUser}`);
+      handleClose();
+    }
+  };
+
+  const handleChallenge = (value: channelUsersResponse): void => {
+    if (pickUser !== undefined) console.log('navigate to : /profile/', pickUser);
+    console.log('navigate to : /challenge/', pickUser);
+    handleClose();
+  };
+
+  const getUserName = (value: channelUsersResponse): string => {
+    const user = users.find((el: { id: number }) => el.id === value.user_id);
+    return user.nickname;
+  };
+
+  const getUserAvatar = (value: channelUsersResponse): string => {
+    const user = users.find((el: { id: number }) => el.id === value.user_id);
+    return user.avatar_base64;
+  };
+
   return (
     <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      {// if (currMembers)
-      currMembers?.map((value, index) => {
-        // Set Friends ID instead of random numbers
+      {channelMembers.map((value, index: number) => {
         const labelId = `list-${index}`;
         return (
           <ListItem key={index} disablePadding>
             <ListItemButton
-              onClick={() => {
-                handleItemClick(index);
+              onClick={(event) => {
+                handleItemClick(event, value);
               }}
             >
               <ListItemAvatar>
-                <Avatar src={`/static/images/avatar/${index + 1}.jpg`}>T</Avatar>
+                <Avatar
+                  alt="Profile Picture"
+                  src={`data:image/png;base64, ${getUserAvatar(value)}`}
+                />
               </ListItemAvatar>
-              <ListItemText id={labelId} primary={currMembers[index]} />
+              <ListItemText id={labelId} primary={getUserName(value)} />
             </ListItemButton>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleProfile(value);
+                }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleChallenge(value);
+                }}
+              >
+                Challenge
+              </MenuItem>
+            </Menu>
           </ListItem>
         );
       })}

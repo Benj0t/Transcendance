@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../components/utils/axios';
 import Cookies from 'js-cookie';
 
 // Pass the string when Auth isnt done and you need to set the 2FA pass to log and set the JwtCookie
@@ -11,7 +11,7 @@ const AuthEnabled = async (jwt: string | null): Promise<boolean> => {
       Authorization: authHeader,
     },
   };
-  const response = await axios.get(`http://localhost:8080/api/auth/enabled/`, requestData);
+  const response = await axios.get(`auth/enabled/`, requestData);
   return response.data;
 };
 export default AuthEnabled;

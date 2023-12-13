@@ -7,6 +7,9 @@ create table "match" (
     "user_id" integer references "user"(id),
     "opponent_id" integer references "user"(id),
     "winner_id" integer references "user"(id),
+    "score_user_1" integer default 0,
+    "score_user_2" integer default 0,
+    "match_duration" integer default 0,
     "created_at" timestamp default current_timestamp
 );
 
@@ -16,11 +19,11 @@ create or replace view "v_match" as select * from "match";
 -- Add a match for the specified users.
 
 drop function "add_match";
-create or replace function "add_match"(p_user_id integer, p_opponent_id integer, p_winner_id integer)
+create or replace function "add_match"(p_user_id integer, p_opponent_id integer, p_winner_id integer, p_score_1 integer, p_score_2 integer, p_duration integer)
 returns text as $$
 begin
-    insert into "match" ("user_id", "opponent_id", "winner_id")
-    values (p_user_id, p_opponent_id, p_winner_id);
+    insert into "match" ("user_id", "opponent_id", "winner_id", "score_user_1", "score_user_2", "match_duration")
+    values (p_user_id, p_opponent_id, p_winner_id, p_score_1, p_score_2, p_duration);
     return 'ok';
 end;
 $$ language plpgsql;

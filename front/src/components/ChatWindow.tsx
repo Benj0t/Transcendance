@@ -1,11 +1,24 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
+interface channelMessagesResponse {
+  channel_id: number;
+  user_id: number;
+  message: string;
+  created_at: Date;
+}
 interface ChatWindowProps {
-  messages: Array<{ text: string; sender: string }>;
-  onSendMessage: (message: { text: string; sender: string }) => void;
+  me: number;
+  messages: channelMessagesResponse[];
+  members: any[];
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ messages, me, members }) => {
+  console.log('MEMBERS: ', members);
+  console.log('\nMESSAGES: ', JSON.stringify(messages, null, 4));
+  const getUserName = (value: any): any => {
+    const user = members.find((el: { id: number }) => el.id === value.user_id);
+    return user.nickname;
+  };
   return (
     <Paper
       style={{
@@ -17,16 +30,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages, onSendMessage }) => {
       }}
     >
       <Box>
-        {messages.map((msg, index) => (
+        {messages.map((value, index) => (
           <div
             key={index}
             style={{
-              textAlign: msg.sender === 'You' ? 'right' : 'left',
+              textAlign: value.user_id === me ? 'right' : 'left',
               marginBottom: '8px',
             }}
           >
-            <strong style={{ color: msg.sender === 'You' ? 'blue' : 'red' }}>{msg.sender}: </strong>{' '}
-            {msg.text}
+            <strong style={{ color: value.user_id === me ? 'blue' : 'red' }}>
+              {getUserName(value)}
+            </strong>
+            {value.message}
           </div>
         ))}
       </Box>

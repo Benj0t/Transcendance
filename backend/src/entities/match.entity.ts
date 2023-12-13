@@ -6,14 +6,22 @@ export class MatchEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => UserEntity, { eager: true }) 
-  user: UserEntity;
+  @Column()
+  user: number;
 
-  @ManyToOne(() => UserEntity, { eager: true })
-  opponent: UserEntity;
+  @Column()
+  opponent: number;
 
-  @ManyToOne(() => UserEntity, { eager: true }) 
-  winner: UserEntity;
+  @Column()
+  winner: number;
+  // @ManyToOne(() => UserEntity, { eager: true }) 
+  // user: UserEntity;
+
+  // @ManyToOne(() => UserEntity, { eager: true })
+  // opponent: UserEntity;
+
+  // @ManyToOne(() => UserEntity, { eager: true }) 
+  // winner: UserEntity;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

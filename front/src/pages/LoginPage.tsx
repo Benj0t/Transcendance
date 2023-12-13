@@ -1,14 +1,12 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
-import { useNavigate } from 'react-router';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const handleLogin = (): void => {
-    navigate(
-      '/auth/callback?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImJlbmphbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ.7dzL3yswoINVI2s8HvbLEYCJZMmCYTb1XCjaHAasjsg',
-    );
+    const url =
+      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fcallback&response_type=code';
+    window.location.href = url;
   };
 
   return (

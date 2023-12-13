@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Box, Typography } from '@mui/material';
-import ProfileButton from '../components/profileButton';
 import TwoFactorInput from '../components/TwoFactorInput';
 import { useLocation, useNavigate } from 'react-router';
 import AuthVerify from '../requests/getAuthVerify';
@@ -40,7 +39,6 @@ const ConfirmTwoFactor: React.FC = () => {
   return (
     <Box>
       <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
-        <ProfileButton />
         <Box
           display="flex"
           justifyContent="center"

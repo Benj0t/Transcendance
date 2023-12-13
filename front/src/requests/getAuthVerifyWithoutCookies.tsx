@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../components/utils/axios';
 
 const AuthVerifyWithoutCookie = async (codeSent: string, jwt: string | null): Promise<any> => {
   const authHeader = typeof jwt === 'string' ? `Bearer ${jwt}` : '';
@@ -11,7 +11,7 @@ const AuthVerifyWithoutCookie = async (codeSent: string, jwt: string | null): Pr
     },
   };
 
-  const response = await axios.get(`http://localhost:8080/api/auth/verify/`, requestData);
+  const response = await axios.get(`auth/verify/`, requestData);
 
   return response.data;
 };
