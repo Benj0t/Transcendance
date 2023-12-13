@@ -150,6 +150,7 @@ const FriendList: React.FC = () => {
   const getStatus = (userId: number, setStatus: (status: string) => void): void => {
     const handleConnected = (data: boolean): void => {
       pongSocket?.off('connected_by_user_id', handleConnected);
+      console.log('data = ', data);
       if (data === null) setStatus('🟥');
       else {
         if (data ?? false) setStatus('🟧');
@@ -184,10 +185,9 @@ const FriendList: React.FC = () => {
           const addfriend = await GetUserById(friendid);
           const addavatar = addfriend.avatar_base64;
           const addname = addfriend.nickname;
-          const addstatus = 'lol';
           getStatus(friendid, (addstatus) => {
-          const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
-          setRows((prevRows) => [...prevRows, addrow]);
+            const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
+            setRows((prevRows) => [...prevRows, addrow]);
           });
         }
       } catch (err) {

@@ -11,4 +11,5 @@ const getChannelUsers = async (channelId: number): Promise<channelUsersResponse[
 
   return response.data;
 };
+
 export default getChannelUsers;
