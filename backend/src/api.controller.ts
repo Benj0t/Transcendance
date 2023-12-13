@@ -471,9 +471,11 @@ export class ApiController {
   
   @UseGuards(JwtAuthGuard)
   @Get('auth/verify')
-  async authVerify(@Query('OTP') OTP: string): Promise<boolean>
+  async authVerify(
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Query('OTP') OTP: string): Promise<boolean>
   {
-    const user_id = 1; // ID from jwt
+    const user_id = jwtPayload.sub; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
@@ -486,8 +488,8 @@ export class ApiController {
 
   @UseGuards(JwtAuthGuard)
   @Get('auth/enabled')
-  async authEnabled(): Promise<boolean> {
-    const user_id = 1; // ID from jwt
+  async authEnabled(@Req() {jwtPayload}: {jwtPayload: JwtPayload},): Promise<boolean> {
+    const user_id = jwtPayload.sub; // ID from jwt
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
@@ -588,9 +590,7 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id/members')
   getMembers(@Param('channel_id') channelId: number): Promise<ChannelHasMemberEntity[]> {
-    console.log('Je suis bien la ');
     try {
-      console.log(channelId);
       return this.channel_service.getMembers(channelId);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
@@ -610,9 +610,7 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Get('channels/:channel_id/messages')
   getMessages(@Param('channel_id') channelId: number): Promise<ChannelHasMessageEntity[]> {
-    console.log('hehe');
     try {
-      console.log(channelId);
       return this.channel_service.getMessages(channelId);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);

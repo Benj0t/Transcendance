@@ -37,7 +37,7 @@ const AuthCallback: React.FC = () => {
   const onTwoFactorTest = async (twoFactorCode: { text: string }): Promise<void> => {
     try {
       const verified = await AuthVerifyWithoutCookie(twoFactorCode.text, jwtParam);
-      if (verified.data === true) {
+      if (verified === true) {
         if (jwtParam !== null) Cookies.set('jwt', jwtParam);
         navigate('/');
       }

@@ -23,7 +23,7 @@ const ConfirmTwoFactor: React.FC = () => {
   const onTwoFactorTest = async (twoFactorCode: { text: string }): Promise<void> => {
     try {
       const verified = await AuthVerify(twoFactorCode.text);
-      if (verified.data === true) navigate('/');
+      if (verified === true) navigate('/');
     } catch (error) {
       console.log(error);
     }
