@@ -5,3 +5,11 @@ Creer un channel ne refresh pas le selecter des channels (nouveau chann n'appara
 Envoyer un message ne refresh pas l'historique
 
 Si on wipe la DB mais qu'on delete pas le cookie cote client something went bad parce que t as un JWT mais t es pas en db
+
+je sais plus si on en avait parler mais essayer de join un chan avec un id qui n'existe pas sort un 500
+
+on join un chan secret avec le mauvais password
+
+FRIENDS PAGE -> Block button + avatar a afficher
+
+DM implem

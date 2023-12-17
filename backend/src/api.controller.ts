@@ -884,6 +884,8 @@ export class ApiController {
     @Body() body: { ownerId: number; targetId: number },
   ) {
     console.log('Channel: ', channelId, '\nownerID: ', body.ownerId, '\ntargetId', body.targetId);
+    if (body.ownerId === body.targetId)
+      throw new NotFoundException(`Can't set yourself as Admin `)
     try {
       return this.channel_service.opUser(body.ownerId, body.targetId, channelId);
     } catch (error) {
