@@ -3,3 +3,5 @@ TODO auth peut pas renvoyer jwt sans la 2FA
 Creer un channel ne refresh pas le selecter des channels (nouveau chann n'apparait pas sans F5)
 
 Envoyer un message ne refresh pas l'historique
+
+Si on wipe la DB mais qu'on delete pas le cookie cote client something went bad parce que t as un JWT mais t es pas en db

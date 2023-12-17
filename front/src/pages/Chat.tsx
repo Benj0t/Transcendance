@@ -142,7 +142,7 @@ const Chat: React.FC = () => {
       });
     getUserChannels()
       .then((req) => {
-        if (typeof req?.[0]?.channel_id === 'number' && selectChannel === 0)
+        if (req.length !== 0 && typeof req?.[0]?.channel_id === 'number' && selectChannel === 0)
           setSelectChannel(req[0].channel_id);
         setChannel(req);
       })
@@ -173,7 +173,7 @@ const Chat: React.FC = () => {
     setLoading(false);
   }, [selectChannel]);
 
-  if (loading || selectChannel === 0) return <LoadingPage />;
+  if (loading) return <LoadingPage />;
   if (error) return <h1>Something bad Happened</h1>;
   if (me === undefined) return <></>;
   console.log('USERS: ', users);
