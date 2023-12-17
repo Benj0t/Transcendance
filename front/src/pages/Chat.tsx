@@ -61,6 +61,30 @@ const Chat: React.FC = () => {
     if (pongSocket === null) {
       createSocket();
     }
+    const handleArrived = (param1: PacketArrived): void => {
+      const newMsg: any = {
+        channel_id: selectChannel,
+        user_id: param1.senderId,
+        message: param1.message,
+        created_at: Date.now(),
+      };
+      console.log(param1.chanId);
+      console.log(selectChannel);
+      if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
+      else notifyToasterInfo(`New message !`);
+    };
+
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+    pongSocket?.on('message_arrived', handleArrived);
+
+    return () => {
+      pongSocket?.off('invite_received', handleReceived);
+      pongSocket?.off('message_arrived', handleArrived);
+    };
   }, []);
 
   const onSendMessage = (message: string): void => {
@@ -82,38 +106,38 @@ const Chat: React.FC = () => {
     navigate(`/game?param=${arg}`);
   };
 
-  useEffect(() => {
-    const handleArrived = (param1: PacketArrived): void => {
-      const newMsg: any = {
-        channel_id: selectChannel,
-        user_id: param1.senderId,
-        message: param1.message,
-        created_at: Date.now(),
-      };
-      console.log(param1.chanId);
-      console.log(selectChannel);
-      if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
-      else notifyToasterInfo(`New message !`);
-    };
+  // useEffect(() => {
+  //   const handleArrived = (param1: PacketArrived): void => {
+  //     const newMsg: any = {
+  //       channel_id: selectChannel,
+  //       user_id: param1.senderId,
+  //       message: param1.message,
+  //       created_at: Date.now(),
+  //     };
+  //     console.log(param1.chanId);
+  //     console.log(selectChannel);
+  //     if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
+  //     else notifyToasterInfo(`New message !`);
+  //   };
 
-    pongSocket?.on('message_arrived', handleArrived);
+  //   pongSocket?.on('message_arrived', handleArrived);
 
-    return () => {
-      pongSocket?.off('message_arrived', handleArrived);
-    };
-  }, []);
+  //   return () => {
+  //     pongSocket?.off('message_arrived', handleArrived);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-    };
+  // useEffect(() => {
+  //   const handleReceived = (param1: PacketReceived): void => {
+  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+  //   };
 
-    pongSocket?.on('invite_received', handleReceived);
+  //   pongSocket?.on('invite_received', handleReceived);
 
-    return () => {
-      pongSocket?.off('invite_received', handleReceived);
-    };
-  }, []);
+  //   return () => {
+  //     pongSocket?.off('invite_received', handleReceived);
+  //   };
+  // }, []);
 
   const handleSendMessage = (message: string): void => {
     if (message.trim() !== '') {

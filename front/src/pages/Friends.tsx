@@ -112,13 +112,6 @@ const FriendList: React.FC = () => {
     if (pongSocket === null) {
       createSocket();
     }
-  }, []);
-
-  const acceptGame = (arg: number): void => {
-    navigate(`/game?param=${arg}`);
-  };
-
-  useEffect(() => {
     const handleReceived = (param1: PacketReceived): void => {
       notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
@@ -129,6 +122,22 @@ const FriendList: React.FC = () => {
       pongSocket?.off('invite_received', handleReceived);
     };
   }, []);
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  // useEffect(() => {
+  //   const handleReceived = (param1: PacketReceived): void => {
+  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+  //   };
+
+  //   pongSocket?.on('invite_received', handleReceived);
+
+  //   return () => {
+  //     pongSocket?.off('invite_received', handleReceived);
+  //   };
+  // }, []);
 
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {

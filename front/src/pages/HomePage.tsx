@@ -39,12 +39,6 @@ const HomePage: React.FC = () => {
     if (pongSocket === null) {
       createSocket();
     }
-    const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-    };
-
-    pongSocket?.on('invite_received', handleReceived);
-
     getUserMe()
       .then((req) => {
         setUser(req);
@@ -53,10 +47,28 @@ const HomePage: React.FC = () => {
         console.log(err);
         setError(true);
       });
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    pongSocket?.on('invite_received', handleReceived);
+
     return () => {
       pongSocket?.off('invite_received', handleReceived);
     };
   }, []);
+
+  // useEffect(() => {
+  //   const handleReceived = (param1: PacketReceived): void => {
+  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+  //   };
+
+  //   pongSocket?.on('invite_received', handleReceived);
+
+  //   return () => {
+  //     pongSocket?.off('invite_received', handleReceived);
+  //   };
+  // }, []);
 
   /**
    * Handlers

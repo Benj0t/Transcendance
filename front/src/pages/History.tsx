@@ -52,13 +52,6 @@ const History: React.FC = () => {
     if (pongSocket === null) {
       createSocket();
     }
-  }, []);
-
-  const acceptGame = (arg: number): void => {
-    navigate(`/game?param=${arg}`);
-  };
-
-  useEffect(() => {
     const handleReceived = (param1: PacketReceived): void => {
       notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
@@ -69,6 +62,22 @@ const History: React.FC = () => {
       pongSocket?.off('invite_received', handleReceived);
     };
   }, []);
+
+  const acceptGame = (arg: number): void => {
+    navigate(`/game?param=${arg}`);
+  };
+
+  // useEffect(() => {
+  //   const handleReceived = (param1: PacketReceived): void => {
+  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+  //   };
+
+  //   pongSocket?.on('invite_received', handleReceived);
+
+  //   return () => {
+  //     pongSocket?.off('invite_received', handleReceived);
+  //   };
+  // }, []);
 
   useEffect(() => {
     getUserMe()

@@ -11,6 +11,7 @@ import { notifyToasterSuccess } from './utils/toaster';
 import { useNavigate } from 'react-router';
 // import { notifyToasterSuccess } from './utils/toaster';
 import { CircularProgress } from '@mui/material';
+// import GetUserMe from '../requests/getUserMe';
 
 const PongGame: React.FC = (): any => {
   // const pongSocket = getPongSocket();
@@ -47,7 +48,32 @@ const PongGame: React.FC = (): any => {
     if (pongSocket === null) {
       createSocket();
     }
-  }, []);
+
+    if (pongSocket !== null) {
+      pongSocket.on('history', handleHistory);
+      pongSocket.on('end_game_packet', handleEndGame);
+      pongSocket.on('time_packet', handleSocketData);
+      window.addEventListener('popstate', handlePopstate);
+    }
+
+    return () => {
+      if (pongSocket !== null) {
+        pongSocket.off('history', handleHistory);
+        pongSocket.off('end_game_packet', handleEndGame);
+        pongSocket.off('time_packet', handleSocketData);
+      }
+    };
+    // if (me.id === 0) {
+    //   GetUserMe()
+    //     .then((reqdata) => {
+    //       me.id = reqdata.id;
+    //       me.opponent = 0;
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //     });
+    // }
+  }, [createSocket]);
 
   const sendEasyMatchmakingPacket = (): void => {
     if (pongSocket !== null) pongSocket.emit('dual_packet', new PacketInDual(-2));
@@ -97,8 +123,8 @@ const PongGame: React.FC = (): any => {
     setScorePlayer(0);
     setScoreOpponent(0);
     // setOpponent(0);
-    if (pongSocket !== null) pongSocket.off('history', handleHistory);
-    if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
+    // if (pongSocket !== null) pongSocket.off('history', handleHistory);
+    // if (pongSocket !== null) pongSocket.off('end_game_packet', handleEndGame);
     navigate('/');
   };
 
@@ -132,22 +158,23 @@ const PongGame: React.FC = (): any => {
     if (pongSocket !== null) pongSocket.emit('dual_cancel_packet');
   };
 
-  useEffect(() => {
-    if (pongSocket !== null) pongSocket.on('history', handleHistory);
-    return () => {
-      pongSocket?.off('history', handleHistory);
-    };
-  }, []);
+  // useEffect(() => {
+  //   if (pongSocket !== null) pongSocket.on('history', handleHistory);
+  //   return () => {
+  //     pongSocket?.off('history', handleHistory);
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   if (pongSocket !== null) pongSocket.on('end_game_packet', handleEndGame);
+  //   return () => {
+  //     pongSocket?.off('end_game_packet', handleEndGame);
+  //   };
+  // }, []);
 
   useEffect(() => {
-    if (pongSocket !== null) pongSocket.on('end_game_packet', handleEndGame);
-    return () => {
-      pongSocket?.off('end_game_packet', handleEndGame);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (pongSocket !== null) pongSocket.on('time_packet', handleSocketData);
+    // console.log(pongSocket);
+    // if (pongSocket !== null) pongSocket.on('time_packet', handleSocketData);
     if (pongSocket !== null) window.addEventListener('popstate', handlePopstate);
     const canvas = canvasRef.current;
     if (canvas == null) return;
@@ -278,9 +305,9 @@ const PongGame: React.FC = (): any => {
     return () => {
       window.removeEventListener('popstate', handlePopstate);
       canvas.removeEventListener('mousemove', handleMouseMove);
-      if (pongSocket !== null) pongSocket.off('time_packet', handleSocketData);
+      // if (pongSocket !== null) pongSocket.off('time_packet', handleSocketData);
     };
-  }, [time]);
+  }, [time]); // Looking for a gracious way to force pongSocket to be reset before rest
 
   return (
     <div>
