@@ -5,9 +5,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router';
+import { useWebSocket } from '../context/pongSocket';
+import { PacketInInvite } from './packet/in/PacketInvite';
+import { UserContext } from '../context/userContext';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -23,8 +26,16 @@ interface MemberListProps {
 const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [pickUser, setPickUser] = useState<number>();
+  const { pongSocket, createSocket } = useWebSocket();
+  const me = useContext(UserContext).user;
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
 
   const handleItemClick = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -48,9 +59,11 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
   };
 
   const handleChallenge = (value: channelUsersResponse): void => {
-    if (pickUser !== undefined) console.log('navigate to : /profile/', pickUser);
-    console.log('navigate to : /challenge/', pickUser);
-    handleClose();
+    if (pickUser !== undefined) {
+      navigate(`/game?param=${pickUser}`);
+      pongSocket?.emit('invite_packet', new PacketInInvite(pickUser, me.id));
+      handleClose();
+    }
   };
 
   const getUserName = (value: channelUsersResponse): string => {
