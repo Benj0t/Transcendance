@@ -13,8 +13,6 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages, me, members }) => {
-  console.log('MEMBERS: ', members);
-  console.log('\nMESSAGES: ', JSON.stringify(messages, null, 4));
   const getUserName = (value: any): any => {
     const user = members.find((el: { id: number }) => el.id === value.user_id);
     return user.nickname;

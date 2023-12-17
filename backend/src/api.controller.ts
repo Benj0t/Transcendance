@@ -883,6 +883,7 @@ export class ApiController {
     @Param('channel_id') channelId: number,
     @Body() body: { ownerId: number; targetId: number },
   ) {
+    console.log('Channel: ', channelId, '\nownerID: ', body.ownerId, '\ntargetId', body.targetId);
     try {
       return this.channel_service.opUser(body.ownerId, body.targetId, channelId);
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, IconButton, TextField } from '@mui/material';
+import { Avatar, Box, IconButton } from '@mui/material';
 import { useNavigate, useParams } from 'react-router';
 import LoadingPage from './LoadingPage';
 import { useWebSocket } from '../context/pongSocket';
@@ -93,7 +93,8 @@ const ProfilePage: React.FC = () => {
             src={`data:image/png;base64, ${user?.avatar_base64}`}
           />
         </IconButton>
-        <TextField id="outlined-controlled" label="Nom d'utilisateur" value={user.nickname} />
+        <h1 id="outlined-controlled">Nom: {user.nickname}</h1>
+        <h1 style={{ color: 'grey' }}>ID: {user.id}</h1>
       </Box>
     </Box>
   );

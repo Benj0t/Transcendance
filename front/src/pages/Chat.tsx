@@ -227,7 +227,7 @@ const Chat: React.FC = () => {
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
           <ButtonCreateChannel me={me.id} />
           <ButtonJoinChannel />
-          <AdminPanel isAdmin />
+          <AdminPanel channelUsers={channelMembers} me={me} users={users} />
         </Box>
       </Box>
     </Box>

@@ -1,5 +1,5 @@
-Passer PublicRoute avec le /auth/verify
-
-TODO promise.all quand plusieurs query
-
 TODO auth peut pas renvoyer jwt sans la 2FA
+
+Creer un channel ne refresh pas le selecter des channels (nouveau chann n'apparait pas sans F5)
+
+Envoyer un message ne refresh pas l'historique

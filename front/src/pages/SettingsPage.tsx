@@ -8,9 +8,15 @@ import { useWebSocket } from '../context/pongSocket';
 import { PacketInInvite } from '../components/packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
+import {
+  notifyToasterError,
+  notifyToasterInfo,
+  notifyToasterInivtation,
+  notifyToasterSuccess,
+} from '../components/utils/toaster';
 import ProfileButton from '../components/profileButton';
 import getUserMe from '../requests/getUserMe';
+import patchUserName from '../requests/patchUserName';
 
 interface getUserMeResponse {
   id: number;
@@ -77,7 +83,15 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleClickSave = (): void => {
-    console.log('save');
+    if (name !== undefined)
+      patchUserName(name)
+        .then((_req) => {
+          notifyToasterSuccess('Name successfully updated');
+        })
+        .catch((err) => {
+          console.log(err);
+          notifyToasterError('Could not update your name');
+        });
   };
 
   const handleLogTest = (): void => {

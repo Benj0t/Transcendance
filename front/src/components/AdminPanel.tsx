@@ -1,32 +1,68 @@
 import {
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  FormControlLabel,
   TextField,
 } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
+import postChannelOp from '../requests/postChannelOp';
+import { notifyToasterError, notifyToasterInfo } from './utils/toaster';
 
-interface AdminPanelProps {
-  isAdmin: boolean;
+interface channelUsersResponse {
+  channel_id: number;
+  user_id: number;
+  role: number;
+  mute_expiry_at?: Date;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin }) => {
-  if (!isAdmin) return <h1>JE SUIS PAS ADMIN</h1>;
-  const [open, setOpen] = React.useState(false);
-  const [passEnable, setPassEnable] = React.useState<boolean>(true);
+interface getUserMeResponse {
+  id: number;
+  nickname: string;
+  avatar_base64: string;
+  two_factor_secret: string;
+  two_factor_enable: boolean;
+  user_42_id: number;
+}
 
-  const handleEnablePass = (): void => {
-    setPassEnable((prevState) => {
-      return !prevState;
-    });
+interface AdminPanelProps {
+  channelUsers: channelUsersResponse[];
+  me: getUserMeResponse;
+  users: any;
+}
+
+const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
+  const [open, setOpen] = useState(false);
+  const [newAdmin, setNewAdmin] = useState('');
+
+  const amIAdmin = (): boolean => {
+    const size = channelUsers.length;
+    for (let i = 0; i < size; i++) {
+      if (channelUsers[i].user_id === me.id && channelUsers[i].role < 2) {
+        return true;
+      }
+    }
+    return false;
   };
 
+  const handleSubmitNewAdmin = (): void => {
+    const user = users.find((el: { nickname: string }) => el.nickname === newAdmin);
+    if (user === undefined) {
+      notifyToasterError('Can not find this user');
+      return;
+    }
+    postChannelOp(channelUsers[0].channel_id, me.id, user.id)
+      .then((req) => {
+        notifyToasterInfo(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not add this user as channel Administrator');
+      });
+  };
   const handleClickOpen = (): void => {
     setOpen(true);
   };
@@ -37,6 +73,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin }) => {
     }
   };
 
+  if (!amIAdmin()) return <></>;
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
@@ -47,20 +84,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin }) => {
         <DialogContent>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <TextField label="Nom du channel"></TextField>
+              <TextField
+                label="Nouvel Administrateur"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setNewAdmin(event.target.value);
+                }}
+              ></TextField>
+              <Button onClick={handleSubmitNewAdmin}> OK </Button>
             </FormControl>
           </Box>
           <FormControl sx={{ m: 1 }}>
-            <FormControlLabel
-              control={<Checkbox checked={!passEnable} onChange={handleEnablePass} />}
-              label="Channel privé"
-            />
-            <TextField disabled={passEnable} label="Mot de Passe"></TextField>
+            <TextField label="Mot de Passe"></TextField>
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
+          <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>
