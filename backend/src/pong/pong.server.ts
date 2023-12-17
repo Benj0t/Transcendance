@@ -144,8 +144,7 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
   handleSendMessage(client: Socket, packet: PacketMessage): void {
     for (const user of packet.channelMembers)
     {
-      if (user.user_id !== packet.senderId)
-        this.getConnectedByUserId(user.user_id).client.emit('message_arrived', new PacketArrived(packet.senderId, packet.message, packet.chanId));
+      this.getConnectedByUserId(user.user_id).client.emit('message_arrived', new PacketArrived(packet.senderId, packet.message, packet.chanId));
     }
   }
 

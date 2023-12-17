@@ -57,23 +57,22 @@ const Chat: React.FC = () => {
 
   const cont = useContext(UserContext).user;
   const { pongSocket, createSocket } = useWebSocket();
+
+  const handleArrived = (param1: PacketArrived): void => {
+    const newMsg: any = {
+      channel_id: selectChannel,
+      user_id: param1.senderId,
+      message: param1.message,
+      created_at: Date.now(),
+    };
+    if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
+    else notifyToasterInfo(`New message !`);
+  };
+
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
     }
-    const handleArrived = (param1: PacketArrived): void => {
-      const newMsg: any = {
-        channel_id: selectChannel,
-        user_id: param1.senderId,
-        message: param1.message,
-        created_at: Date.now(),
-      };
-      console.log(param1.chanId);
-      console.log(selectChannel);
-      if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
-      else notifyToasterInfo(`New message !`);
-    };
-
     const handleReceived = (param1: PacketReceived): void => {
       notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
@@ -85,7 +84,7 @@ const Chat: React.FC = () => {
       pongSocket?.off('invite_received', handleReceived);
       pongSocket?.off('message_arrived', handleArrived);
     };
-  }, []);
+  }, [selectChannel]);
 
   const onSendMessage = (message: string): void => {
     postMessage(selectChannel, message)
@@ -98,7 +97,6 @@ const Chat: React.FC = () => {
       .catch((err) => {
         console.log(err);
       });
-    console.log(message);
   };
   const navigate = useNavigate();
 
