@@ -164,6 +164,16 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     connected.opponentId = null;
   }
 
+  @SubscribeMessage('get_connected_by_user_id')
+  handleGetConnectedByUserId(client: Socket, userId: number): void {
+    const connected = this.getConnectedByUserId(userId);
+    if (connected) {
+      client.emit('connected_by_user_id', connected.hasMatch());
+    } else {
+      client.emit('connected_by_user_id', null);
+    }
+  }
+
   createMatch(user1: Connected, user2: Connected, mode: number) {
     if (user1.hasMatch() || user2.hasMatch()) return;
 
