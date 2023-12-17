@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Button, IconButton, TextField } from '@mui/material';
 import { useNavigate } from 'react-router';
 import AuthEnabled from '../requests/getAuthEnabled';
 import AuthGenerate from '../requests/postAuthGenerate';
 import LoadingPage from './LoadingPage';
 import { useWebSocket } from '../context/pongSocket';
-import { PacketInInvite } from '../components/packet/in/PacketInvite';
-import { UserContext } from '../context/userContext';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import {
   notifyToasterError,
@@ -34,7 +32,6 @@ const SettingsPage: React.FC = () => {
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { pongSocket, createSocket } = useWebSocket();
-  const me = useContext(UserContext).user;
   const [user, setUser] = useState<getUserMeResponse>();
   useEffect(() => {
     if (pongSocket === null) {
@@ -101,14 +98,6 @@ const SettingsPage: React.FC = () => {
           console.log(err);
           notifyToasterError('Could not update your name');
         });
-  };
-
-  const handleLogTest = (): void => {
-    const hello: number = 2;
-
-    navigate(`/game?param=${hello}`);
-    pongSocket?.emit('invite_packet', new PacketInInvite(2, me.id));
-    // navigate('/AuthTwoFactor');
   };
 
   useEffect(() => {
@@ -182,9 +171,6 @@ const SettingsPage: React.FC = () => {
             disabled={twoFactorEnabled}
           >
             Enable 2fa
-          </Button>
-          <Button size="large" variant="outlined" onClick={handleLogTest}>
-            Test log
           </Button>
         </Box>
       </Box>
