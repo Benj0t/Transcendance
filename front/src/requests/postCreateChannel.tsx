@@ -10,6 +10,7 @@ const CreateChannel = async (
     password: channelPass,
     members: channelMembers,
   };
+
   const response = await axios.post(`/api/channels`, requestData);
 
   return response.data;
