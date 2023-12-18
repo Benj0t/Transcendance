@@ -58,6 +58,7 @@ const ButtonJoinChannel: React.FC = () => {
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
+                type="number"
                 label="ID du Channel"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setName(event.target.value);

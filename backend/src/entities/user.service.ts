@@ -48,7 +48,6 @@ export class UserService {
 			`select * from get_user_blocked_users($1)`,
 			[id]
 		);
-		
 		return friends;
 	}
 

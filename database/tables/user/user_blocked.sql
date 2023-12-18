@@ -6,22 +6,16 @@ create table "user_has_blocked_user" (
     "blocked_user_id" integer references "user"(id)
 );
 
--- 
---insert into "user_has_blocked_user" ("user_id", "blocked_user_id") values (
-	18, 19
--- );
-
 create or replace view "v_user_has_blocked_user" as select * from "user_has_blocked_user";
 
 -- Get the blocked users for the specified user.
 
-drop function "get_user_blocked_users";
-create or replace function "get_user_blocked_users"(p_user_id integer)
-returns setof "v_user_has_blocked_user" as $$
-begin
-    return query select * from "v_user_has_blocked_user" where user_id = p_user_id;
-end;
-$$ language plpgsql;
+CREATE OR REPLACE FUNCTION get_user_blocked_users(p_user_id integer)
+RETURNS SETOF "user_has_blocked_user" AS $$
+BEGIN
+    RETURN QUERY SELECT * FROM "user_has_blocked_user" WHERE "user_id" = p_user_id;
+END;
+$$ LANGUAGE plpgsql;
 
 drop function "block_user";
 create or replace function "block_user"(p_user_id integer, p_blocked_user_id integer)

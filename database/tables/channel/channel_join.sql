@@ -46,9 +46,9 @@ begin
         return 'User is not a member of the channel.';
     end if;
 
-    if (select owner_id from "channel" where id = p_channel_id) = p_user_id then
-        return 'Channel owner cannot leave the channel. Please delete the channel or transfer ownership first.';
-    end if;
+   if (select owner_id from "channel" where id = p_channel_id) = p_user_id then
+       return 'Channel owner cannot leave the channel. Please delete the channel or transfer ownership first.';
+   end if;
 
     delete from "channel_has_member" where user_id = p_user_id and channel_id = p_channel_id;
     

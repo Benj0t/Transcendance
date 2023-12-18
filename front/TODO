@@ -1,7 +1,30 @@
-TODO auth peut pas renvoyer jwt sans la 2FA
+TOP:
+je sais plus si on en avait parler mais essayer de join un chan avec un id qui n'existe pas sort un 500
 
+On join un chan secret avec le mauvais password
+
+
+HIGH:
+
+DM implem
+
+The channel owner can set a password required to access the channel, change
+it, and also remove it
+
+Admins can mute users
+
+Mid:
+
+Route friendsAdd crash si nom invalide -> Changer route back prends name pas id pour pas faire le check en front
+
+When logged for the first time, the user is prompted to add information 
+to their account (display name/nickname, avatar, and so forth). 
+// Moyen de Dialog qui te permet de reset ton Username depuis la HomePage, juste a voir comment on peut savoir que c est ton premier Log / Ou alors juste une redirect sur une page qui te demande si tu veux set ton name et choisir une autre image que celle de base (pas sur ca)
+
+
+
+LOW:
 Creer un channel ne refresh pas le selecter des channels (nouveau chann n'apparait pas sans F5)
 
-Envoyer un message ne refresh pas l'historique
-
-Si on wipe la DB mais qu'on delete pas le cookie cote client something went bad parce que t as un JWT mais t es pas en db
+TODO auth peut pas renvoyer jwt sans la 2FA
+DEPRECATED THINGS

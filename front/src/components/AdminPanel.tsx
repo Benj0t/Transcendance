@@ -11,6 +11,9 @@ import {
 import React, { useState } from 'react';
 import postChannelOp from '../requests/postChannelOp';
 import { notifyToasterError, notifyToasterInfo } from './utils/toaster';
+import postChannelBan from '../requests/postChannelBan';
+import postChannelKick from '../requests/postChannelKick';
+import ButtonDeleteChannel from './ButtonDeleteChannel';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -32,16 +35,23 @@ interface AdminPanelProps {
   channelUsers: channelUsersResponse[];
   me: getUserMeResponse;
   users: any;
+  channelID: number;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channelID }) => {
   const [open, setOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [newAdmin, setNewAdmin] = useState('');
+  const [banTime, setBanTime] = useState('');
+  const [userBan, setUserBan] = useState('');
+  const [userKick, setUserKick] = useState('');
+  // const [userMute, setUserMute] = useState('');
 
   const amIAdmin = (): boolean => {
     const size = channelUsers.length;
     for (let i = 0; i < size; i++) {
       if (channelUsers[i].user_id === me.id && channelUsers[i].role < 2) {
+        if (channelUsers[i].role === 0) if (!isOwner) setIsOwner(true);
         return true;
       }
     }
@@ -54,9 +64,44 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
       notifyToasterError('Can not find this user');
       return;
     }
-    postChannelOp(channelUsers[0].channel_id, me.id, user.id)
+    postChannelOp(channelID, me.id, user.id)
       .then((req) => {
         notifyToasterInfo(req);
+        handleClose();
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not add this user as channel Administrator');
+      });
+  };
+
+  const handleSubmitBan = (): void => {
+    const user = users.find((el: { nickname: string }) => el.nickname === userBan);
+    if (user === undefined) {
+      notifyToasterError('Can not find this user');
+      return;
+    }
+    postChannelBan(channelID, me.id, user.id, parseInt(banTime))
+      .then((req) => {
+        notifyToasterInfo(req);
+        handleClose();
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not add this user as channel Administrator');
+      });
+  };
+
+  const handleSubmitKick = (): void => {
+    const user = users.find((el: { nickname: string }) => el.nickname === userKick);
+    if (user === undefined) {
+      notifyToasterError('Can not find this user');
+      return;
+    }
+    postChannelKick(channelID, me.id, user.id)
+      .then((req) => {
+        notifyToasterInfo(req);
+        handleClose();
       })
       .catch((err) => {
         console.log(err);
@@ -67,10 +112,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
     setOpen(true);
   };
 
-  const handleClose = (event: React.SyntheticEvent<unknown>, reason?: string): void => {
-    if (reason !== 'backdropClick') {
-      setOpen(false);
-    }
+  const handleClose = (): void => {
+    setOpen(false);
   };
 
   if (!amIAdmin()) return <></>;
@@ -85,17 +128,50 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
-                label="Nouvel Administrateur"
+                label="Grant Admin (chann owner only)"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setNewAdmin(event.target.value);
                 }}
               ></TextField>
-              <Button onClick={handleSubmitNewAdmin}> OK </Button>
+              <Button onClick={handleSubmitNewAdmin} disabled={!isOwner}>
+                OK
+              </Button>
             </FormControl>
           </Box>
-          <FormControl sx={{ m: 1 }}>
-            <TextField label="Mot de Passe"></TextField>
-          </FormControl>
+          <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <TextField
+                label="Ban User"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setUserBan(event.target.value);
+                }}
+              ></TextField>
+              <TextField
+                type="number"
+                label="Ban duration"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setBanTime(event.target.value);
+                }}
+              ></TextField>
+              <Button onClick={handleSubmitBan} disabled={!isOwner}>
+                OK
+              </Button>
+            </FormControl>
+          </Box>
+          <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <TextField
+                label="Kick User"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setUserKick(event.target.value);
+                }}
+              ></TextField>
+              <Button onClick={handleSubmitKick} disabled={!isOwner}>
+                OK
+              </Button>
+            </FormControl>
+          </Box>
+          <ButtonDeleteChannel channelID={channelID} setOpenForm={setOpen} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
