@@ -5,7 +5,7 @@ import { ChannelEntity } from './channel.entity';
 import { ChannelHasMessageEntity } from './channel_has_message.entity';
 import { ChannelHasMemberEntity } from './channel_has_member.entity';
 import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
-
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 @Injectable()
 export class ChannelService {
 

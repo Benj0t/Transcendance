@@ -3,8 +3,11 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ChatIcon from '@mui/icons-material/Chat';
 import Avatar from '@mui/material/Avatar';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { useState } from 'react';
 import { Box, Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router';
@@ -97,6 +100,7 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
                     handleProfile(value);
                   }}
                 >
+                  <PersonSearchIcon />
                   Profile
                 </MenuItem>
                 <MenuItem
@@ -104,7 +108,13 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
                     handleChallenge(value);
                   }}
                 >
+                  <SportsEsportsIcon />
                   Challenge
+                </MenuItem>
+
+                <MenuItem>
+                  <ChatIcon />
+                  Direct Message
                 </MenuItem>
               </Menu>
             </ListItem>
