@@ -194,4 +194,18 @@ export class ChannelService {
 		const result = await this.channelRepository.query(`select deop_user(${ownerId}, ${targetId}, ${channelId})`);
 		return result[0].deop_user;
 	}
+
+	// POST /api/channels/{channel_id}/password
+	async changePass(user_id: number, channel_id: number, password: string): Promise<string> {
+		try {
+			const hash = await bcrypt.hash(password, 10);
+			const result = await this.channelRepository.query(
+				`select change_password($1, $2, $3)`,
+				[user_id, channel_id, hash]
+			);
+			return result[0].change_password;
+		} catch (error) {
+			throw error;
+		}
+	}
 }
