@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router';
 import { useWebSocket } from '../context/pongSocket';
 import { PacketInInvite } from './packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 
 interface channelUsersResponse {
   channel_id: number;

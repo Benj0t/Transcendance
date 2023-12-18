@@ -8,7 +8,6 @@ import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
 import * as bcrypt from 'bcrypt';
 import { cp } from 'fs';
 import { error } from 'console';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 @Injectable()
 export class ChannelService {
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ChatWindow from '../components/ChatWindow';
 import { Box } from '@mui/material';
 import ProfileButton from '../components/profileButton';
@@ -12,22 +12,17 @@ import getUserChannels from '../requests/getUserChannels';
 import { useWebSocket } from '../context/pongSocket';
 import { useNavigate } from 'react-router';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import {
-  notifyToasterError,
-  notifyToasterInfo,
-  notifyToasterInivtation,
-  notifyToasterSuccess,
-} from '../components/utils/toaster';
+import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
 import getUserMe from '../requests/getUserMe';
-// import postMessage from '../requests/postMessage';
+import postMessage from '../requests/postMessage';
 import LoadingPage from './LoadingPage';
 import getChannelUsers from '../requests/getChannelUsers';
 import getChannelMessages from '../requests/getChannelMessages';
-// import { UserContext } from '../context/userContext';
-// import { PacketMessage } from '../components/packet/in/PacketMessage';
+import { UserContext } from '../context/userContext';
+import { PacketMessage } from '../components/packet/in/PacketMessage';
 import { type PacketArrived } from '../components/packet/in/PacketArrived';
 import getUsers from '../requests/getUser';
-import changePass from '../requests/postChangePass';
+// import changePass from '../requests/postChangePass';
 import getUserBlockedUsers from '../requests/getUserBlockedUsers';
 import ButtonLeaveChannel from '../components/ButtonLeaveChannel';
 
@@ -64,7 +59,7 @@ const Chat: React.FC = () => {
   const [selectChannel, setSelectChannel] = useState(0);
   const [history, setHistory] = useState<channelMessagesResponse[]>([]);
 
-  // const cont = useContext(UserContext).user;
+  const cont = useContext(UserContext).user;
   const { pongSocket, createSocket } = useWebSocket();
 
   const handleArrived = (param1: PacketArrived): void => {
@@ -96,28 +91,28 @@ const Chat: React.FC = () => {
   }, [selectChannel]);
 
   const onSendMessage = (message: string): void => {
-    changePass(selectChannel, message)
-      .then((req) => {
-        if (req === 'ok') notifyToasterSuccess(`Successfully changed password`);
-        else {
-          console.log('ici');
-          notifyToasterInfo(req);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        notifyToasterError('Could not change password');
-      }); // test changepass remettre les commentaires d'en bas après
-    // postMessage(selectChannel, message)
-    //   .then(() => {
-    //     pongSocket?.emit(
-    //       'send_message',
-    //       new PacketMessage(cont.id, message, selectChannel, channelMembers),
-    //     );
+    // changePass(selectChannel, message)
+    //   .then((req) => {
+    //     if (req === 'ok') notifyToasterSuccess(`Successfully changed password`);
+    //     else {
+    //       console.log('ici');
+    //       notifyToasterInfo(req);
+    //     }
     //   })
     //   .catch((err) => {
     //     console.log(err);
+    //     notifyToasterError('Could not change password');
     //   });
+    postMessage(selectChannel, message)
+      .then(() => {
+        pongSocket?.emit(
+          'send_message',
+          new PacketMessage(cont.id, message, selectChannel, channelMembers),
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const navigate = useNavigate();
 
