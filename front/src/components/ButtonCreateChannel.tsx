@@ -67,28 +67,9 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     return data;
   };
 
-  const hashedPass = (pass: string): string => {
-    if ('crypto' in window) {
-      window.crypto.subtle
-        .digest('SHA-256', new TextEncoder().encode(pass))
-        .then((hashed) => {
-          const hashArray = Array.from(new Uint8Array(hashed));
-          const hashedPass = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
-          console.log('Hashed password:', hashedPass);
-          return hashedPass;
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    } else {
-      console.error('Web Crypto API not supported in this browser');
-    }
-    return '';
-  };
-
   const handleSubmit = (): void => {
     if (member.find((element) => element === me) === null) member.unshift(me);
-    CreateChannel(name, passEnable ? hashedPass(pass) : '', getMembersId())
+    CreateChannel(name, passEnable ? pass : '', getMembersId())
       .then((req) => {
         if (req === 'ok') {
           notifyToasterSuccess('Channel created');

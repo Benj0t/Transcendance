@@ -5,6 +5,9 @@ import { ChannelEntity } from './channel.entity';
 import { ChannelHasMessageEntity } from './channel_has_message.entity';
 import { ChannelHasMemberEntity } from './channel_has_member.entity';
 import { ChannelHasBannedUserEntity } from './channel_has_banned_user.entity';
+import * as bcrypt from 'bcrypt';
+import { cp } from 'fs';
+import { error } from 'console';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 @Injectable()
 export class ChannelService {
@@ -24,9 +27,10 @@ export class ChannelService {
 
 	async createChannel(title: string, members: number[], password: string): Promise<string> {
 		try {
+			const hash = await bcrypt.hash(password, 10);
 			const result = await this.channelRepository.query(
 				`select create_channel($1, $2, $3, $4)`,
-				[title, members, false, password]
+				[title, members, false, hash]
 			);
 			return result[0].create_channel;
 		} catch (error) {
@@ -94,11 +98,22 @@ export class ChannelService {
 
 	async joinChannel(user_id: number, channel_id: number, password: string): Promise<string> {
 		try {
-			const result = await this.channelRepository.query(
-				`select join_channel($1, $2, $3)`,
-				[user_id, channel_id, password]
+			const hashResult = await this.channelRepository.query(
+				`select get_channel_pass($1)`,
+				[channel_id]
 			);
-			return result[0].join_channel;
+			const isMatch = bcrypt.compareSync(password, hashResult[0].get_channel_pass);
+			let result;
+			if (isMatch)
+			{
+					result = await this.channelRepository.query(
+					`select join_channel($1, $2, $3)`,
+					[user_id, channel_id, password]
+				);
+				return result[0].join_channel;
+			}
+			else
+				return 'Wrong password';
 		} catch (error) {
 			throw error;
 		}
@@ -178,5 +193,19 @@ export class ChannelService {
 	async deopUser(ownerId: number, targetId: number, channelId: number): Promise<string> {
 		const result = await this.channelRepository.query(`select deop_user(${ownerId}, ${targetId}, ${channelId})`);
 		return result[0].deop_user;
+	}
+
+	// POST /api/channels/{channel_id}/password
+	async changePass(user_id: number, channel_id: number, password: string): Promise<string> {
+		try {
+			const hash = await bcrypt.hash(password, 10);
+			const result = await this.channelRepository.query(
+				`select change_password($1, $2, $3)`,
+				[user_id, channel_id, hash]
+			);
+			return result[0].change_password;
+		} catch (error) {
+			throw error;
+		}
 	}
 }

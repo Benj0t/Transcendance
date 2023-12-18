@@ -778,6 +778,29 @@ export class ApiController {
     }
   }
 
+  
+  /**
+   * Join a channel
+   * 
+   * @param body The data about joining the channel.
+   * 
+   * @returns The feedback message.
+   * 
+   *
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('channels/:channel_id/password')
+  chanePass(@Param('channel_id') channel_id: number,
+    @Req() {jwtPayload}: {jwtPayload: JwtPayload},
+    @Body() body: { password: string }
+  ) {
+    try {
+      return this.channel_service.changePass(jwtPayload.sub, channel_id, body.password);
+    } catch (error) {
+      throw new NotFoundException(`Not found: ` + error);
+    }
+  }
+
   /**
    * Leave a channel
    * 

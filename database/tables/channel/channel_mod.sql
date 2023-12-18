@@ -164,3 +164,28 @@ begin
     return 'ok';
 end;
 $$ language plpgsql;
+
+-- Change password of a channel
+
+create or replace function change_password(p_owner_id int, p_channel_id int, p_new_pass text)
+returns text as $$
+declare
+    v_owner_role int;
+begin
+    select role into v_owner_role from channel_has_member where user_id = p_owner_id and channel_id = p_channel_id;
+    
+    if v_owner_role <> 0 then
+        return 'User not permitted to change password of this channel.';
+    end if;
+
+    update channel set password = p_new_pass where id = p_channel_id;
+
+    -- if p_new_pass = '' then
+    --     update channel set is_private = false where id = p_channel_id;
+    -- else
+    --     update channel set is_private = true where id = p_channel_id;
+    -- end if;
+
+    return 'ok';
+end;
+$$ language plpgsql;
