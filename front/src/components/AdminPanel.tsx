@@ -67,6 +67,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
     postChannelOp(channelID, me.id, user.id)
       .then((req) => {
         notifyToasterInfo(req);
+        handleClose();
       })
       .catch((err) => {
         console.log(err);
@@ -83,6 +84,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
     postChannelBan(channelID, me.id, user.id, parseInt(banTime))
       .then((req) => {
         notifyToasterInfo(req);
+        handleClose();
       })
       .catch((err) => {
         console.log(err);
@@ -99,6 +101,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
     postChannelKick(channelID, me.id, user.id)
       .then((req) => {
         notifyToasterInfo(req);
+        handleClose();
       })
       .catch((err) => {
         console.log(err);
@@ -109,10 +112,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
     setOpen(true);
   };
 
-  const handleClose = (event: React.SyntheticEvent<unknown>, reason?: string): void => {
-    if (reason !== 'backdropClick') {
-      setOpen(false);
-    }
+  const handleClose = (): void => {
+    setOpen(false);
   };
 
   if (!amIAdmin()) return <></>;
@@ -170,7 +171,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
               </Button>
             </FormControl>
           </Box>
-          <ButtonDeleteChannel channelID={channelID} />
+          <ButtonDeleteChannel channelID={channelID} setOpenForm={setOpen} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>

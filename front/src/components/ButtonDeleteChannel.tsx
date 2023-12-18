@@ -15,9 +15,10 @@ import deleteChannel from '../requests/deleteChannel';
 
 interface ButtonDeleteChannelProps {
   channelID: number;
+  setOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID }) => {
+const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, setOpenForm }) => {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = (): void => {
     setOpen(true);
@@ -30,7 +31,7 @@ const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID }) 
   const handleDelete = (): void => {
     deleteChannel(channelID)
       .then((req) => {
-        if (req === 'ok') notifyToasterSuccess('Channel delete');
+        if (req === 'ok.') notifyToasterSuccess('Channel delete');
         else {
           notifyToasterInfo(req);
         }
@@ -39,6 +40,7 @@ const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID }) 
         console.log(err);
         notifyToasterError('Could not delete channel');
       });
+    setOpenForm(false);
     handleClose();
   };
   return (
