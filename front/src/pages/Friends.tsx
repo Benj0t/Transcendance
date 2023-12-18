@@ -215,7 +215,7 @@ const FriendList: React.FC = () => {
       }}
     >
       <Box style={{ margin: 'auto', textAlign: 'center' }}>
-        <h1 style={{ color: 'grey' }}>Your userID: {user.id}</h1>
+        <h2 style={{ color: 'grey' }}>Your userID: {user.id}</h2>
         <TextField
           label="Ajouter Ami (ID)"
           variant="outlined"

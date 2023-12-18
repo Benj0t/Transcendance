@@ -77,7 +77,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
       notifyToasterError('Can not find this user');
       return;
     }
-    postChannelBan(channelUsers[0].channel_id, me.id, user.id)
+    postChannelBan(channelUsers[0].channel_id, me.id, user.id, 101010000)
       .then((req) => {
         notifyToasterInfo(req);
       })

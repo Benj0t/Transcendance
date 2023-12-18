@@ -6,7 +6,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import { useState } from 'react';
-import { Menu, MenuItem } from '@mui/material';
+import { Box, Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router';
 
 interface channelUsersResponse {
@@ -64,52 +64,55 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
   };
 
   return (
-    <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      {channelMembers.map((value, index: number) => {
-        const labelId = `list-${index}`;
-        return (
-          <ListItem key={index} disablePadding>
-            <ListItemButton
-              onClick={(event) => {
-                handleItemClick(event, value);
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar
-                  alt="Profile Picture"
-                  src={`data:image/png;base64, ${getUserAvatar(value)}`}
-                />
-              </ListItemAvatar>
-              <ListItemText id={labelId} primary={getUserName(value)} />
-            </ListItemButton>
-            <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  handleProfile(value);
+    <Box>
+      <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+        {channelMembers.map((value, index: number) => {
+          const labelId = `list-${index}`;
+          return (
+            <ListItem key={index} disablePadding>
+              <ListItemButton
+                onClick={(event) => {
+                  handleItemClick(event, value);
                 }}
               >
-                Profile
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleChallenge(value);
+                <ListItemAvatar>
+                  <Avatar
+                    alt="Profile Picture"
+                    src={`data:image/png;base64, ${getUserAvatar(value)}`}
+                  />
+                </ListItemAvatar>
+                <ListItemText id={labelId} primary={getUserName(value)} />
+              </ListItemButton>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
                 }}
               >
-                Challenge
-              </MenuItem>
-            </Menu>
-          </ListItem>
-        );
-      })}
-    </List>
+                <MenuItem
+                  onClick={() => {
+                    handleProfile(value);
+                  }}
+                >
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleChallenge(value);
+                  }}
+                >
+                  Challenge
+                </MenuItem>
+              </Menu>
+            </ListItem>
+          );
+        })}
+      </List>
+      <h2 style={{ color: 'grey' }}>ID du Channel: {channelMembers[0]?.channel_id}</h2>
+    </Box>
   );
 };
 
