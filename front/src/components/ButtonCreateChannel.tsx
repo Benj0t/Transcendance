@@ -90,7 +90,6 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     if (member.find((element) => element === me) === null) member.unshift(me);
     CreateChannel(name, passEnable ? hashedPass(pass) : '', getMembersId())
       .then((req) => {
-        console.log(req);
         if (req === 'ok') {
           notifyToasterSuccess('Channel created');
           setOpen(false);
@@ -106,7 +105,6 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
   useEffect(() => {
     getUserFriends()
       .then((req) => {
-        console.log(req);
         setFriendsId(req);
       })
       .catch((err) => {
@@ -117,7 +115,6 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
 
   useEffect(() => {
     const size = Object.keys(friendsId).length;
-    console.log('tab length: ', size);
     for (let i = 0; i < size; i++) {
       GetUserById(friendsId[i].friend_id)
         .then((req) => {

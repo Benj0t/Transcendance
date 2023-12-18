@@ -13,6 +13,7 @@ import postChannelOp from '../requests/postChannelOp';
 import { notifyToasterError, notifyToasterInfo } from './utils/toaster';
 import postChannelBan from '../requests/postChannelBan';
 import postChannelKick from '../requests/postChannelKick';
+import ButtonDeleteChannel from './ButtonDeleteChannel';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -34,12 +35,14 @@ interface AdminPanelProps {
   channelUsers: channelUsersResponse[];
   me: getUserMeResponse;
   users: any;
+  channelID: number;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channelID }) => {
   const [open, setOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [newAdmin, setNewAdmin] = useState('');
+  const [banTime, setBanTime] = useState('');
   const [userBan, setUserBan] = useState('');
   const [userKick, setUserKick] = useState('');
   // const [userMute, setUserMute] = useState('');
@@ -61,7 +64,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
       notifyToasterError('Can not find this user');
       return;
     }
-    postChannelOp(channelUsers[0].channel_id, me.id, user.id)
+    postChannelOp(channelID, me.id, user.id)
       .then((req) => {
         notifyToasterInfo(req);
       })
@@ -77,7 +80,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
       notifyToasterError('Can not find this user');
       return;
     }
-    postChannelBan(channelUsers[0].channel_id, me.id, user.id, 101010000)
+    postChannelBan(channelID, me.id, user.id, parseInt(banTime))
       .then((req) => {
         notifyToasterInfo(req);
       })
@@ -93,7 +96,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
       notifyToasterError('Can not find this user');
       return;
     }
-    postChannelKick(channelUsers[0].channel_id, me.id, user.id)
+    postChannelKick(channelID, me.id, user.id)
       .then((req) => {
         notifyToasterInfo(req);
       })
@@ -142,6 +145,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
                   setUserBan(event.target.value);
                 }}
               ></TextField>
+              <TextField
+                type="number"
+                label="Ban duration"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setBanTime(event.target.value);
+                }}
+              ></TextField>
               <Button onClick={handleSubmitBan} disabled={!isOwner}>
                 OK
               </Button>
@@ -160,6 +170,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users }) => {
               </Button>
             </FormControl>
           </Box>
+          <ButtonDeleteChannel channelID={channelID} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>

@@ -22,6 +22,8 @@ import { UserContext } from '../context/userContext';
 import { PacketMessage } from '../components/packet/in/PacketMessage';
 import { type PacketArrived } from '../components/packet/in/PacketArrived';
 import getUsers from '../requests/getUser';
+import getUserBlockedUsers from '../requests/getUserBlockedUsers';
+import ButtonLeaveChannel from '../components/ButtonLeaveChannel';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -46,6 +48,7 @@ interface channelMessagesResponse {
 }
 
 const Chat: React.FC = () => {
+  const [blocked, setBlocked] = useState<any>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<any>();
@@ -174,6 +177,15 @@ const Chat: React.FC = () => {
         setError(true);
         console.log(err);
       });
+    getUserBlockedUsers()
+      .then((req) => {
+        if (req === undefined) setError(true);
+        setBlocked(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -200,7 +212,6 @@ const Chat: React.FC = () => {
   if (loading) return <LoadingPage />;
   if (error) return <h1>Something bad Happened</h1>;
   if (me === undefined) return <></>;
-  console.log('USERS: ', users);
   return (
     <Box
       textAlign="right"
@@ -231,7 +242,7 @@ const Chat: React.FC = () => {
           <MemberList channelMembers={channelMembers} users={users} />
         </Box>
         <Box id="Chat" width="100%" maxHeight="70%">
-          <ChatWindow messages={history} me={me.id} members={users} />
+          <ChatWindow messages={history} me={me.id} members={users} blocked={blocked} />
           <Box
             style={{
               display: 'grid',
@@ -251,7 +262,13 @@ const Chat: React.FC = () => {
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
           <ButtonCreateChannel me={me.id} />
           <ButtonJoinChannel />
-          <AdminPanel channelUsers={channelMembers} me={me} users={users} />
+          <ButtonLeaveChannel channelID={selectChannel} />
+          <AdminPanel
+            channelUsers={channelMembers}
+            me={me}
+            users={users}
+            channelID={selectChannel}
+          />
         </Box>
       </Box>
     </Box>

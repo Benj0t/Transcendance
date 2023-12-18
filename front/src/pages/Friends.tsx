@@ -26,10 +26,12 @@ import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import ProfileButton from '../components/profileButton';
 import { PacketInInvite } from '../components/packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
+import blockUser from '../requests/postBlockUser';
+import getUser from '../requests/getUser';
 
 interface Row {
   id: number;
-  avatar: any;
+  avatar: string;
   name: any;
   status: string;
 }
@@ -48,6 +50,7 @@ const FriendList: React.FC = () => {
   const [newFriend, setNewFriend] = useState(0);
   const [user, setUser] = useState<getUserMeResponse>();
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any>();
   const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
   const { pongSocket, createSocket } = useWebSocket();
@@ -56,7 +59,18 @@ const FriendList: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const me = useContext(UserContext).user;
   const columns = [
-    { field: 'avatar', headerName: 'Avatar', width: 1200 / 5 },
+    {
+      field: 'avatar',
+      headerName: 'Avatar',
+      width: 120,
+      renderCell: (params: { row: Row }): React.ReactNode => (
+        <img
+          src={`data:image/png;base64, ${params.row.avatar}`}
+          alt="Avatar"
+          style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+        />
+      ),
+    },
     { field: 'name', headerName: 'Username', width: 1200 / 5 },
     { field: 'status', headerName: 'Status', width: 100 },
     {
@@ -90,7 +104,14 @@ const FriendList: React.FC = () => {
   ];
 
   const handleBlockButton = (BlockId: number): any => {
-    alert('User blocked');
+    blockUser(BlockId)
+      .then((_req) => {
+        notifyToasterSuccess('User successfully blocked');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    console.log(BlockId);
   };
 
   const handleInviteClick = (friendId: number): any => {
@@ -127,22 +148,16 @@ const FriendList: React.FC = () => {
     navigate(`/game?param=${arg}`);
   };
 
-  // useEffect(() => {
-  //   const handleReceived = (param1: PacketReceived): void => {
-  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-  //   };
-
-  //   pongSocket?.on('invite_received', handleReceived);
-
-  //   return () => {
-  //     pongSocket?.off('invite_received', handleReceived);
-  //   };
-  // }, []);
+  const getNameByID = (name: string): number => {
+    const user = users.find((el: { nickname: string }) => el.nickname === name);
+    return user.id;
+  };
 
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      postAddFriend(parseInt(addName))
+      const name = getNameByID(addName);
+      postAddFriend(name)
         .then((req) => {
           console.log(req);
           if (req.message.add_user_friend === 'ok') {
@@ -165,6 +180,14 @@ const FriendList: React.FC = () => {
     getUserMe()
       .then((req) => {
         setUser(req);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+    getUser()
+      .then((req) => {
+        setUsers(req);
       })
       .catch((err) => {
         console.log(err);
@@ -199,8 +222,8 @@ const FriendList: React.FC = () => {
     const test = fetchData();
     void test;
   }, [newFriend]);
-  if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
   if (loading) return <LoadingPage />;
+  if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
   console.log(error);
   return (
     <Box
@@ -217,7 +240,7 @@ const FriendList: React.FC = () => {
       <Box style={{ margin: 'auto', textAlign: 'center' }}>
         <h2 style={{ color: 'grey' }}>Your userID: {user.id}</h2>
         <TextField
-          label="Ajouter Ami (ID)"
+          label="Ajouter Ami"
           variant="outlined"
           value={addName}
           onChange={(e) => {

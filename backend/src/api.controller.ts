@@ -182,16 +182,6 @@ export class ApiController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('user/:id')
-  async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
-    const user = await this.user_service.findOne(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found.`);
-    }
-    return user;
-  }
-
   /**
    * Get the avatar for an user.
    * 
@@ -233,7 +223,7 @@ export class ApiController {
   @Post('user/avatar')
   async updateUserAvatar(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
-    @Body('avatar_base64') avatar_base64: string,
+    @Query('avatar_base64') avatar_base64: string,
     @Res() res: Response,
   ): Promise<void> {
 
@@ -356,9 +346,7 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Get('user/blockeds')
   async getUserBlockedUsers(@Req() {jwtPayload}: {jwtPayload: JwtPayload}): Promise<UserHasBlockedUserEntity[]> {
-
     try {
-
       const blockedUsers = await this.user_service.getBlockeds(jwtPayload.sub);
 
       return blockedUsers;
@@ -371,7 +359,6 @@ export class ApiController {
   /**
    * Block an user for an user.
    * 
-   * @param user_id           The user id.
    * @param blocked_user_id   The user id to block.
    * 
    * @returns                 The feedback message.
@@ -385,7 +372,7 @@ export class ApiController {
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('blocked_id') blocked_user_id: number,
   ): Promise<{ message: string }> {
-
+    console.log(blocked_user_id);
     try {
 
       const message = await this.user_service.blockUser(jwtPayload.sub, blocked_user_id);
@@ -420,6 +407,16 @@ export class ApiController {
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:id')
+  async getUserById(@Param('id') id: number): Promise<UserEntity | { message: string }> {
+    const user = await this.user_service.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+    return user;
   }
 
   // @Get('user/:id/chat/:channel_id/messages')
