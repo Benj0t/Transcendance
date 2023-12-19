@@ -99,7 +99,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
       .then((req) => {
         if (req === 'ok') notifyToasterSuccess(`Successfully changed password`);
         else {
-          console.log('ici');
           notifyToasterInfo(req);
         }
       })

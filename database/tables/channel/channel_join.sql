@@ -5,12 +5,15 @@ create or replace function get_channel_pass(p_channel_id int) returns text as $$
 declare
     v_password text;
 begin
-    select password into v_password from "channel" where id = p_channel_id;
+    begin
+        select password into v_password from "channel" where id = p_channel_id;
+    exception
+        when no_data_found then
+            return 'Channel does not exist.';
+    end;
     return v_password;
 end;
 $$ language plpgsql;
-
--- Join a channel
 
 create or replace function join_channel(p_user_id int, p_channel_id int, p_password text) returns text as $$
 declare
