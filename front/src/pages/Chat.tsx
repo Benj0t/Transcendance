@@ -91,18 +91,6 @@ const Chat: React.FC = () => {
   }, [selectChannel]);
 
   const onSendMessage = (message: string): void => {
-    // changePass(selectChannel, message)
-    //   .then((req) => {
-    //     if (req === 'ok') notifyToasterSuccess(`Successfully changed password`);
-    //     else {
-    //       console.log('ici');
-    //       notifyToasterInfo(req);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     notifyToasterError('Could not change password');
-    //   });
     postMessage(selectChannel, message)
       .then(() => {
         pongSocket?.emit(
