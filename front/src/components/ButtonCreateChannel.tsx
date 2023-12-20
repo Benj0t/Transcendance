@@ -75,6 +75,7 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
           notifyToasterSuccess('Channel created');
           setOpen(false);
           setMember([]);
+          window.location.reload();
         } else {
           notifyToasterInfo(req);
         }

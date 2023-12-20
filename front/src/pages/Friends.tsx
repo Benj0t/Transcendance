@@ -164,6 +164,7 @@ const FriendList: React.FC = () => {
           if (req.message.add_user_friend === 'ok') {
             notifyToasterSuccess('Votre ami à été ajouté avec succès !');
             setNewFriend((prevstate) => prevstate + 1);
+            window.location.reload();
           } else if (req.message === 'This user does not exist') {
             notifyToasterError(`Aucun utilisateur ne correspond à cet identifiant: ${addName}`);
           } else {

@@ -20,7 +20,7 @@ const AuthCallback: React.FC = () => {
       .then((reqdata) => {
         if (!reqdata && jwtParam !== null) {
           Cookies.set('jwt', jwtParam);
-          navigate('/');
+          navigate('/settings');
         }
       })
       .catch((error) => {

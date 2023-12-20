@@ -30,8 +30,10 @@ const ButtonLeaveChannel: React.FC<ButtonLeaveChannelProps> = ({ channelID }) =>
   const handleLeave = (): void => {
     postLeaveChannel(channelID)
       .then((req) => {
-        if (req === 'ok') notifyToasterSuccess('Channel left');
-        else {
+        if (req === 'ok') {
+          notifyToasterSuccess('Channel left');
+          window.location.reload();
+        } else {
           notifyToasterInfo(req);
         }
       })

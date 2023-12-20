@@ -372,7 +372,7 @@ export class ApiController {
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('blocked_id') blocked_user_id: number,
   ): Promise<{ message: string }> {
-    console.log(blocked_user_id);
+    // console.log(blocked_user_id);
     try {
 
       const message = await this.user_service.blockUser(jwtPayload.sub, blocked_user_id);

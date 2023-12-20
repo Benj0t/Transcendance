@@ -31,8 +31,10 @@ const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, se
   const handleDelete = (): void => {
     deleteChannel(channelID)
       .then((req) => {
-        if (req === 'ok.') notifyToasterSuccess('Channel delete');
-        else {
+        if (req === 'ok.') {
+          notifyToasterSuccess('Channel delete');
+          window.location.reload();
+        } else {
           notifyToasterInfo(req);
         }
       })
