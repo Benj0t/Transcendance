@@ -4,8 +4,13 @@ import { Box } from '@mui/material';
 
 const LoginPage: React.FC = () => {
   const handleLogin = (): void => {
-    const url =
-      'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fcallback&response_type=code';
+    const authUrl = process.env.REACT_APP_API_AUTH_URL ?? '';
+    const clientId = process.env.REACT_APP_CLIENT_ID ?? '';
+    const redirectUri = process.env.REACT_APP_REDIRECT_URI ?? '';
+    const responseType = process.env.REACT_APP_RESPONSE_TYPE ?? '';
+
+    const url = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}`;
+    console.log(url);
     window.location.href = url;
   };
 

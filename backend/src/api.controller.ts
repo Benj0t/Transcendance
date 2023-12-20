@@ -497,14 +497,6 @@ export class ApiController {
   @Get('auth/callback')
   async authCallback(@Query('code') code: string, @Res() res: Response): Promise<void> {
 
-    /**
-     * Client id and secret
-     */
-
-    const client_id = 'u-s4t2ud-19e5bce000defc36a67ba010b01a62700de81e7f46c1611ccde06b4057bca6d5';
-    const client_secret = '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';
-
-
     const client_username = 'bonjour';
 
     /**
@@ -513,15 +505,15 @@ export class ApiController {
      */
 
     const payload = {
-      client_id: client_id,
-      client_secret: client_secret,
+      client_id: process.env.OAUTH_CLIENT_ID,
+      client_secret: process.env.OAUTH_CLIENT_SECRET,
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: 'http://localhost:8080/api/auth/callback',
+      redirect_uri: process.env.OAUTH_REDIRECT_URI,
     };
 
     const twoFactor = {
-      client_id: client_id,
+      client_id: process.env.OAUTH_CLIENT_ID,
       client_username: client_username,
       client_secret: '',
       code: '',
@@ -535,7 +527,7 @@ export class ApiController {
        */
 
       const token_response: AxiosResponse = await this.http_service
-        .post('https://api.intra.42.fr/oauth/token', payload)
+        .post(process.env.OAUTH_TOKEN_URL, payload)
         .toPromise();
 
       /**
