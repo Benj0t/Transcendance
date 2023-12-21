@@ -3,4 +3,5 @@ export default interface User {
   nickname: string;
   yPcent: number;
   opponent: number;
+  tmpscore: number;
 }

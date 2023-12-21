@@ -103,12 +103,10 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     AuthEnabled(null)
       .then((req) => {
-        console.log(req);
         setTwoFactorEnabled(req);
       })
       .catch(() => {
         setError(true);
-        console.log('coucou');
       })
       .finally(() => {
         setLoading(false);
