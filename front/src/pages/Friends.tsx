@@ -216,25 +216,27 @@ const FriendList: React.FC = () => {
       });
     async function fetchData(): Promise<any> {
       try {
-        const req = await getUserFriends();
-        const friends = req;
-        const keys = Object.keys(friends);
-        const size = keys.length;
-        for (let i = 0; i < size; i++) {
-          let friendid = 0;
-          if (me.id === friends[i].user_id) friendid = friends[i].friend_id;
-          else friendid = friends[i].user_id;
-          const addfriend = await GetUserById(friendid);
-          // const addid = i;
-          const addavatar = addfriend.avatar_base64;
-          const addname = addfriend.nickname;
-          // const addrow = { id: friendid, avatar: addavatar, name: addname, status: '🟩' };
-          // Change status with socket idk how
-          // setRows((prevRows) => [...prevRows, addrow]);
-          getStatus(friendid, (addstatus) => {
-            const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
-            setRows((prevRows) => [...prevRows, addrow]);
-          });
+        if (pongSocket !== null) {
+          const req = await getUserFriends();
+          const friends = req;
+          const keys = Object.keys(friends);
+          const size = keys.length;
+          for (let i = 0; i < size; i++) {
+            let friendid = 0;
+            if (me.id === friends[i].user_id) friendid = friends[i].friend_id;
+            else friendid = friends[i].user_id;
+            const addfriend = await GetUserById(friendid);
+            // const addid = i;
+            const addavatar = addfriend.avatar_base64;
+            const addname = addfriend.nickname;
+            // const addrow = { id: friendid, avatar: addavatar, name: addname, status: '🟩' };
+            // Change status with socket idk how
+            // setRows((prevRows) => [...prevRows, addrow]);
+            getStatus(friendid, (addstatus) => {
+              const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
+              setRows((prevRows) => [...prevRows, addrow]);
+            });
+          }
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -246,7 +248,7 @@ const FriendList: React.FC = () => {
     setLoading(false);
     const test = fetchData();
     void test;
-  }, [newFriend]);
+  }, [newFriend, pongSocket]);
   if (loading) return <LoadingPage />;
   if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
   return (
