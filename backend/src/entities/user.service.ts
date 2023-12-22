@@ -156,14 +156,14 @@ export class UserService {
 			throw new BadRequestException('User not found');
 		}
 		try {
+			if (friend_id == 0)
+				return 'This user does not exist';
+			const result = await this.usersRepository.query(
+				`select add_user_friend($1, $2)`,
+				[user_id, friend_id]
+			);
 
-		  const result = await this.usersRepository.query(
-			`select add_user_friend($1, $2)`,
-			[user_id, friend_id]
-		  );
-
-		  return result[0];
-
+			return result[0];
 		} catch (error) {
 		  throw error;
 		}

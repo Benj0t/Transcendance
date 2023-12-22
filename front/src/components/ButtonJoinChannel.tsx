@@ -36,9 +36,10 @@ const ButtonJoinChannel: React.FC = () => {
   const handleSubmit = (): void => {
     joinChannel(name, passEnable ? pass : '')
       .then((req) => {
-        if (req === 'ok') notifyToasterSuccess(`Successfully joined channel ${name}`);
-        else {
-          console.log('ici');
+        if (req === 'ok') {
+          notifyToasterSuccess(`Successfully joined channel ${name}`);
+          window.location.reload();
+        } else {
           notifyToasterInfo(req);
         }
       })

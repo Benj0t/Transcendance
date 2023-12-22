@@ -149,8 +149,10 @@ const History: React.FC = () => {
       <Box width="5" height="5%">
         <h1 style={{ color: 'grey', display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ textAlign: 'left' }}>Game played: {played}</span>
-          <span style={{ textAlign: 'center' }}>Winrate: {winrate}%</span>
-          <span style={{ textAlign: 'right' }}>{grade}</span>
+          <span style={{ textAlign: 'center' }}>
+            Winrate: {winrate}% {grade}
+          </span>
+          <span style={{ textAlign: 'right' }}></span>
         </h1>
       </Box>
       <Box

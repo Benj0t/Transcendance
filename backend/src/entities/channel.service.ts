@@ -101,6 +101,8 @@ export class ChannelService {
 				`select get_channel_pass($1)`,
 				[channel_id]
 			);
+			if (hashResult[0].get_channel_pass === null)
+				return 'Channel does not exist';
 			const isMatch = bcrypt.compareSync(password, hashResult[0].get_channel_pass);
 			let result;
 			if (isMatch)

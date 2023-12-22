@@ -106,7 +106,13 @@ const lightTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  const [userMe, setUserMe] = useState({ id: 0, nickname: '', yPcent: 0, opponent: 0 });
+  const [userMe, setUserMe] = useState({
+    id: 0,
+    nickname: '',
+    yPcent: 0,
+    opponent: 0,
+    tmpscore: 0,
+  });
   const { pongSocket, createSocket } = useWebSocket();
 
   useEffect(() => {

@@ -111,7 +111,7 @@ const FriendList: React.FC = () => {
       .catch((err) => {
         console.log(err);
       });
-    console.log(BlockId);
+    // console.log(BlockId);
   };
 
   const handleInviteClick = (friendId: number): any => {
@@ -149,8 +149,9 @@ const FriendList: React.FC = () => {
   };
 
   const getNameByID = (name: string): number => {
-    const user = users?.find((el: { nickname: string }) => el.nickname === name);
-    return user?.id;
+    const user = users.find((el: { nickname: string }) => el.nickname === name);
+    if (user !== undefined) return user.id;
+    return 0;
   };
 
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
@@ -159,10 +160,12 @@ const FriendList: React.FC = () => {
       const name = getNameByID(addName);
       postAddFriend(name)
         .then((req) => {
-          console.log(req);
           if (req.message.add_user_friend === 'ok') {
             notifyToasterSuccess('Votre ami à été ajouté avec succès !');
             setNewFriend((prevstate) => prevstate + 1);
+            window.location.reload();
+          } else if (req.message === 'This user does not exist') {
+            notifyToasterError(`Aucun utilisateur ne correspond à cet identifiant: ${addName}`);
           } else {
             notifyToasterInfo('Vous êtes déjà ami avec cet utilisateur!');
           }
@@ -178,16 +181,18 @@ const FriendList: React.FC = () => {
   const getStatus = (userId: number, setStatus: (status: string) => void): void => {
     const handleConnected = (data: boolean): void => {
       pongSocket?.off('connected_by_user_id', handleConnected);
-      console.log('data = ', data);
+      // console.log('data = ', data);
       if (data === null) setStatus('🟥');
       else {
         if (data ?? false) setStatus('🟧');
         else setStatus('🟩');
       }
     };
-
-    pongSocket?.emit('get_connected_by_user_id', userId);
-    pongSocket?.on('connected_by_user_id', handleConnected);
+    if (pongSocket === null) setStatus('🟩');
+    else {
+      pongSocket?.emit('get_connected_by_user_id', userId);
+      pongSocket.on('connected_by_user_id', handleConnected);
+    }
   };
 
   useEffect(() => {
@@ -210,25 +215,27 @@ const FriendList: React.FC = () => {
       });
     async function fetchData(): Promise<any> {
       try {
-        const req = await getUserFriends();
-        const friends = req;
-        const keys = Object.keys(friends);
-        const size = keys.length;
-        for (let i = 0; i < size; i++) {
-          let friendid = 0;
-          if (me.id === friends[i].user_id) friendid = friends[i].friend_id;
-          else friendid = friends[i].user_id;
-          const addfriend = await GetUserById(friendid);
-          // const addid = i;
-          const addavatar = addfriend.avatar_base64;
-          const addname = addfriend.nickname;
-          // const addrow = { id: friendid, avatar: addavatar, name: addname, status: '🟩' };
-          // Change status with socket idk how
-          // setRows((prevRows) => [...prevRows, addrow]);
-          getStatus(friendid, (addstatus) => {
-            const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
-            setRows((prevRows) => [...prevRows, addrow]);
-          });
+        if (pongSocket !== null) {
+          const req = await getUserFriends();
+          const friends = req;
+          const keys = Object.keys(friends);
+          const size = keys.length;
+          for (let i = 0; i < size; i++) {
+            let friendid = 0;
+            if (me.id === friends[i].user_id) friendid = friends[i].friend_id;
+            else friendid = friends[i].user_id;
+            const addfriend = await GetUserById(friendid);
+            // const addid = i;
+            const addavatar = addfriend.avatar_base64;
+            const addname = addfriend.nickname;
+            // const addrow = { id: friendid, avatar: addavatar, name: addname, status: '🟩' };
+            // Change status with socket idk how
+            // setRows((prevRows) => [...prevRows, addrow]);
+            getStatus(friendid, (addstatus) => {
+              const addrow = { id: friendid, avatar: addavatar, name: addname, status: addstatus };
+              setRows((prevRows) => [...prevRows, addrow]);
+            });
+          }
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -240,10 +247,9 @@ const FriendList: React.FC = () => {
     setLoading(false);
     const test = fetchData();
     void test;
-  }, [newFriend]);
+  }, [newFriend, pongSocket]);
   if (loading) return <LoadingPage />;
   if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
-  console.log(error);
   return (
     <Box
       display="grid"

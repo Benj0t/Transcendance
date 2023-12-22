@@ -10,10 +10,11 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import postChannelOp from '../requests/postChannelOp';
-import { notifyToasterError, notifyToasterInfo } from './utils/toaster';
+import { notifyToasterError, notifyToasterInfo, notifyToasterSuccess } from './utils/toaster';
 import postChannelBan from '../requests/postChannelBan';
 import postChannelKick from '../requests/postChannelKick';
 import ButtonDeleteChannel from './ButtonDeleteChannel';
+import changePass from '../requests/postChangePass';
 import postChannelMute from '../requests/postChannelMute';
 
 interface channelUsersResponse {
@@ -47,8 +48,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
   const [muteTime, setMuteTime] = useState('');
   const [userBan, setUserBan] = useState('');
   const [userKick, setUserKick] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [userMute, setUserMute] = useState('');
-  // const [userMute, setUserMute] = useState('');
 
   const amIAdmin = (): boolean => {
     const size = channelUsers.length;
@@ -92,6 +93,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
       .catch((err) => {
         console.log(err);
         notifyToasterError('Could not add this user as channel Administrator');
+      });
+  };
+
+  const handleSubmitNewPassword = (): void => {
+    changePass(channelID, newPassword)
+      .then((req) => {
+        if (req === 'ok') notifyToasterSuccess(`Successfully changed password`);
+        else {
+          notifyToasterInfo(req);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not change password');
       });
   };
 
@@ -194,6 +209,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
+                label="Change Password"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setNewPassword(event.target.value);
+                }}
+              ></TextField>
+              <Button onClick={handleSubmitNewPassword} disabled={!isOwner}>
                 label="Mute User"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setUserMute(event.target.value);

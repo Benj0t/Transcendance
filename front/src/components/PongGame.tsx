@@ -140,10 +140,11 @@ const PongGame: React.FC = (): any => {
     setStart(data.start);
     // if (data.opponentId !== 0 && data.opponentId !== null && data.opponentId !== undefined)
     me.opponent = data.theopponent;
+    me.tmpscore = data.scoreOpponent;
   };
 
   const handleHistory = (): void => {
-    postAddMatch(me.id, me.opponent, 5, scoreOpponent, Math.floor((Date.now() - savedTimer) / 1000))
+    postAddMatch(me.id, me.opponent, 5, me.tmpscore, Math.floor((Date.now() - savedTimer) / 1000))
       .then((req) => {
         console.log(req);
         if (req.message === 'ok') notifyToasterSuccess('You won !');
@@ -307,7 +308,7 @@ const PongGame: React.FC = (): any => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       // if (pongSocket !== null) pongSocket.off('time_packet', handleSocketData);
     };
-  }, [time]); // Looking for a gracious way to force pongSocket to be reset before rest
+  }, [time]);
 
   return (
     <div>
