@@ -266,6 +266,8 @@ const Chat: React.FC = () => {
               changeChannel={setSelectChannel}
               channel={selectChannel}
               channelsList={channel}
+              me={me.id}
+              allUsers={users}
             />
             <ChatInput handleSendMessage={handleSendMessage} />
           </Box>
@@ -273,12 +275,15 @@ const Chat: React.FC = () => {
         <Box id="channelManagement" display="flex" flexDirection="column" alignItems="end">
           <ButtonCreateChannel me={me.id} />
           <ButtonJoinChannel />
-          <ButtonLeaveChannel channelID={selectChannel} />
           <AdminPanel
             channelUsers={channelMembers}
             me={me}
             users={users}
             channelID={selectChannel}
+          />
+          <ButtonLeaveChannel
+            channelID={selectChannel}
+            isPrivate={channel.find((element) => element.channel_id === selectChannel)?.is_private}
           />
         </Box>
       </Box>

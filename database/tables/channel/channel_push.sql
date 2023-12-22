@@ -36,6 +36,9 @@ begin
         select get_private_channel_id(p_user_id, p_recipient_id) into v_channel_id;
     end if;
 
-    return send_message(p_user_id, v_channel_id, p_message);
+    if p_message != '' then
+        return send_message(p_user_id, v_channel_id, p_message);
+    end if;
+    return 'ok';
 end;
 $$ language plpgsql;

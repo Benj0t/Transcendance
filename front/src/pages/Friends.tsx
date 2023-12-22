@@ -149,8 +149,8 @@ const FriendList: React.FC = () => {
   };
 
   const getNameByID = (name: string): number => {
-    const user = users.find((el: { nickname: string }) => el.nickname === name);
-    return user.id;
+    const user = users?.find((el: { nickname: string }) => el.nickname === name);
+    return user?.id;
   };
 
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {

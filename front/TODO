@@ -1,15 +1,8 @@
 TOP:
-je sais plus si on en avait parler mais essayer de join un chan avec un id qui n'existe pas sort un 500
-
-On join un chan secret avec le mauvais password
-
 
 HIGH:
 
 DM implem
-
-The channel owner can set a password required to access the channel, change
-it, and also remove it
 
 Admins can mute users
 
@@ -28,3 +21,4 @@ Creer un channel ne refresh pas le selecter des channels (nouveau chann n'appara
 
 TODO auth peut pas renvoyer jwt sans la 2FA
 DEPRECATED THINGS
+PASS ERROR To every component from Page to set it
