@@ -101,13 +101,23 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
   useEffect(() => {
     const size = Object.keys(friendsId).length;
     for (let i = 0; i < size; i++) {
-      GetUserById(friendsId[i].friend_id)
-        .then((req) => {
-          setFriendsName((prevName) => [...prevName, req.nickname]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      if (friendsId[i]?.friend_id !== me)
+        GetUserById(friendsId[i].friend_id)
+          .then((req) => {
+            setFriendsName((prevName) => [...prevName, req.nickname]);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      else {
+        GetUserById(friendsId[i].user_id)
+          .then((req) => {
+            setFriendsName((prevName) => [...prevName, req.nickname]);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
     setLoading(false);
   }, [friendsId]);
