@@ -137,6 +137,12 @@ export class ChannelService {
 		const result = await this.channelRepository.query('select send_message($1, $2, $3)', [userId, channelId, message]);
 		return result[0].send_message;
 	}
+
+	// GET /api/channels/{channel_id}/checkmute
+	async checkMute(userId: number, channelId: number): Promise<string> {
+		const result = await this.channelRepository.query('select check_mute($1, $2)', [userId, channelId]);
+		return result[0].check_mute;
+	}
 	
 	// POST /api/channels/{channel_id}/mute
 	async muteUser(moderatorId: number, targetId: number, channelId: number, muteTime: string): Promise<string> {

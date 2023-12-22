@@ -17,6 +17,28 @@ begin
 end;
 $$ language plpgsql;
 
+-- Check if user is muted on a channel.
+
+create or replace function check_mute(p_target_id int, p_channel_id int)
+returns text as $$
+declare
+    v_mute_timer timestamp;
+    v_current_timer timestamp := current_timestamp;
+begin
+    if not is_member(p_target_id, p_channel_id) then
+        return 'User not member of this channel.';
+    end if;
+
+    select mute_expiry_at into v_mute_timer from channel_has_member where channel_id = p_channel_id and user_id = p_target_id;
+
+   if v_mute_timer is not null and v_mute_timer > v_current_timer then
+        return 'User is muted';
+    end if;
+
+    return 'ok';
+end;
+$$ language plpgsql;
+
 -- Unmute an user in the specified channel.
 
 create or replace function unmute_user(p_moderator_id int, p_target_id int, p_channel_id int)
