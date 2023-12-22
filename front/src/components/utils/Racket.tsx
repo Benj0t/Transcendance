@@ -1,4 +1,3 @@
-// import React from 'react';
 import Entity from './Entity';
 import type Size from './Size';
 

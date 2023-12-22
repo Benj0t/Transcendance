@@ -4,4 +4,4 @@ const deleteChannel = async (channelID: number): Promise<any> => {
   const response = await axios.delete(`/api/channels/${channelID}`);
   return response.data;
 };
-export default deleteChannel; // untested
+export default deleteChannel;

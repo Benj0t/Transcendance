@@ -5,4 +5,4 @@ const GetUserAvatar = async (): Promise<any> => {
 
   return response.data;
 };
-export default GetUserAvatar; // untested
+export default GetUserAvatar;

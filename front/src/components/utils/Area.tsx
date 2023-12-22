@@ -1,4 +1,3 @@
-// import React, { useState } from 'react';
 import Racket from './Racket';
 import Entity from './Entity';
 import Size from './Size';

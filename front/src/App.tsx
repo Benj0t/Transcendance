@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-// import WaitingRoom from './pages/WaitingRoom';
 import Chat from './pages/Chat';
 import History from './pages/History';
 import Game from './pages/Game';
@@ -13,17 +12,13 @@ import Friends from './pages/Friends';
 import NoMatch from './pages/NoMatch';
 import AuthCallback from './pages/AuthCallback';
 import SettingsPage from './pages/SettingsPage';
-// import { pongSocket } from './components/pongSocket';
 import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
 import { UserContext } from './context/userContext';
-import GetUserMe from './requests/getUserMe';
-// import { getPongSocket } from './context/pongSocket';
+import GetUserMe from './requests/getUserMe'
 import { SocketProvider, useWebSocket } from './context/pongSocket';
 import ProfilePage from './pages/ProfilePage';
-// import { PacketInHandshake } from './components/packet/in/PacketInHandshake';
-// import { PacketInKeepAlive } from './components/packet/in/PacketInKeepAlive';
 
 function PublicRoute({ children }: { children: JSX.Element }): JSX.Element {
   if (Cookies.get('jwt') === undefined) {
@@ -44,32 +39,13 @@ function CallbackRoute({ children }: { children: JSX.Element }): JSX.Element {
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const userIsAuthenticated = Cookies.get('jwt');
   const me = useContext(UserContext).user;
-  // const { pongSocket, createSocket } = useWebSocket();
-
-  // useEffect(() => {
-  //   if (pongSocket === null) {
-  //     createSocket();
-  //   }
-
-  //   return () => {
-  //     if (pongSocket !== null) {
-  //       pongSocket.disconnect();
-  //     }
-  //   };
-  // }, []);
-  // ??
-  // const sockContext = React.useContext(SocketContext);
-  // const pongSocket = sockContext.pongSocket;
-  // const pongSocket = getPongSocket();
   if (userIsAuthenticated !== undefined) {
     GetUserMe()
       .then((reqdata) => {
         me.id = reqdata.id;
-        // if (pongSocket !== null) pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
       })
       .catch((error) => {
         console.log(error);
-        // return error page
       });
     return <>{children}</>;
   }

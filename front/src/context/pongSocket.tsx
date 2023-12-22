@@ -32,10 +32,6 @@ export const SocketProvider = (props: { children: ReactNode }): any => {
       }, 50);
       GetUserMe()
         .then((reqdata) => {
-          // me.id = reqdata.id;
-          // if (pongSocket !== null) {
-          //   pongSocket?.on('time_packet', (packetOutTime) => {});
-          // }
         })
         .catch((error) => {
           console.log(error);

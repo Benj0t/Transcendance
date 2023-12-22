@@ -2,16 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
-// import { getPongSocket } from '../context/pongSocket';
 import { useWebSocket } from './../context/pongSocket';
 import { notifyToasterInivtation } from '../components/utils/toaster';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import getUserMe from '../requests/getUserMe';
-// import { PacketInKeepAlive } from '../components/packet/in/PacketInKeepAlive';
-// import { UserContext } from '../context/userContext';
-// import { PacketInHandshake } from '../components/packet/in/PacketInHandshake';
-// import GetUserMe from '../requests/getUserMe';
-
 interface getUserMeResponse {
   id: number;
   nickname: string;
@@ -22,7 +16,6 @@ interface getUserMeResponse {
 }
 
 const HomePage: React.FC = () => {
-  // const me = useContext(UserContext).user;
   /**
    * States
    */
@@ -58,33 +51,9 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const handleReceived = (param1: PacketReceived): void => {
-  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-  //   };
-
-  //   pongSocket?.on('invite_received', handleReceived);
-
-  //   return () => {
-  //     pongSocket?.off('invite_received', handleReceived);
-  //   };
-  // }, []);
-
   /**
    * Handlers
    */
-
-  // useEffect(() => {
-  //   GetUserMe()
-  //     .then((reqdata) => {
-  //       me.id = Math.ceil(Math.random() * 10); // replace with redata.data.id /!\
-  //       if (pongSocket !== null) pongSocket.emit('handshake_packet', new PacketInHandshake(me.id));
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //       // return error page
-  //     });
-  // }, []);
 
   const handleGame = (): void => {
     navigate('/game');
@@ -92,9 +61,6 @@ const HomePage: React.FC = () => {
   const handleChat = (): void => {
     navigate('/chat');
   };
-  // useEffect(() => {
-  //   pongSocket?.on('time_packet', (packetOutTime) => {});
-  // }, []);
   if (user === undefined || error) return <></>;
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>

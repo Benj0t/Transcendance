@@ -67,18 +67,6 @@ const History: React.FC = () => {
     navigate(`/game?param=${arg}`);
   };
 
-  // useEffect(() => {
-  //   const handleReceived = (param1: PacketReceived): void => {
-  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-  //   };
-
-  //   pongSocket?.on('invite_received', handleReceived);
-
-  //   return () => {
-  //     pongSocket?.off('invite_received', handleReceived);
-  //   };
-  // }, []);
-
   useEffect(() => {
     getUserMe()
       .then((req) => {

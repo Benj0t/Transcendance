@@ -4,7 +4,6 @@ import { ChannelEntity } from "./channel.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
-	// ... autres propriétés
 	imports: [TypeOrmModule.forFeature([ChannelEntity])],
 	providers: [ChannelService],
 	exports: [ChannelService],

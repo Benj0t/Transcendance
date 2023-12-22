@@ -22,7 +22,6 @@ import { UserContext } from '../context/userContext';
 import { PacketMessage } from '../components/packet/in/PacketMessage';
 import { type PacketArrived } from '../components/packet/in/PacketArrived';
 import getUsers from '../requests/getUser';
-// import changePass from '../requests/postChangePass';
 import getUserBlockedUsers from '../requests/getUserBlockedUsers';
 import ButtonLeaveChannel from '../components/ButtonLeaveChannel';
 
@@ -109,39 +108,6 @@ const Chat: React.FC = () => {
   const acceptGame = (arg: number): void => {
     navigate(`/game?param=${arg}`);
   };
-
-  // useEffect(() => {
-  //   const handleArrived = (param1: PacketArrived): void => {
-  //     const newMsg: any = {
-  //       channel_id: selectChannel,
-  //       user_id: param1.senderId,
-  //       message: param1.message,
-  //       created_at: Date.now(),
-  //     };
-  //     console.log(param1.chanId);
-  //     console.log(selectChannel);
-  //     if (param1.chanId === selectChannel) setHistory((prevHistory) => [...prevHistory, newMsg]);
-  //     else notifyToasterInfo(`New message !`);
-  //   };
-
-  //   pongSocket?.on('message_arrived', handleArrived);
-
-  //   return () => {
-  //     pongSocket?.off('message_arrived', handleArrived);
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   const handleReceived = (param1: PacketReceived): void => {
-  //     notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-  //   };
-
-  //   pongSocket?.on('invite_received', handleReceived);
-
-  //   return () => {
-  //     pongSocket?.off('invite_received', handleReceived);
-  //   };
-  // }, []);
 
   const handleSendMessage = (message: string): void => {
     if (message.trim() !== '') {

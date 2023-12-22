@@ -8,12 +8,10 @@ export class Scaled {
   
     constructor(arg1: number | Scaled, max?: number) {
       if (typeof arg1 === 'number' && typeof max === 'number') {
-        // Constructeur avec min et max en arguments
         this.min = arg1;
         this.max = max;
         this.percent = 0;
       } else if (arg1 instanceof Scaled) {
-        // Constructeur avec un autre objet Scaled en argument
         const other = arg1;
         this.min = other.min;
         this.max = other.max;

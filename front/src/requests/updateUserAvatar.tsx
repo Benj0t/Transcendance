@@ -11,4 +11,4 @@ const updateUserAvatar = async (avatarbase64: string): Promise<any> => {
 
   return response.data;
 };
-export default updateUserAvatar; // untested
+export default updateUserAvatar;

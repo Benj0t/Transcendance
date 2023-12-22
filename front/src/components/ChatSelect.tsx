@@ -32,7 +32,6 @@ const ChatSelect: React.FC<ChatSelectProps> = ({
     if (selectedChannel != null) {
       changeChannel(selectedChannel.channel_id);
     }
-    /// A remplacer par une vraie cond si l'User est admin du channel select
   };
   useEffect(() => {
     if (channelsList !== undefined) {

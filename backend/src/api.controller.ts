@@ -29,9 +29,6 @@ import { JwtSecretRequestType } from '@nestjs/jwt';
 
 @Controller('api')
 export class ApiController {
-
-  //TODO route pour check JWT
-
   constructor(
     private readonly http_service: HttpService,
     private readonly user_service: UserService,
@@ -171,7 +168,6 @@ export class ApiController {
    * @author Komqdo
    */
 
-  // @UseGuards(JwtAuthGuard)
   @Get('user/matches')
   async getUserMatches(@Query('id') id: number): Promise<MatchEntity[]> {
 
@@ -376,7 +372,6 @@ export class ApiController {
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('blocked_id') blocked_user_id: number,
   ): Promise<{ message: string }> {
-    // console.log(blocked_user_id);
     try {
 
       const message = await this.user_service.blockUser(jwtPayload.sub, blocked_user_id);
@@ -423,20 +418,6 @@ export class ApiController {
     return user;
   }
 
-  // @Get('user/:id/chat/:channel_id/messages')
-  // @UseGuards(JwtAuthGuard)
-  // async getChannelMessages(
-  //   @Param('id') id: number,
-  //   @Param('channel_id') channel_id: number
-  // ): Promise<ChannelMessageEntity[]> {
-  //   try {
-  //     const channelMessages = await this.user_service.getMessages(id, channel_id);
-  //     return channelMessages;
-  //   } catch (error) {
-  //     throw new NotFoundException(`User with id ${id} not found.`);
-  //   }
-  // }
-
   /**
    * Authentificate an user and exchange the specified code with
    * an access token, register the user if needed, then returns it and
@@ -476,7 +457,7 @@ export class ApiController {
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Query('OTP') OTP: string): Promise<boolean>
   {
-    const user_id = jwtPayload.sub; // ID from jwt
+    const user_id = jwtPayload.sub;
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
@@ -490,7 +471,7 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Get('auth/enabled')
   async authEnabled(@Req() {jwtPayload}: {jwtPayload: JwtPayload},): Promise<boolean> {
-    const user_id = jwtPayload.sub; // ID from jwt
+    const user_id = jwtPayload.sub;
     const user = await this.user_service.findOne(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found.`);
@@ -566,8 +547,6 @@ export class ApiController {
         res.status(HttpStatus.NOT_FOUND).send('Authentication failed.');
         return;
       }
-
-      // TODO if twoFactorEnable is true navigate(/AuthTwoFactor)
 
       /**
        * Redirect the user to main page.
@@ -674,7 +653,6 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @Patch('channels/:channel_id')
   updateChannel(@Param('channel_id') channel_id: number, @Body() body: any) {
-    //TODO
   }
 
   /**

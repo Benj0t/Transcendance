@@ -10,4 +10,4 @@ const UnblockUser = async (unblockedid: number): Promise<any> => {
   const response = await axios.delete(`/api/user/blockeds/`, requestData);
   return response.data;
 };
-export default UnblockUser; // untested
+export default UnblockUser;

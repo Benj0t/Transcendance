@@ -28,8 +28,7 @@ export class AuthService {
 
   async generateQR(client_nickname: any, client_id: any): Promise<any> {
     const output = await generateSecret(client_nickname, 'Transcendance');
-    // stock secret -> db
-    this.secrets.set(client_id, output.secret);           // set new generated secret at key=userId
+    this.secrets.set(client_id, output.secret);
     return output;
   }
 

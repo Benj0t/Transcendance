@@ -1,5 +1,3 @@
-// import React from 'react';
-// import { Scaled } from './Scaled';
 import { type Size } from './Size';
 import Location from './Location';
 

@@ -48,10 +48,6 @@ export class Match {
    */
 
   public close(): void {
-    // if (this.closed) {
-    //   return;
-    // }
-
     console.log(`[LOG] ${this.user1.client.id}: match closed.`);
     console.log(`[LOG] ${this.user2.client.id}: match closed.`);
 

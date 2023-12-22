@@ -28,15 +28,11 @@ import { ChannelModule } from './entities/channel.module';
     PongModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // if using docker containter, set host to postgres, else set host: 'localhost'
       host: 'postgres',
       port: parseInt(process.env.POSTRGRES_PORT, 10),
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      // username: env("POSTGRES_USER"),
-      // password: env("POSTGRES_PASSWORD"),
-      // database: env("POSTGRES_DB"),
       entities: [ UserEntity, UserHasFriendEntity, UserHasBlockedUserEntity, AchievementEntity, MatchEntity, RankEntity,
           ChannelHasBannedUserEntity, ChannelHasMemberEntity, ChannelHasMessageEntity, ChannelEntity ],
       synchronize: false,

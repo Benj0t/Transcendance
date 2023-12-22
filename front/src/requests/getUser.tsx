@@ -5,4 +5,4 @@ const getUsers = async (): Promise<any> => {
 
   return response.data;
 };
-export default getUsers; // untested
+export default getUsers;
