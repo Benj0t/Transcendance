@@ -19,8 +19,16 @@ create or replace function join_channel(p_user_id int, p_channel_id int, p_passw
 declare
     v_password text;
     v_is_private boolean;
+    v_ban_timer timestamp;
+    v_current_timer timestamp := current_timestamp;
+
 begin
     select is_private, password into v_is_private, v_password from "channel" where id = p_channel_id;
+    select expiry_at into v_ban_timer from "channel_has_banned_user" where channel_id = p_channel_id and user_id = p_user_id;
+
+    if v_ban_timer is not null and v_ban_timer > v_current_timer then
+        return 'User is banned';
+    end if;
 
     if v_is_private then
         return 'Cannot join a direct message channel.';
