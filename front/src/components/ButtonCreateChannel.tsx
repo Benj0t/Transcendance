@@ -62,6 +62,9 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     const size = member.length;
     for (let i = 0; i < size; i++) {
       if (friendsId[member[i]].friend_id !== me) data.push(friendsId[member[i]].friend_id);
+      else {
+        data.push(friendsId[member[i]].user_id);
+      }
     }
     data.unshift(me);
     return data;
@@ -109,8 +112,7 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     setLoading(false);
   }, [friendsId]);
   if (me === 0) return <></>;
-  if (error) return <p>Error: could not resolve data</p>;
-  if (loading) return <LoadingPage />;
+  if (loading || error) return <LoadingPage />;
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>

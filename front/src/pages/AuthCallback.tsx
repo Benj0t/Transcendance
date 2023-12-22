@@ -52,8 +52,7 @@ const AuthCallback: React.FC = () => {
       setTwoFactorCode('');
     }
   };
-  if (error) return <p>Something bad happened</p>;
-  if (loading) return <LoadingPage />;
+  if (loading || error) return <LoadingPage />;
   return (
     <Box>
       <Box

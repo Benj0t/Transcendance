@@ -140,8 +140,7 @@ const History: React.FC = () => {
     const test = fetchData();
     void test;
   }, []);
-  if (error || user === undefined) return <h1>Something bad happened</h1>;
-  if (loading) return <LoadingPage />;
+  if (loading || error || user === undefined) return <LoadingPage />;
   console.log(error);
 
   return (

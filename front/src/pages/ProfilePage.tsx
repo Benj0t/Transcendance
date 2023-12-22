@@ -68,8 +68,7 @@ const ProfilePage: React.FC = () => {
   //   };
   // }, []);
 
-  if (error || user === undefined || userID === undefined) return <p>Something bad happened</p>;
-  if (loading) return <LoadingPage />;
+  if (loading || error || user === undefined || userID === undefined) return <LoadingPage />;
   return (
     <Box
       height="100%"

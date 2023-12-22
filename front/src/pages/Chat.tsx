@@ -208,8 +208,7 @@ const Chat: React.FC = () => {
     setLoading(false);
   }, [selectChannel]);
 
-  if (loading) return <LoadingPage />;
-  if (error) return <h1>Something bad Happened</h1>;
+  if (loading || error) return <LoadingPage />;
   if (me === undefined) return <></>;
   return (
     <Box

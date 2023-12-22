@@ -46,7 +46,7 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
     value: channelUsersResponse,
   ): void => {
     setAnchorEl(event.currentTarget);
-    const user = users.find((item: { id: number }) => item.id === value.user_id);
+    const user = users?.find((item: { id: number }) => item.id === value.user_id);
     setPickUser(user.id);
   };
 
@@ -84,12 +84,12 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
   };
 
   const getUserName = (value: channelUsersResponse): string => {
-    const user = users.find((el: { id: number }) => el.id === value.user_id);
+    const user = users?.find((el: { id: number }) => el.id === value.user_id);
     return user.nickname;
   };
 
   const getUserAvatar = (value: channelUsersResponse): string => {
-    const user = users.find((el: { id: number }) => el.id === value.user_id);
+    const user = users?.find((el: { id: number }) => el.id === value.user_id);
     return user.avatar_base64;
   };
 

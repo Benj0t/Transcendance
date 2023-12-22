@@ -15,14 +15,14 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages, me, members, blocked }) => {
   const getUserName = (value: any): any => {
-    const user = members.find((el: { id: number }) => el.id === value.user_id);
+    const user = members?.find((el: { id: number }) => el.id === value.user_id);
     return user.nickname;
   };
 
   const isUserBlocked = (val: number): boolean => {
-    const size = blocked.length;
+    const size = blocked?.length;
     for (let i = 0; i < size; i++) {
-      if (blocked[i].blocked_user_id === val) {
+      if (blocked[i]?.blocked_user_id === val) {
         return true;
       }
     }

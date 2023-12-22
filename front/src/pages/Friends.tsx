@@ -248,8 +248,7 @@ const FriendList: React.FC = () => {
     const test = fetchData();
     void test;
   }, [newFriend, pongSocket]);
-  if (loading) return <LoadingPage />;
-  if (error || user === undefined) return <h1>Something bad happened: {error}</h1>;
+  if (loading || error || user === undefined) return <LoadingPage />;
   return (
     <Box
       display="grid"

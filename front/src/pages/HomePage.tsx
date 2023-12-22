@@ -95,8 +95,7 @@ const HomePage: React.FC = () => {
   // useEffect(() => {
   //   pongSocket?.on('time_packet', (packetOutTime) => {});
   // }, []);
-  if (error) return <p>Something bad happened</p>;
-  if (user === undefined) return <></>;
+  if (user === undefined || error) return <></>;
   return (
     <Box textAlign="right" sx={{ height: '100%', width: '100%' }}>
       <ProfileButton user={user} />

@@ -112,8 +112,7 @@ const SettingsPage: React.FC = () => {
         setLoading(false);
       });
   }, []);
-  if (loading) return <LoadingPage />;
-  if (error || user === undefined) return <p>Something bad happened</p>;
+  if (loading || error || user === undefined) return <LoadingPage />;
   return (
     <Box
       height="100%"
