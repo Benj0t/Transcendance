@@ -15,9 +15,10 @@ import postLeaveChannel from '../requests/postLeaveChannel';
 
 interface ButtonLeaveChannelProps {
   channelID: number;
+  isPrivate: boolean;
 }
 
-const ButtonLeaveChannel: React.FC<ButtonLeaveChannelProps> = ({ channelID }) => {
+const ButtonLeaveChannel: React.FC<ButtonLeaveChannelProps> = ({ channelID, isPrivate }) => {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = (): void => {
     setOpen(true);
@@ -45,7 +46,7 @@ const ButtonLeaveChannel: React.FC<ButtonLeaveChannelProps> = ({ channelID }) =>
   };
   return (
     <Box>
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <Button variant="outlined" disabled={isPrivate} onClick={handleClickOpen}>
         Leave Channel
         <ListItemIcon>
           <LogoutIcon />

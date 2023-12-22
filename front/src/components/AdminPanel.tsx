@@ -15,6 +15,7 @@ import postChannelBan from '../requests/postChannelBan';
 import postChannelKick from '../requests/postChannelKick';
 import ButtonDeleteChannel from './ButtonDeleteChannel';
 import changePass from '../requests/postChangePass';
+import postChannelMute from '../requests/postChannelMute';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -44,10 +45,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
   const [isOwner, setIsOwner] = useState(false);
   const [newAdmin, setNewAdmin] = useState('');
   const [banTime, setBanTime] = useState('');
+  const [muteTime, setMuteTime] = useState('');
   const [userBan, setUserBan] = useState('');
   const [userKick, setUserKick] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  // const [userMute, setUserMute] = useState('');
+  const [userMute, setUserMute] = useState('');
 
   const amIAdmin = (): boolean => {
     const size = channelUsers.length;
@@ -115,6 +117,23 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
       return;
     }
     postChannelKick(channelID, me.id, user.id)
+      .then((req) => {
+        notifyToasterInfo(req);
+        handleClose();
+      })
+      .catch((err) => {
+        console.log(err);
+        notifyToasterError('Could not add this user as channel Administrator');
+      });
+  };
+
+  const handleSubmitMute = (): void => {
+    const user = users.find((el: { nickname: string }) => el.nickname === userMute);
+    if (user === undefined) {
+      notifyToasterError('Can not find this user');
+      return;
+    }
+    postChannelMute(channelID, me.id, user.id, parseInt(muteTime))
       .then((req) => {
         notifyToasterInfo(req);
         handleClose();
@@ -196,6 +215,19 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
                 }}
               ></TextField>
               <Button onClick={handleSubmitNewPassword} disabled={!isOwner}>
+                label="Mute User"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setUserMute(event.target.value);
+                }}
+              ></TextField>
+              <TextField
+                type="number"
+                label="Mute duration"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setMuteTime(event.target.value);
+                }}
+              ></TextField>
+              <Button onClick={handleSubmitMute} disabled={!isOwner}>
                 OK
               </Button>
             </FormControl>

@@ -150,7 +150,6 @@ const FriendList: React.FC = () => {
 
   const getNameByID = (name: string): number => {
     const user = users.find((el: { nickname: string }) => el.nickname === name);
-    // console.log(user);
     if (user !== undefined) return user.id;
     return 0;
   };

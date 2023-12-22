@@ -14,6 +14,7 @@ import { useWebSocket } from '../context/pongSocket';
 import { PacketInInvite } from './packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import postDM from '../requests/postDM';
 
 interface channelUsersResponse {
   channel_id: number;
@@ -65,6 +66,19 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
     if (pickUser !== undefined) {
       navigate(`/game?param=${pickUser}`);
       pongSocket?.emit('invite_packet', new PacketInInvite(pickUser, me.id));
+      handleClose();
+    }
+  };
+
+  const handleDM = (value: channelUsersResponse): void => {
+    if (pickUser !== undefined) {
+      postDM(pickUser, '')
+        .then((req) => {
+          console.log(req);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       handleClose();
     }
   };
@@ -125,7 +139,11 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
                   Challenge
                 </MenuItem>
 
-                <MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleDM(value);
+                  }}
+                >
                   <ChatIcon />
                   Direct Message
                 </MenuItem>

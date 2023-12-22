@@ -29,11 +29,11 @@ import { ChannelModule } from './entities/channel.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       // if using docker containter, set host to postgres, else set host: 'localhost'
-      host: 'localhost',
-      port: 5432,
-      username: 'app',
-      password: 'apppassword',
-      database: 'transcendance',
+      host: 'postgres',
+      port: parseInt(process.env.POSTRGRES_PORT, 10),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
       // username: env("POSTGRES_USER"),
       // password: env("POSTGRES_PASSWORD"),
       // database: env("POSTGRES_DB"),
