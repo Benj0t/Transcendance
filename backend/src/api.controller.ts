@@ -149,7 +149,11 @@ export class ApiController {
   ): Promise<{ message: string }> {
 
     try {
-      const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
+      if (friend_id == jwtPayload.sub)
+      {
+        return ({message: 'You cant add yourself as a friend'});
+      }
+        const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
       return { message };
 
     } catch (error) {
