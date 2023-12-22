@@ -149,7 +149,12 @@ export class UserService {
 		if (!friend_id) {
 			throw new BadRequestException("Missing required parameter.");
 		}
-
+		console.log(friend_id);
+		if (friend_id == undefined)
+		{
+			console.log('here we are')
+			throw new BadRequestException('User not found');
+		}
 		try {
 
 		  const result = await this.usersRepository.query(

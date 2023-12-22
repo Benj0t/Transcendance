@@ -750,6 +750,8 @@ export class ApiController {
     @Body() body: { recipient_id: number, message: string },
   ) {
     try {
+      if (body.recipient_id === jwtPayload.sub)
+        return "You can't DM yourself";
       return this.channel_service.sendDM(jwtPayload.sub, body.recipient_id, body.message);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
