@@ -214,7 +214,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
                   setNewPassword(event.target.value);
                 }}
               ></TextField>
-              <Button onClick={handleSubmitNewPassword} disabled={!isOwner}>
+              <Button onClick={handleSubmitNewPassword} disabled={!isOwner} />
+              <TextField
                 label="Mute User"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setUserMute(event.target.value);
