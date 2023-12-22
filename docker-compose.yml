@@ -10,8 +10,7 @@ services:
     env_file:
       - .env
     volumes:
-      # - ~/transcendance/psql_data:/var/lib/postgresql/data
-      - ~/goinfre/$USER/transcendance/:/var/lib/postgresql/data
+      - ~/goinfre/$USER/$DB/:/var/lib/postgresql/data
     networks:
       - internal_network
 

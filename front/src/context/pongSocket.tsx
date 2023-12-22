@@ -31,8 +31,7 @@ export const SocketProvider = (props: { children: ReactNode }): any => {
         newSocket.emit('handshake_packet', new PacketInHandshake(me.id));
       }, 50);
       GetUserMe()
-        .then((reqdata) => {
-        })
+        .then((reqdata) => {})
         .catch((error) => {
           console.log(error);
         });

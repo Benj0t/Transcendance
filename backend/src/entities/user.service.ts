@@ -87,13 +87,17 @@ export class UserService {
 	async updateNickName(user_id: number, nickname: string): Promise<UserEntity | null> {
 		
 		try {
-
 			const user = await this.findOne(user_id);
-	  
 			if (!user) {
 			  return null;
 			}
-	  
+			const users = await this.findAll()
+			if (!users)
+				return null;
+			const size = users.length;
+			for (let i = 0; i < size; i++)
+				if (users[i]?.nickname == nickname)
+					return null;
 			user.nickname = nickname;
 	  
 			await this.usersRepository.save(user);
@@ -152,7 +156,6 @@ export class UserService {
 		console.log(friend_id);
 		if (friend_id == undefined)
 		{
-			console.log('here we are')
 			throw new BadRequestException('User not found');
 		}
 		try {

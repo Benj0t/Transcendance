@@ -188,9 +188,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
                   setBanTime(event.target.value);
                 }}
               ></TextField>
-              <Button onClick={handleSubmitBan} disabled={!isOwner}>
-                OK
-              </Button>
+              <Button onClick={handleSubmitBan}>OK</Button>
             </FormControl>
           </Box>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -201,9 +199,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
                   setUserKick(event.target.value);
                 }}
               ></TextField>
-              <Button onClick={handleSubmitKick} disabled={!isOwner}>
-                OK
-              </Button>
+              <Button onClick={handleSubmitKick}>OK</Button>
             </FormControl>
           </Box>
           <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -228,9 +224,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
                   setMuteTime(event.target.value);
                 }}
               ></TextField>
-              <Button onClick={handleSubmitMute} disabled={!isOwner}>
-                OK
-              </Button>
+              <Button onClick={handleSubmitMute}>OK</Button>
             </FormControl>
           </Box>
           <ButtonDeleteChannel channelID={channelID} setOpenForm={setOpen} />

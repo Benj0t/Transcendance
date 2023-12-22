@@ -266,7 +266,7 @@ export class ApiController {
       const tmp = await this.user_service.updateNickName(jwtPayload.sub, nickname);
 
       if (!tmp) {
-        res.status(HttpStatus.NOT_FOUND).send('User not found.');
+        res.status(HttpStatus.NOT_FOUND).send('Name invalid.');
         return ;
       }
 
@@ -274,7 +274,7 @@ export class ApiController {
       
     } catch (error) {
 
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Name update failed.');
+      res.status(HttpStatus.NOT_FOUND).send('Name update failed.');
       
     }
   }

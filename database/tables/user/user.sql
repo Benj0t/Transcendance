@@ -14,9 +14,9 @@ create table "user"
 
 create or replace view "v_user" as select * from "user";
 
-insert into "user" ("nickname", "avatar_base64", "two_factor_secret", "user_42_id") values (
-    'benjamin', 'img_base64_here', null, 1234
-);
+-- insert into "user" ("nickname", "avatar_base64", "two_factor_secret", "user_42_id") values (
+--     'benjamin', 'img_base64_here', null, 1234
+-- );
 
 -- Represent user's achievements.
 
@@ -44,6 +44,22 @@ begin
     return query select * from "v_user_has_achievement" where user_id = user_id;
 end;
 $$ language plpgsql;
+
+-- Bool if name is already taken
+
+create or replace function "get_user_nickname"(test text)
+returns boolean as $$
+declare
+    v_match boolean;
+begin
+    select exists(select 1 from v_user where nickname = test) into v_match;
+    if v_match then
+        return true;
+    end if;
+    return false;
+end;
+$$ language plpgsql;
+
 
 -- Upsert an user
 
