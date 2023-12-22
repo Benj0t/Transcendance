@@ -714,13 +714,16 @@ export class ApiController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/messages')
-  sendMessage(
+  async sendMessage(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Param('channel_id') channel_id: number,
     @Body() body: {message: string },
   ) {
     try {
-      return this.channel_service.sendMessage(jwtPayload.sub, channel_id, body.message);
+      const banned = await this.channel_service.checkMute(jwtPayload.sub, channel_id);
+      if (banned === 'ok')
+        return this.channel_service.sendMessage(jwtPayload.sub, channel_id, body.message);
+      return this.channel_service.sendMessage(jwtPayload.sub, channel_id, 'User is currently muted');
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }

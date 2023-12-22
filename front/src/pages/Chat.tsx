@@ -92,11 +92,13 @@ const Chat: React.FC = () => {
 
   const onSendMessage = (message: string): void => {
     postMessage(selectChannel, message)
-      .then(() => {
-        pongSocket?.emit(
-          'send_message',
-          new PacketMessage(cont.id, message, selectChannel, channelMembers),
-        );
+      .then((response) => {
+        if (response === 'ok') {
+          pongSocket?.emit(
+            'send_message',
+            new PacketMessage(cont.id, message, selectChannel, channelMembers),
+          );
+        }
       })
       .catch((err) => {
         console.log(err);
