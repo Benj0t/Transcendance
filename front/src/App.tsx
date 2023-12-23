@@ -87,7 +87,8 @@ const App: React.FC = () => {
     nickname: '',
     yPcent: 0,
     opponent: 0,
-    tmpscore: 0,
+    tmpscore1: 0,
+    tmpscore2: 0,
   });
   const { pongSocket, createSocket } = useWebSocket();
 

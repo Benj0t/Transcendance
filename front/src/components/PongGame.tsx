@@ -113,13 +113,19 @@ const PongGame: React.FC = (): any => {
     setTime(data.time);
     setStart(data.start);
     me.opponent = data.theopponent;
-    me.tmpscore = data.scoreOpponent;
+    me.tmpscore1 = data.scoreOpponent;
+    me.tmpscore2 = data.scorePlayer;
   };
 
-  const handleHistory = (): void => {
-    postAddMatch(me.id, me.opponent, 5, me.tmpscore, Math.floor((Date.now() - savedTimer) / 1000))
+  const handleHistory = async (): Promise<void> => {
+    await postAddMatch(
+      me.id,
+      me.opponent,
+      5,
+      me.tmpscore1 === 5 ? me.tmpscore2 : me.tmpscore1,
+      Math.floor((Date.now() - savedTimer) / 1000),
+    )
       .then((req) => {
-        console.log(req);
         if (req.message === 'ok') notifyToasterSuccess('You won !');
       })
       .catch((err) => {

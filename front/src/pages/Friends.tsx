@@ -58,6 +58,22 @@ const FriendList: React.FC = () => {
   const [selectedFriendId, setSelectedFriendId] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const me = useContext(UserContext).user;
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+    const handleReceived = (param1: PacketReceived): void => {
+      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+    };
+
+    if (pongSocket !== null) pongSocket.on('invite_received', handleReceived);
+
+    return () => {
+      if (pongSocket !== null) pongSocket.off('invite_received', handleReceived);
+    };
+  }, [pongSocket]);
+
   const columns = [
     {
       field: 'avatar',
@@ -117,7 +133,11 @@ const FriendList: React.FC = () => {
     setSelectedFriendId(friendId);
     if (friendId !== null) {
       navigate(`/game?param=${friendId}`);
-      pongSocket?.emit('invite_packet', new PacketInInvite(friendId, me.id));
+      if (pongSocket !== null)
+        pongSocket.emit(
+          'invite_packet',
+          new PacketInInvite(friendId, user !== undefined ? user.id : me.id),
+        );
     }
   };
 
@@ -127,21 +147,6 @@ const FriendList: React.FC = () => {
       navigate('/loadingPage');
     }
   };
-
-  useEffect(() => {
-    if (pongSocket === null) {
-      createSocket();
-    }
-    const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
-    };
-
-    pongSocket?.on('invite_received', handleReceived);
-
-    return () => {
-      pongSocket?.off('invite_received', handleReceived);
-    };
-  }, []);
 
   const acceptGame = (arg: number): void => {
     navigate(`/game?param=${arg}`);
