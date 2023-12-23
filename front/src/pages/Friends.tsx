@@ -164,7 +164,7 @@ const FriendList: React.FC = () => {
           } else if (req.add_user_friend === 'the specified friend id is not found') {
             notifyToasterError(`Aucun utilisateur ne correspond à cet identifiant: ${addName}`);
           } else {
-            notifyToasterInfo('Impossible d\'ajouter cet ami');
+            notifyToasterInfo("Impossible d'ajouter cet ami");
           }
         })
         .catch((err) => {

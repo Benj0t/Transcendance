@@ -166,7 +166,8 @@ export class ChannelService {
 
 	// POST /api/channels/{channel_id}/kick
 	async kickUser(moderatorId: number, targetId: number, channelId: number): Promise<string> {
-		const result = await this.channelRepository.query(`select kick_user(${moderatorId}, ${targetId}, ${channelId})`);
+		const result = await this.channelRepository.query(`select kick_user($1, $2, $3)`,
+				[moderatorId, targetId, channelId]);
 		return result[0].kick_user;
 	}
 
@@ -192,13 +193,15 @@ export class ChannelService {
 
 	// POST /api/channels/{channel_id}/op
 	async opUser(ownerId: number, targetId: number, channelId: number): Promise<string> {
-		const result = await this.channelRepository.query(`select op_user(${ownerId}, ${targetId}, ${channelId})`);
+		const result = await this.channelRepository.query(`select op_user($1, $2, $3)`,
+				[ownerId, targetId, channelId]);
 		return result[0].op_user;
 	}
 
 	// DELETE /api/channels/{channel_id}/op
 	async deopUser(ownerId: number, targetId: number, channelId: number): Promise<string> {
-		const result = await this.channelRepository.query(`select deop_user(${ownerId}, ${targetId}, ${channelId})`);
+		const result = await this.channelRepository.query(`select deop_user($1, $2, $3)`,
+				[ownerId, targetId, channelId]);
 		return result[0].deop_user;
 	}
 
