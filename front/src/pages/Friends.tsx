@@ -27,7 +27,6 @@ import ProfileButton from '../components/profileButton';
 import { PacketInInvite } from '../components/packet/in/PacketInvite';
 import { UserContext } from '../context/userContext';
 import blockUser from '../requests/postBlockUser';
-import getUser from '../requests/getUser';
 
 interface Row {
   id: number;
@@ -50,7 +49,6 @@ const FriendList: React.FC = () => {
   const [newFriend, setNewFriend] = useState(0);
   const [user, setUser] = useState<getUserMeResponse>();
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<any>();
   const [addName, setAddName] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
   const { pongSocket, createSocket } = useWebSocket();
@@ -152,26 +150,21 @@ const FriendList: React.FC = () => {
     navigate(`/game?param=${arg}`);
   };
 
-  const getNameByID = (name: string): number => {
-    const user = users.find((el: { nickname: string }) => el.nickname === name);
-    if (user !== undefined) return user.id;
-    return 0;
-  };
-
   const handleKeyDownAdd = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      const name = getNameByID(addName);
-      postAddFriend(name)
+      postAddFriend(parseInt(addName))
         .then((req) => {
           if (req.message.add_user_friend === 'ok') {
             notifyToasterSuccess('Votre ami à été ajouté avec succès !');
             setNewFriend((prevstate) => prevstate + 1);
             window.location.reload();
-          } else if (req.message === 'This user does not exist') {
+          } else if (req.add_user_friend === 'This user does not exist') {
+            notifyToasterError(`Aucun utilisateur ne correspond à cet identifiant: ${addName}`);
+          } else if (req.add_user_friend === 'the specified friend id is not found') {
             notifyToasterError(`Aucun utilisateur ne correspond à cet identifiant: ${addName}`);
           } else {
-            notifyToasterInfo('Vous êtes déjà ami avec cet utilisateur!');
+            notifyToasterInfo('Impossible d\'ajouter cet ami');
           }
         })
         .catch((err) => {
@@ -203,14 +196,6 @@ const FriendList: React.FC = () => {
     getUserMe()
       .then((req) => {
         setUser(req);
-      })
-      .catch((err) => {
-        console.log(err);
-        setError(true);
-      });
-    getUser()
-      .then((req) => {
-        setUsers(req);
       })
       .catch((err) => {
         console.log(err);
@@ -263,8 +248,9 @@ const FriendList: React.FC = () => {
       <Box style={{ margin: 'auto', textAlign: 'center' }}>
         <h2 style={{ color: 'grey' }}>Your userID: {user.id}</h2>
         <TextField
-          label="Ajouter Ami"
+          label="Ajouter Ami (ID)"
           variant="outlined"
+          type="number"
           value={addName}
           onChange={(e) => {
             setAddName(e.target.value);

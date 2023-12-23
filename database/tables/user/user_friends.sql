@@ -32,6 +32,12 @@ drop function "add_user_friend";
 create or replace function "add_user_friend"(p_user_id integer, p_friend_id integer)
 returns text as $$
 begin
+
+    if not exists (select 1 from "user" where id = p_friend_id)
+    then
+        return 'the specified friend id is not found.';
+    end if;
+
     if exists (
         select * from "user_has_friend"
         where ("user_id" = p_user_id and "friend_id" = p_friend_id) or ("user_id" = p_friend_id and "friend_id" = p_user_id)

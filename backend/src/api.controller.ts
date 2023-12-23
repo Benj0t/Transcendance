@@ -142,15 +142,18 @@ export class ApiController {
   @Post('user/friends')
   async addFriend(
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
-    @Query('friend_id') friend_id: number
+    @Query('friend_id') friend_id: string
   ): Promise<{ message: string }> {
+    const testNumb = parseInt(friend_id, 10);
+    if (isNaN(testNumb) || testNumb > 2147483646 || testNumb < 1)
+      return ({message: 'bad id value'});
 
     try {
-      if (friend_id == jwtPayload.sub)
+      if (testNumb == jwtPayload.sub)
       {
         return ({message: 'You cant add yourself as a friend'});
       }
-        const message = await this.user_service.addFriend(jwtPayload.sub, friend_id);
+        const message = await this.user_service.addFriend(jwtPayload.sub, testNumb);
       return { message };
 
     } catch (error) {
@@ -744,12 +747,15 @@ export class ApiController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('channels/:channel_id/join')
-  joinChannel(@Param('channel_id') channel_id: number,
+  joinChannel(@Param('channel_id') channel_id: string,
     @Req() {jwtPayload}: {jwtPayload: JwtPayload},
     @Body() body: { password: string }
   ) {
     try {
-      return this.channel_service.joinChannel(jwtPayload.sub, channel_id, body.password);
+      const testNumb = parseInt(channel_id, 10);
+      if (isNaN(testNumb) || testNumb > 2147483646 || testNumb < 1)
+        return ('bad id value');
+      return this.channel_service.joinChannel(jwtPayload.sub, testNumb, body.password);
     } catch (error) {
       throw new NotFoundException(`Not found: ` + error);
     }

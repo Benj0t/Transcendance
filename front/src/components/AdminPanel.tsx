@@ -227,7 +227,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ channelUsers, me, users, channe
               <Button onClick={handleSubmitMute}>OK</Button>
             </FormControl>
           </Box>
-          <ButtonDeleteChannel channelID={channelID} setOpenForm={setOpen}  disabled={!isOwner}/>
+          <ButtonDeleteChannel channelID={channelID} setOpenForm={setOpen} isDisabled={!isOwner} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>

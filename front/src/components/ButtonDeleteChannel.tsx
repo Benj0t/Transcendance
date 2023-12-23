@@ -19,7 +19,11 @@ interface ButtonDeleteChannelProps {
   isDisabled: boolean;
 }
 
-const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, setOpenForm, isDisabled }) => {
+const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({
+  channelID,
+  setOpenForm,
+  isDisabled,
+}) => {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = (): void => {
     setOpen(true);
