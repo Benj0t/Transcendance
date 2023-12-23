@@ -35,7 +35,6 @@ const ButtonCreateChannel: React.FC<{ me: number }> = ({ me }) => {
     const options = event.target.value as number[];
     const value: number[] = [];
     for (let i = 0, l = options.length; i < l; i += 1) {
-      console.log('New member: ', options[i]);
       value.push(options[i]);
     }
     setMember(value);

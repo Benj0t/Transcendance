@@ -16,9 +16,10 @@ import deleteChannel from '../requests/deleteChannel';
 interface ButtonDeleteChannelProps {
   channelID: number;
   setOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
+  isDisabled: boolean;
 }
 
-const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, setOpenForm }) => {
+const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, setOpenForm, isDisabled }) => {
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = (): void => {
     setOpen(true);
@@ -47,7 +48,7 @@ const ButtonDeleteChannel: React.FC<ButtonDeleteChannelProps> = ({ channelID, se
   };
   return (
     <Box>
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <Button variant="outlined" onClick={handleClickOpen} disabled={isDisabled}>
         <ListItemIcon>
           <DeleteOutlineIcon />
         </ListItemIcon>

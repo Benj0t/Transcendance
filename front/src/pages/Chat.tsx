@@ -12,7 +12,7 @@ import getUserChannels from '../requests/getUserChannels';
 import { useWebSocket } from '../context/pongSocket';
 import { useNavigate } from 'react-router';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInfo, notifyToasterInivtation } from '../components/utils/toaster';
+import { notifyToasterInfo, NotifyToasterInvitation } from '../components/utils/toaster';
 import getUserMe from '../requests/getUserMe';
 import postMessage from '../requests/postMessage';
 import LoadingPage from './LoadingPage';
@@ -77,7 +77,7 @@ const Chat: React.FC = () => {
       createSocket();
     }
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);

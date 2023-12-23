@@ -11,7 +11,6 @@ const postChannelMute = async (
     targetId: target,
     muteTime: time,
   };
-  console.log(time);
   const response = await axios.post(`/api/channels/${channelID}/mute`, requestData);
 
   return response.data;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Box, Button, Typography } from '@mui/material';
 import ProfileButton from '../components/profileButton';
 import { useWebSocket } from './../context/pongSocket';
-import { notifyToasterInivtation } from '../components/utils/toaster';
+import { NotifyToasterInvitation } from '../components/utils/toaster';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import getUserMe from '../requests/getUserMe';
 interface getUserMeResponse {
@@ -41,7 +41,7 @@ const HomePage: React.FC = () => {
         setError(true);
       });
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);

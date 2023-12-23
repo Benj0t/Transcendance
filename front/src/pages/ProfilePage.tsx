@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router';
 import LoadingPage from './LoadingPage';
 import { useWebSocket } from '../context/pongSocket';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInivtation } from '../components/utils/toaster';
+import { NotifyToasterInvitation } from '../components/utils/toaster';
 import GetUserById from '../requests/getUserById';
 
 interface getUserMeResponse {
@@ -42,7 +42,7 @@ const ProfilePage: React.FC = () => {
       });
     setLoading(false);
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);

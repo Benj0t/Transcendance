@@ -26,8 +26,8 @@ fclean:	clean
 		@docker system prune --volumes --all --force
 		@docker network prune --force
 		@docker image prune --force
-		@$(RM) /goinfre/${USER}/transcendance/*
-		@$(RM) ./transcendance/*
+		@$(RM) /goinfre/${USER}/$DB/*
+		@$(RM) ./$DB/*
 rec:	clean a
 
 re:		fclean a

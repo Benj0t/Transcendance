@@ -56,7 +56,6 @@ const MemberList: React.FC<MemberListProps> = ({ channelMembers, users }) => {
 
   const handleProfile = (value: channelUsersResponse): void => {
     if (pickUser !== undefined) {
-      console.log('navigate to : /profile/', pickUser);
       navigate(`/profile/${pickUser}`);
       handleClose();
     }

@@ -494,16 +494,9 @@ export class ApiController {
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: process.env.OAUTH_REDIRECT_URI,
-      // client_id: client_id,
-      // client_secret: client_secret,
-      // grant_type: 'authorization_code',
-      // code: code,
-      // redirect_uri: 'http://localhost:8080/api/auth/callback',
     };
 
     const twoFactor = {
-      // client_id: client_id,
-      // client_username: client_username,
       client_id: process.env.OAUTH_CLIENT_ID,
       client_username: client_username,
       client_secret: '',
@@ -516,9 +509,8 @@ export class ApiController {
        * Sends a POST request on /oauth/token
        * with the payload.
        */
-      // .post(process.env.OAUTH_TOKEN_URL, payload)
       const token_response: AxiosResponse = await this.http_service
-        .post('https://api.intra.42.fr/oauth/token', payload)
+        .post(process.env.OAUTH_TOKEN_URL, payload)
         .toPromise();
 
       /**
@@ -888,7 +880,6 @@ export class ApiController {
     @Param('channel_id') channelId: number,
     @Body() body: { ownerId: number; targetId: number },
   ) {
-    console.log('Channel: ', channelId, '\nownerID: ', body.ownerId, '\ntargetId', body.targetId);
     if (body.ownerId === body.targetId)
       throw new NotFoundException(`Can't set yourself as Admin `)
     try {

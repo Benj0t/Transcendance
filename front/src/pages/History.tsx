@@ -8,7 +8,7 @@ import LoadingPage from './LoadingPage';
 import GetUserById from '../requests/getUserById';
 import { useWebSocket } from '../context/pongSocket';
 import { type PacketReceived } from '../components/packet/in/PacketReceived';
-import { notifyToasterInivtation } from '../components/utils/toaster';
+import { NotifyToasterInvitation } from '../components/utils/toaster';
 import { useNavigate } from 'react-router';
 import ProfileButton from '../components/profileButton';
 
@@ -53,7 +53,7 @@ const History: React.FC = () => {
       createSocket();
     }
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);

@@ -10,7 +10,6 @@ const LoginPage: React.FC = () => {
     const responseType = process.env.REACT_APP_RESPONSE_TYPE ?? '';
 
     const url = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}`;
-    console.log(url);
     window.location.href = url;
   };
 

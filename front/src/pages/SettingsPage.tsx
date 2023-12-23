@@ -9,7 +9,7 @@ import { type PacketReceived } from '../components/packet/in/PacketReceived';
 import {
   notifyToasterError,
   notifyToasterInfo,
-  notifyToasterInivtation,
+  NotifyToasterInvitation,
   notifyToasterSuccess,
 } from '../components/utils/toaster';
 import ProfileButton from '../components/profileButton';
@@ -49,7 +49,7 @@ const SettingsPage: React.FC = () => {
       });
     setLoading(false);
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     pongSocket?.on('invite_received', handleReceived);

@@ -17,7 +17,7 @@ import postAddFriend from '../requests/postAddFriend';
 import {
   notifyToasterError,
   notifyToasterInfo,
-  notifyToasterInivtation,
+  NotifyToasterInvitation,
   notifyToasterSuccess,
 } from '../components/utils/toaster';
 import { useNavigate } from 'react-router';
@@ -64,7 +64,7 @@ const FriendList: React.FC = () => {
       createSocket();
     }
     const handleReceived = (param1: PacketReceived): void => {
-      notifyToasterInivtation(`Invited to a game !`, param1.opponentId, acceptGame);
+      NotifyToasterInvitation(`Invited to a game !`, param1.opponentId, acceptGame);
     };
 
     if (pongSocket !== null) pongSocket.on('invite_received', handleReceived);

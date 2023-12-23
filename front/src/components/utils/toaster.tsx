@@ -18,7 +18,7 @@ export const notifyToasterError = (message: string, autoClose = 2500): void => {
   });
 };
 
-export const notifyToasterInivtation = (
+export const NotifyToasterInvitation = (
   message: string,
   arg: number,
   acceptGame: (arg: number) => void,

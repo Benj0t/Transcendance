@@ -28,11 +28,6 @@ import { ChannelModule } from './entities/channel.module';
     PongModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // host: 'localhost',
-      // port: 5432,
-      // username: 'app',
-      // password: 'apppassword',
-      // database: 'transcendance',
       host: 'postgres',
       port: parseInt(process.env.POSTRGRES_PORT, 10),
       username: process.env.POSTGRES_USER,
