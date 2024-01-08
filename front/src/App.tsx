@@ -16,7 +16,7 @@ import PongGame from './components/PongGame';
 import ConfirmTwoFactor from './pages/ConfirmTwoFactor';
 import Cookies from 'js-cookie';
 import { UserContext } from './context/userContext';
-import GetUserMe from './requests/getUserMe'
+import GetUserMe from './requests/getUserMe';
 import { SocketProvider, useWebSocket } from './context/pongSocket';
 import ProfilePage from './pages/ProfilePage';
 

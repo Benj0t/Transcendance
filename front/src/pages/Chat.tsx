@@ -72,6 +72,19 @@ const Chat: React.FC = () => {
     else notifyToasterInfo(`New message !`);
   };
 
+  const handleJoined = (): void => {
+    if (selectChannel !== 0) {
+      getChannelUsers(selectChannel)
+        .then((req) => {
+          setChannelMembers(req);
+          console.log(req);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
   useEffect(() => {
     if (pongSocket === null) {
       createSocket();
@@ -82,10 +95,12 @@ const Chat: React.FC = () => {
 
     pongSocket?.on('invite_received', handleReceived);
     pongSocket?.on('message_arrived', handleArrived);
+    pongSocket?.on('has_join', handleJoined);
 
     return () => {
       pongSocket?.off('invite_received', handleReceived);
       pongSocket?.off('message_arrived', handleArrived);
+      pongSocket?.off('has_join', handleJoined);
     };
   }, [selectChannel]);
 

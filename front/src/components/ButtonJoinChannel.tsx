@@ -9,6 +9,8 @@ import FormControl from '@mui/material/FormControl';
 import { Checkbox, FormControlLabel, TextField } from '@mui/material';
 import joinChannel from '../requests/postJoinChannel';
 import { notifyToasterError, notifyToasterInfo, notifyToasterSuccess } from './utils/toaster';
+import { useWebSocket } from '../context/pongSocket';
+import { useEffect } from 'react';
 
 const ButtonJoinChannel: React.FC = () => {
   const [open, setOpen] = React.useState(false);
@@ -16,6 +18,13 @@ const ButtonJoinChannel: React.FC = () => {
 
   const [name, setName] = React.useState('');
   const [pass, setPass] = React.useState('');
+  const { pongSocket, createSocket } = useWebSocket();
+
+  useEffect(() => {
+    if (pongSocket === null) {
+      createSocket();
+    }
+  }, []);
 
   const handleEnablePass = (): void => {
     setPassEnable((prevState) => {
@@ -34,6 +43,7 @@ const ButtonJoinChannel: React.FC = () => {
   };
 
   const handleSubmit = (): void => {
+    pongSocket?.emit('user_join');
     joinChannel(name, passEnable ? pass : '')
       .then((req) => {
         if (req === 'ok') {

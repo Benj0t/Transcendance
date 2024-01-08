@@ -148,6 +148,14 @@ export class PongServer implements OnGatewayConnection, OnGatewayDisconnect, OnM
     }
   }
 
+  @SubscribeMessage('user_join')
+  handleUserJoin(client: Socket): void {
+    for (const user of this.connecteds)
+    {
+      user.client.emit('has_join');
+    }
+  }
+
   @SubscribeMessage('dual_cancel_packet')
   handleDualCancelPacket(client: Socket, packet: PacketInDualCancel): void {
     const connected: Connected = this.getConnected(client);
